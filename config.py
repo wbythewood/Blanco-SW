@@ -4,7 +4,8 @@
 BaseDir = '/Users/whawley/Research/github/Blanco-SW/'
 ConfigDir = BaseDir+'config/'
 DataDir = BaseDir+'data/'
-NoiseDataDir = BaseDir+'dataNoise/'
+EventsDataDir = DataDir+'SAC_Events/'
+NoiseDataDir = DataDir+'SAC_Noise/'
 EventsFileName = ConfigDir+'EventsTest.txt'
 DayFileName = ConfigDir+'DayNoiseTest.txt'
 # two station lists, one for BXH, one for BDH
