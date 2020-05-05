@@ -13,23 +13,24 @@
 % updated 11/19
 
 clear;
+setup_parameter;
 
 addpath ('function');
 
-startlist = 'NOISETC_CI/starttimes_CItest.txt'; % list of start times for data download
-datalength = 86400; % length of time series after each start time in seconds (default 86400, code not thoroughly tested for other values)
-sacdaydata = '/path/to/local/day/sac/files/'; % path to local day sac files
+startlist = dayFile; % list of start times for data download
+datalength = NoiseDataLength; % length of time series after each start time in seconds (default 86400, code not thoroughly tested for other values)
+sacdaydata = sacDayData; % path to local day sac files
 
-download_networks = '7D'; %'2D'; % list of networks to download
-download_stations = textread('./NOISETC_CI/stalist.txt','%s'); % list of stations to download (* for all)
+download_networks = NetworkName; % list of networks to download
+download_stations = StationNames; % list of stations to download (* for all)
 
-% Channel Names
-chz_vec = 'BHZ'; % list of acceptable names for Z component
-ch1_vec = 'BH1'; % list of acceptable names for H1 component
-ch2_vec = 'BH2'; % list of acceptable names for H2 component
-chp_vec = 'BDH'; % list of acceptable names for P component
+% % Channel Names
+% chz_vec = 'BHZ'; % list of acceptable names for Z component
+% ch1_vec = 'BH1'; % list of acceptable names for H1 component
+% ch2_vec = 'BH2'; % list of acceptable names for H2 component
+% chp_vec = 'BDH'; % list of acceptable names for P component
 
-datacache = 'NOISETC_CI/DATA/datacache_day'; % output folder for data
+datacache = NoisePreproDir; % output folder for data; preprocessed in SAC
 
 %%%%% end user input parameters %%%%%
 
@@ -52,6 +53,7 @@ for id = 1:length(startlist)
        error = 0;
        stnm = download_stations{ista};
        network = download_networks;
+       NetSta = strcat(network,'_',stnm);
        if ~exist(fullfile(datacache,network),'dir')
            mkdir(fullfile(datacache,network));
        end
@@ -69,7 +71,9 @@ for id = 1:length(startlist)
             for ch = {chp_vec ch1_vec ch2_vec chz_vec}
                 ich = ich + 1;
                 sac_filename = [stnm,'.',num2str(year(otime)),'.',num2str(jday,'%03d'),'.00.00.00.',ch{:},'.sac'];
-                sac = rdsac(fullfile(sacdaydata,stnm,sac_filename));
+                sac_filename = strcat(stnm,'.',num2str(year(otime)),'.',num2str(jday,'%03d'),'.00.00.00.',ch{:},'.sac');
+                sac_fullPath = fullfile(sacdaydata,NetSta,sac_filename);
+                sac = rdsac(sac_fullPath{1});
                 traces_day(ich) = sac2mat( sac );
             end
             save(sta_filename,'traces_day');

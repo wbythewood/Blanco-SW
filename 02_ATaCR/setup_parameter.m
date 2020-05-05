@@ -7,7 +7,10 @@ javaaddpath('IRIS-WS-2.0.18.jar');
 %--- Directory Structure ---%
 
 %Base Directory for Output
-BaseDir = 'X9_test2D/';%''X9_M6.5';
+BaseDir = '/Users/whawley/Research/github/Blanco-SW/';
+DataDir = strcat(BaseDir,'data/');
+
+% If Downloading using MATLAB code...
 % location of unpreprocessed matlab files
 NoiseDataDir = strcat(BaseDir,'data/noise_day/'); % output folder for data
 % location of the continuous matlab files for spectral properties
@@ -19,14 +22,21 @@ EventPreproDir = strcat(BaseDir,'data/event_data_prepro/');
 % location of pole zero directory
 PZDir = ''; % leave blank if no PZs
 %PZDir = strcat(BaseDir,'data/PZDir');
+
+% If already downloaded using SAC...
+% location of SAC noise files
+sacDayData = strcat(DataDir,'SAC_Noise/');
+% location of SAC event files
+sacEventData = strcat(DataDir,'SAC_Events/');
+
 % output directory for spectra
 OUTdir = strcat(BaseDir,'data/NOISETC/');
 % directory for figure output
 FIGdir = strcat(BaseDir,'figures/');
 
 % paths for the event and noise time lists
-evFile = 'config_files/eventtimes_X9test2.txt';
-dayFile = 'config_files/starttimes_X9test2.txt';
+evFile = strcat(BaseDir,'config/EventsTest.txt');
+dayFile = strcat(BaseDir,'config/DayNoiseTest.txt');
 
 
 %evFile = 'config_files/Events_X9_M6.5.txt';
@@ -40,7 +50,7 @@ NetworkName = 'X9';
 % stations
 %StationNames = {'M07A'};
 %StationNames = {'*'};
-StationNames = textread('config_files/X9_D_stations.txt','%s');
+StationNames = textread(strcat(BaseDir,'config/X9_stations.txt'),'%s');
 
 % Response Removal
 % option of removing response from Z component only after corrections have 
