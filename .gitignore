@@ -1,4 +1,5 @@
 data/
+dataNoise/
 config/
 *pyc
 __pycache__/
