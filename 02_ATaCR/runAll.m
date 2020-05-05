@@ -1,0 +1,9 @@
+% runAll.m
+%a1_download_data
+a2_daydata_preprocess
+%a3_download_event
+a4_eventdata_preprocess
+b1_dailystaspectra
+b2_cleanstaspectra
+b3_calctransfunc
+b4_correctevent
