@@ -72,20 +72,6 @@ set(gcf,'PaperOrientation','portrait');
 set(gcf,'PaperPosition',[.05 .05 8 10.5]);
 subplot(length(corrseis),1,length(corrseis))
 for is = 1:length(corrseis)
-    if corrseis(is).isgood == 1
-        col = [0 0 0];
-    else
-        col = [1 0 0];
-    end
-    if strcmp(corrseis(is).label(1),'Z')==1
-        seiscmp = Z_filt;
-    elseif strcmp(corrseis(is).label(1),'1')==1
-        seiscmp = H1_filt;
-    elseif strcmp(corrseis(is).label(1),'2')==1
-        seiscmp = H2_filt;
-    elseif strcmp(corrseis(is).label(1),'P')==1
-        seiscmp = P_filt;
-    end
     subplot(length(corrseis),1,is)
     psd = disp2accel_psd(corrseis(is).timeseries,NFFT,dt);
     semilogx(f,10*log10(psd),'-k','linewidth',0.5); 
@@ -109,15 +95,6 @@ for is = 1:length(corrseis)
         col = [0 0 0];
     else
         col = [1 0 0];
-    end
-    if strcmp(corrseis(is).label(1),'Z')==1
-        seiscmp = Z_filt;
-    elseif strcmp(corrseis(is).label(1),'1')==1
-        seiscmp = H1_filt;
-    elseif strcmp(corrseis(is).label(1),'2')==1
-        seiscmp = H2_filt;
-    elseif strcmp(corrseis(is).label(1),'P')==1
-        seiscmp = P_filt;
     end
     subplot(length(corrseis),2,2*is)
     psd = disp2accel_psd(corrseis(is).timeseries,NFFT,dt);
