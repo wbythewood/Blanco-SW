@@ -53,8 +53,8 @@ NetworkName = 'X9';
 StationNames = textread(strcat(BaseDir,'config/X9_stations.txt'),'%s');
 
 % Response Removal
-% option of removing response from Z component only after corrections have 
-% been applied -- 0 is do not remove response after, 1 is remove response 
+% option of removing response from Z component only after corrections have
+% been applied -- 0 is do not remove response after, 1 is remove response
 % after correcting
 
 RespAfterFlag = 0;
@@ -92,19 +92,19 @@ ch2_resp = [1];
 ch2_gain = [1];
 ch2_hpFilt = [0];
 
-%chp_vec = {'BXH'};  
+%chp_vec = {'BXH'};
 chp_vec = {'BDH'};
 chp_resp = [1];
 chp_gain = [1];
 chp_hpFilt = [0];
 
-% if removing response after, don't need to remove resp before... 
+% if removing response after, don't need to remove resp before...
 if RespAfterFlag == 0
     chz_resp = zeros(size(chz_resp));
     ch1_resp = zeros(size(ch1_resp));
     ch2_resp = zeros(size(ch2_resp));
     chp_resp = zeros(size(chp_resp));
-end  
+end
 
 % Timing Info
 % number of noise days to use for calculating spectra
@@ -124,13 +124,13 @@ nPoles = 5;
 %--- Downloading Specrtral Properties ---%
 
 % Spectral Properties Windowing
-% the legnth of each time window, in sec, should match the event data 
+% the legnth of each time window, in sec, should match the event data
 % length for corrections
-T    = 7200; 
-T    = 6000; 
+T    = 7200;
+T    = 6000;
 
 % fraction of window overlap for spectra calculation
-overlap = 0.3; 
+overlap = 0.3;
 
 % Quality Control Parameters for Daily Windows
 pb = [0.004 .2]; % pass-band, in Hz

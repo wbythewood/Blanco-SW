@@ -23,7 +23,7 @@ isCentroid = 1  # if isCMT_params = 1, use centroid; 0 = epicentral
 #  Noise Download
 trLen = 60 * 60 * 24  # seconds
 noDays = 4  # number of days prior to event to use
-isCalDay = 1  # 0 to start each day at 00:00; 0 to use 24h segments prior to earthquake
+isCalDay = 1  # 0 to start each day at 00:00; 0 to use 24h segments prior to eq
 
 tstart = '2012-11-16T00:00:00'
 tend = '2012-11-16T23:00:00'

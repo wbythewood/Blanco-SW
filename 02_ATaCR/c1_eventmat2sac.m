@@ -3,7 +3,7 @@
 % Convert *.mat files containing corrected seismograms to SAC files matching
 % the original input SAC files.
 %
-% J. Russell & H. Janiszewski 
+% J. Russell & H. Janiszewski
 % hjaniszewski@carnegiescience.edu
 % updated 11/19
 
@@ -40,7 +40,7 @@ for ista = 1:length(stadirs)
         end
         load(fullfile(inpath_corr,filenames_corr(iev).name))
         corrdata = corrseis(corr_idx).timeseries;
-        
+
         % Load data headers
         sacin = rdsac(fullfile(sprintf('%s/%s/%s.%s.%s.%s.sac',inpath_uncorr,corrected.params.eventid, corrected.params.eventid, corrected.params.network, corrected.params.station, channel)));
         disp(corrected.params.eventid);
@@ -60,10 +60,9 @@ for ista = 1:length(stadirs)
                 fullevid = [evid,num2str(H.NZSEC,'%02d'),num2str(H.NZMSEC,'%03d')];
                 startTime = datenum(fullevid,'yyyymmddhhMMSSFFF');
                 sac_path = fullfile(sprintf('%s/%s.%s.%s.%s.sac',opath,evid, sacin.HEADER.KNETWK, sacin.HEADER.KSTNM, sacin.HEADER.KCMPNM));
-                mksac(sac_path,data,startTime,H);                
-        end       
-        
+                mksac(sac_path,data,startTime,H);
+        end
+
     end
-    
+
 end
-    

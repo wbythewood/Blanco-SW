@@ -1,6 +1,6 @@
 % sac2mat_event
 %
-% Following download_event.m script but uses local data files. Loads in 
+% Following download_event.m script but uses local data files. Loads in
 % sac data files and puts them in proper .mat structures. This assumes
 % that instrument response has already been removed and is in the same
 % units as the day files.
@@ -9,7 +9,7 @@
 % Assumed naming convention for local data:
 % path/to/event/data/{yyyymmddhhMM}/{yyyymmddhhMM}.{network}.{station}.{component}.sac
 %
-% J. Russell & H. Janiszewski 
+% J. Russell & H. Janiszewski
 % hjaniszewski@carnegiescience.edu
 % updated 2/18
 
@@ -47,8 +47,8 @@ for id = 1:length(startlist)
        eventid = eventid(1:12); % for naming purposes only, start time will still be saved to the second in traces file
    end
    starttime = datestr(otime,'yyyy-mm-dd HH:MM:SS');
-   endtime = datestr(otime+datalength/3600/24,'yyyy-mm-dd HH:MM:SS');   
-   
+   endtime = datestr(otime+datalength/3600/24,'yyyy-mm-dd HH:MM:SS');
+
    for ista =1:length(download_stations)
        clear traces
        error = 0;
@@ -80,5 +80,5 @@ for id = 1:length(startlist)
             display('Could not load data file');
         end
     end
-   
+
 end

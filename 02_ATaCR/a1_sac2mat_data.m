@@ -8,7 +8,7 @@
 % Assumed naming convention for local data:
 % path/to/day/data/{station}/{station}.{yyyy}.{jday}.{hh}.{MM}.{ss}.{component}.sac
 %
-% J. Russell & H. Janiszewski 
+% J. Russell & H. Janiszewski
 % hjaniszewski@carnegiescience.edu
 % updated 11/19
 
@@ -45,9 +45,9 @@ for id = 1:length(startlist)
    disp(sprintf('Start Time: %s',eventid));
    otime = datenum(eventid,'yyyymmddHHMM');
    starttime = datestr(otime,'yyyy-mm-dd HH:MM:SS');
-   endtime = datestr(otime+datalength/3600/24,'yyyy-mm-dd HH:MM:SS');   
+   endtime = datestr(otime+datalength/3600/24,'yyyy-mm-dd HH:MM:SS');
    jday = otime - datenum(year(otime),1,1) + 1;
-   
+
    for ista =1:length(download_stations)
        clear traces_day
        error = 0;
@@ -83,5 +83,5 @@ for id = 1:length(startlist)
             error = 1;
         end
     end
-   
+
 end

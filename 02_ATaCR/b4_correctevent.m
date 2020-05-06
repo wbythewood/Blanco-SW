@@ -36,7 +36,7 @@ else
 end
 if exist(badpreslist)
 	badpres = textread(badpreslist,'%s');
-else 
+else
     badpres = [];
 end
 
@@ -65,7 +65,7 @@ for itf = 1:length(TF_stadir)
     ii=ii+1;
 end
 
-for ie = 1:length(event_filename) 
+for ie = 1:length(event_filename)
     close all
     clear corrseis_matrix
     inpath = sprintf('%s%s/',inpath_event,event_filename(ie).name);
@@ -79,28 +79,28 @@ for ie = 1:length(event_filename)
     disp(['Event: ',eventid]);
     event_info_dir = dir(fullfile(inpath_event,event_filename(ie).name,['*.mat']));
     stas = length(event_info_dir);
-    
+
     for ista = 1:stas %loop through stations for given event
         clear spec_mat
         TF_check = zeros(size(TF_size));
         idx1 = findstr(event_info_dir(ista).name,'_');
         idx2 = findstr(event_info_dir(ista).name,'.mat');
-        
+
         network = event_info_dir(ista).name(idx1(1)+1:idx1(2)-1);
         station = event_info_dir(ista).name(idx1(2)+1:idx2-1)
-        
+
         netsta = [network,station];
-        
+
         TF_staidx = find(strcmp(netsta,TF_stalist)==1);
         if isempty(TF_staidx)
             continue
         end
-        
+
         disp(netsta);
-        
+
         sta = load(fullfile(inpath_event,event_filename(ie).name,'/',event_info_dir(ista).name)); %loading the correct file
         disp([inpath_event,event_filename(ie).name,'/',event_info_dir(ista).name]); %display file name for check, can turn off
-        
+
         % Specify transfer function file path and output paths
         inpath_trans = sprintf('%s/TRANSFUN/%s/',OUTdir,netsta);
         if tf_op ==1
@@ -110,24 +110,24 @@ for ie = 1:length(event_filename)
             outpath = sprintf('%s/CORRSEISAVTF/%s/',OUTdir,netsta);
             figoutpath=sprintf('%s/CORREVENTS',FIGdir);
         end
-		
+
 		if ~isoverwrite && exist(sprintf('%s/%s_%s_corrseis.mat',outpath,netsta,eventid))==2
             disp([eventid,' exists. Skipping...'])
             continue
         end
-                
+
         [Zraw,H1raw,H2raw,Praw,taxisZ,taxis1,taxis2,taxisP,dt] = varsetup_correctevent(sta,chz_vec,ch1_vec,ch2_vec,chp_vec,T);
         if isnan(Zraw);
             continue
         end
-        
-        
+
+
         % FINDING AND LOADING THE TF FILES
         trans_filename=findTFs_correctevent(inpath_trans,tf_op,netsta,eventid);
         if isnan(trans_filename)
             continue
         end
-        
+
         if exist(trans_filename,'file')
             goodP = 1;
             goodH=1;
@@ -151,23 +151,23 @@ for ie = 1:length(event_filename)
             end
             end
         end
-        
+
         % Calculate event spectra properties
         [spec_mat,npad0,npts,f,NFFT]=spectra_correctevent(Zraw,H1raw,H2raw,Praw,dt,taxisZ,taxis1,taxis2,taxisP,taptime);
-        
+
         disp('Calculating Corrected Seismograms...')
         disp(sprintf('Using TF: %s', trans_filename));
-        
+
         if ~exist(figoutpath)
             mkdir(figoutpath);
         end
         if ~exist(outpath)
             mkdir(outpath);
         end
-        
+
         %%%%%%%%%%%% LOAD TRANSFER FUNCTIONS
         load(trans_filename);
-        
+
         freqcomp=transprop.params.freqcomp;
         if filop==1
             lp = taper_lim(2);
@@ -176,15 +176,15 @@ for ie = 1:length(event_filename)
             lp = freqcomp+0.005;
             hp=0;
         end
-        
+
         NFFT = transprop.params.NFFT;
         f=transprop.params.f;
         for itf = 1:length(TFs); %taper each of the individual transfer functions
             TFs(itf).transfunc_tap = tf_taper((TFs(itf).transfunc)',f',hp,lp,tap_width);
         end
-        
-        
-        
+
+
+
         ii = 1;
         for itf = 1:length(TF_list_sort)
             TF_cal = TF_list(TF_list_sort(itf)); % name of the TF we're applying now
@@ -268,7 +268,7 @@ for ie = 1:length(event_filename)
                 end
             end
         end
-        
+
         % wbh edits?try applying instrument response here
         % first need pz from the z component raw data
         % '/Users/whawley/Research/github/ATaCR/data/datacache/201201231604'
@@ -287,7 +287,7 @@ for ie = 1:length(event_filename)
 %                 continue
 %             end
 %             load(fullfile(EventDataDir,'/',dataDirName(fileLoop).name,'/',stationFileNames(ista).name));
-% 
+%
 %         end
         zIndex = find(contains({traces.channel},'Z'));
         zTrace = traces(zIndex);
@@ -307,7 +307,7 @@ for ie = 1:length(event_filename)
                 corrseis(compi).timeseries = NewTrace.data_cor;
             end
         end
-        
+
         corrected.params.f = f;
         corrected.params.tf_op = tf_op;
         corrected.params.eventid = eventid;
@@ -318,13 +318,13 @@ for ie = 1:length(event_filename)
         corrected.params.NFFT = NFFT;
         corrected.params.dt = dt;
         corrected.params.TFfilename = trans_filename;
-%         corrected.params.stalat = 
-%         corrected.params.stalon = 
-%         corrected.params.freqcomp = 
-        
+%         corrected.params.stalat =
+%         corrected.params.stalon =
+%         corrected.params.freqcomp =
+
         filename = sprintf('%s/%s_%s_corrseis.mat',outpath,netsta,eventid);
         save(filename,'corrseis','corrected');
-        
+
         %station plots
         if isfigure_sta == 1;
             spitplots_correctevent(dt,T1,T2,Zraw,H1raw,H2raw,Praw,taxisZ,eventid,netsta,corrseis,f,NFFT)
@@ -344,7 +344,7 @@ for ie = 1:length(event_filename)
                 figure(103)
                 filename=sprintf('%s/%s_%s_corrspectra',figoutpath,eventid,netsta);
                 print(gcf,'-dpng',filename)
-                
+
                 figure(104)
                 filename=sprintf('%s/%s_%s_seis+spectra',figoutpath,eventid,netsta);
                 print(gcf,'-dpng',filename)
@@ -366,5 +366,5 @@ for ie = 1:length(event_filename)
             end
         end
     end
-    
+
 end

@@ -3,7 +3,7 @@
 % downloads the event data files that will be corrected for tilt and
 % compliance noise
 
-% H. Janiszewski 
+% H. Janiszewski
 % hjaniszewski@carnegiescience.edu
 % updated 11/17
 % W.B. Hawley updated to include paramter file
@@ -35,10 +35,10 @@ for id = 1:length(startlist)
    end
    starttime = datestr(otime,'yyyy-mm-dd HH:MM:SS');
    endtime = datestr(otime+EventDataLength/3600/24,'yyyy-mm-dd HH:MM:SS');
-   
+
    stations_info = irisFetch.Stations('channel',NetworkName,StationNames,'*',chz_vec,'startTime',starttime,'endTime',endtime);
-   
-   
+
+
    for ista =1:length(stations_info)
        error = 0;
        stnm = stations_info(ista).StationCode;
@@ -60,7 +60,7 @@ for id = 1:length(startlist)
             error = 1;
         end
         if error ==1
-            try % to try and get around the missing zeros for some pressure components                
+            try % to try and get around the missing zeros for some pressure components
                 traces = irisFetch.Traces(network,stnm,'*',chanlist,starttime,endtime);
                 save(sta_filename,'traces');
             catch e
@@ -69,5 +69,5 @@ for id = 1:length(startlist)
             end
         end
     end
-   
+
 end
