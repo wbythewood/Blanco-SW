@@ -57,7 +57,7 @@ StationNames = textread(strcat(BaseDir,'config/X9_stations.txt'),'%s');
 % been applied -- 0 is do not remove response after, 1 is remove response 
 % after correcting
 
-RespAfterFlag = 1;
+RespAfterFlag = 0;
 
 % Pre-processing high-pass filter
 % this will apply a high pass filter to the raw data
@@ -111,7 +111,7 @@ end
 Ndays = 4;
 % length of record (seconds) for data download
 NoiseDataLength = 86400;
-EventDataLength = 7200;
+EventDataLength = 6000;
 
 %--- Preprocessing ---%
 
@@ -127,6 +127,7 @@ nPoles = 5;
 % the legnth of each time window, in sec, should match the event data 
 % length for corrections
 T    = 7200; 
+T    = 6000; 
 
 % fraction of window overlap for spectra calculation
 overlap = 0.3; 
