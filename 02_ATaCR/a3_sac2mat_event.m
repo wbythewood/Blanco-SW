@@ -13,22 +13,21 @@
 % hjaniszewski@carnegiescience.edu
 % updated 2/18
 
+% W Hawley
+% updated 04/20
+
 clear;
+setup_parameter;
 
 addpath ('function');
-startlist = 'NOISETC_CI/eventtimes_CItest.txt'; % list of start times for data download, this will be the beginning of the waveform so specify appropriately, signal of interest should not be at edges of time series
-datalength = 7200; % length of time series after each start time in seconds (default 86400, code not thoroughly tested for other values)
-saceventdata = 'path/to/local/event/sac/files/'; % path to local event sac files
 
-download_networks = '7D'; % list of networks to download
-download_stations = textread('./NOISETC_CI/stalist.txt','%s');  % list of stations to download (* for all)
-% Channel Names
-chz_vec = 'BHZ'; %'BHZ'; % list of acceptable names for Z component
-ch1_vec = 'BH1'; %'BH1'; % list of acceptable names for H1 component
-ch2_vec = 'BH2'; %'BH2'; % list of acceptable names for H2 component
-chp_vec = 'BDH'; %'BDH'; % list of acceptable names for P component
+startlist = evFile; % list of start times for data download, this will be the beginning of the waveform so specify appropriately, signal of interest should not be at edges of time series
+datalength = EventDataLength; % length of time series after each start time in seconds (default 86400, code not thoroughly tested for other values)
+saceventdata = sacEventData; % path to local event sac files
 
-datacache = '/data/irma6/jrussel/YoungPacificORCA/TILTCOMP_NEW/ORCA_detrend/DATA/EVENT/'; %'./ENAM/DATA/EVENT/'; %'NOISETC_SAMPLE2/DATA/datacache'; % output folder for data
+download_networks = NetworkName; % list of networks to download
+download_stations = StationNames;  % list of stations to download (* for all)
+datacache = EventPreproDir; % output folder for data
 
 %%%%% end user input parameters %%%%%
 
@@ -68,8 +67,10 @@ for id = 1:length(startlist)
             ich = 0;
             for ch = {chp_vec ch1_vec ch2_vec chz_vec}
                 ich = ich + 1;
-                sac_filename = [eventid,'.',network,'.',stnm,'.',ch{:},'.sac'];
-                sac = rdsac(fullfile(saceventdata,eventid,sac_filename));
+                %sac_filename = [eventid,'.',network,'.',stnm,'.',ch{:},'.sac'];
+                sac_filename = strcat(eventid,'.',network,'.',stnm,'.',ch{:},'.sac');
+                sac_fullPath = fullfile(saceventdata,eventid,sac_filename);
+                sac = rdsac(sac_fullPath{1});
                 traces(ich) = sac2mat( sac );
             end
             save(sta_filename,'traces');
