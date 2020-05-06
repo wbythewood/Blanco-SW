@@ -273,7 +273,8 @@ for ie = 1:length(event_filename)
         % first need pz from the z component raw data
         % '/Users/whawley/Research/github/ATaCR/data/datacache/201201231604'
         staFileName = sprintf('%s_%s_%s.mat',eventid,network,station);
-        load(fullfile(EventDataDir,eventid,staFileName))
+        %load(fullfile(EventDataDir,eventid,staFileName))
+        load(fullfile(EventPreproDir,eventid,staFileName))
 %         dataDirName = dir(fullfile(EventDataDir));
 %         %dateFileName = sprintf('%s%s/',EventDataDir,event_filename(fileLoop).name);
 %         dateFileName = sprintf('%s%s/',EventPreprocDir,event_filename(fileLoop).name);
@@ -301,8 +302,8 @@ for ie = 1:length(event_filename)
             trace.sensitivity = zTrace.sensitivity;
             trace.sensitivityFrequency = zTrace.sensitivityFrequency;
             trace.sensitivityUnits = zTrace.sensitivityUnits;
-            NewTrace = rm_resp(trace,eventid,LoPassCorner,nPoles,PZDir,1,length(corrseis));
             if RespAfterFlag == 1
+                NewTrace = rm_resp(trace,eventid,LoPassCorner,nPoles,PZDir,1,length(corrseis));
                 corrseis(compi).timeseries = NewTrace.data_cor;
             end
         end
