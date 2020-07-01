@@ -17,11 +17,23 @@ is_overwrite = 1;
 % setup parameters
 setup_parameters
 
-workingdir = parameters.workingdir;
+workingdir = parameters.ASWMSDir;
 % input path
 eventcs_path = [workingdir,'CSmeasure/'];
 % output path
 eikonl_output_path = [workingdir,'eikonal/'];
+% figures directory
+fig_dir_base = [parameters.workingdir,'figures/'];
+
+if ~exist([fig_dir_base,'BackAz/'])
+    mkdir([fig_dir_base,'BackAz/']);
+end
+
+% plate boundaries
+mapsDir = [parameters.MapsDir,'PlateBoundaries_NnrMRVL/'];
+usgsFN = [parameters.MapsDir,'usgs_plates.txt.gmtdat'];
+[pbLat,pbLon] = importPlates(usgsFN);
+
 
 if ~exist(eikonl_output_path)
 	mkdir(eikonl_output_path);
@@ -97,6 +109,10 @@ for ie = 1:length(csmatfiles)
 	disp(eventcs.id)
 	evla = eventcs.evla;
 	evlo = eventcs.evlo;
+    
+    % set up fig dir name
+    figDir = [fig_dir_base,eventcs.id,'/'];
+    disp(figDir)
 
 	matfilename = [eikonl_output_path,'/',eventcs.id,'_eikonal_',comp,'.mat'];
 	if exist(matfilename,'file') && ~is_overwrite
@@ -153,7 +169,7 @@ for ie = 1:length(csmatfiles)
 	for ip = 1:length(periods)
 		smweight0 = smweight_array(ip);
 		dt = zeros(length(eventcs.CS),1);
-		w = zeros(length(eventcs.CS),1);
+		w = zeros(length(eventcs.CS),1); % keep track of which obs are good
 		for ics = 1:length(eventcs.CS)
 			if eventcs.CS(ics).isgood(ip) > 0
 				dt(ics) = eventcs.CS(ics).dtp(ip);
@@ -316,11 +332,15 @@ for ie = 1:length(csmatfiles)
 				'Badnum:',num2str(eventphv(ip).badnum)]);
 	end % end of periods loop
 	if isfigure
-		N=3; M = floor(length(periods)/N) +1;
+		N=3; 
+        M = floor(length(periods)/N) +1;
+        Mphvel = floor((1+length(periods))/N) +1;   % wbh
 		figure(88)
 		clf
+        %ofn = [figDir,PhaseVels_0.25.png'];   % wbh
 		for ip = 1:length(periods)
-			subplot(M,N,ip)
+			%subplot(M,N,ip)
+            subplot(Mphvel,N,ip)   % wbh
 			ax = worldmap(lalim, lolim);
 			set(ax, 'Visible', 'off')
 			h1=surfacem(xi,yi,eventphv(ip).GV);
@@ -337,8 +357,70 @@ for ie = 1:length(csmatfiles)
 			colorbar
 			load seiscmap
 			colormap(seiscmap)
-		end
-		drawnow;
+            h = colorbar; %wbh
+            ylabel(h,'Vs (km/s)') %wbh
+        end
+        % wbh draw map with stations and backaz
+        subplot(Mphvel,N,length(periods)+1)
+        
+        ax = worldmap(lalim,lolim);
+        set(ax, 'Visible', 'off')
+        plotm(pbLat,pbLon,'LineWidth',2,'Color','k') % plate boundaries
+        %geoshow(eventcs.stlas,eventcs.stlos,'DisplayType','point','Marker','.','MarkerEdgeColor','b','MarkerSize',12)
+        amps = [];
+        for ista = 1:length(eventcs.stnms)
+            amps(ista) = mean(eventcs.autocor(ista).amp);
+        end
+        scatterm(eventcs.stlas,eventcs.stlos,30,amps,'o','filled')
+        caxis([min(amps) max(amps)]);
+        h = colorbar;
+        ylabel(h,'Amplitude');
+        % get event azimuth
+        az = azimuth(eventcs.stlas(1),eventcs.stlos(1),evla,evlo);
+        [distdeg,az] = distance(eventcs.stlas(1),eventcs.stlos(1),evla,evlo);
+        arrlen = 1.4;
+        arru = arrlen.*cosd(az);
+        arrv = arrlen.*sind(az);
+        arrLat = mean(lalim);
+        arrLon = mean(lolim);
+        quiverm(arrLat,arrLon,arru,arrv,'r')
+        azstr = ["az: "+num2str(round(az))+'\circ'];
+        textm(lalim(1)+0.5,lolim(1)+0.5,azstr,'FontSize',12) 
+        
+        MwStr = sprintf('%.2f',eventphv(ip).Mw);
+        DistStr = sprintf('%.0f',distdeg);
+        
+        sgtitle("Phase Velocities for "+eventcs.id+' M'+MwStr+' Dist: '+DistStr+'\circ'); %wbh
+        %ofn = [figDir,'PhaseVels_0.25.png'];   % wbh save in event dir
+        ofn = [fig_dir_base,'BackAz/',num2str(round(az)),'_',DistStr,'_M',MwStr,'_PhaseVels_0.25.png'];   % wbh save in BackAz dir
+
+        saveas(gcf,ofn) %wbh
+        drawnow;
+
+        % wbh draw ray density
+        figure(89)
+        clf
+        ofn = [figDir,'RayDensity_0.25.png'];
+        for ip = 1:length(periods)
+            subplot(M,N,ip)
+            ax = worldmap(lalim, lolim);
+            set(ax, 'Visible', 'off')
+            h2 = surfacem(xi,yi,eventphv(ip).raydense);
+            title(['Period:', num2str(periods(ip))],'fontsize', 15)
+            avgv = nanmean(eventphv(ip).GV(:));
+            if isnan(avgv)
+                continue;
+            end
+            maxRayDensity = max(eventphv(ip).raydense,[],'all');
+            caxis([0,maxRayDensity])
+            colorbar
+            colormap summer
+            h = colorbar;
+            ylabel(h,'Ray Density')
+        end
+        sgtitle("Ray density for "+eventcs.id);
+        saveas(gcf,ofn)
+        drawnow;
 	end
 	matfilename = [eikonl_output_path,'/',eventcs.id,'_eikonal_',comp,'.mat'];
 	save(matfilename,'eventphv');
