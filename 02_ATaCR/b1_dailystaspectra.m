@@ -12,7 +12,7 @@ isfigure_spectrogram = 1; % generate spectrograms for each day
 isfigure_powerspec = 1; % generate power spectra for each day
 isfigure_orient = 1;
 issavefigure = 1; % save output figures
-isoverwrite = 1; % overwrite spectra files
+isoverwrite = 0; % overwrite spectra files
 
 % DO NOT EDIT BELOW
 setup_parameter;
@@ -99,7 +99,7 @@ for ista = 1:length(StationNames)
 
         starttimes = [startZ,start1,start2,startP];
         if length(unique(starttimes))>1
-            if diff(unique(starttimes))>dtZ;
+            if diff(unique(starttimes))>dtZ
                 disp('Skipping. Not all start times are equal.')
                 continue
             end
@@ -151,7 +151,7 @@ for ista = 1:length(StationNames)
             continue
         end
         % Spectra parameters for resampled data
-        npts = T/dt;
+        npts = EventDataLength/dt;
         Ppower = nextpow2(npts);
         NFFT = 2^Ppower;
         npad0 = floor((NFFT-npts)/2);
@@ -165,7 +165,7 @@ for ista = 1:length(StationNames)
         end
 
         % Quality control to identify outlier windows and save spectrograms
-        [goodwins,iptwin1,iptwin2] = QC_dailystaspectra_windows([Zraw,H1raw,H2raw,Praw],comp_exist,taxisZ,npts,overlap,T,isfigure_spectrogram,pb,tolerance,a_val);
+        [goodwins,iptwin1,iptwin2] = QC_dailystaspectra_windows([Zraw,H1raw,H2raw,Praw],comp_exist,taxisZ,npts,overlap,EventDataLength,isfigure_spectrogram,pb,tolerance,a_val);
         if isfigure_spectrogram && issavefigure
         figure(96)
         set(gcf,'PaperPositionMode','manual');
