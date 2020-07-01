@@ -11,9 +11,8 @@ clear;
 
 setup_parameter;
 
-inpath_uncorr = '../../data/SAC/';
-corr_idx = 3;
-channel = 'BHZ';
+inpath_uncorr = sacEventData;
+channel = chz_vec{1};
 
 
 %% Load data
@@ -46,9 +45,10 @@ for ista = 1:length(stadirs)
         disp(corrected.params.eventid);
         for itr = 1 %1:length(traces)
                 if tf_op ==1
-                    opath = sprintf('%s/CORRSEIS_SAC/%s/',OUTdir,corrected.params.eventid);
+                    opath = sprintf('%s/CORRSEIS_SAC/%s/',DataDir,corrected.params.eventid);
+                    %opath = sprintf('%s/CORRSEIS_SAC/%s/%s/',DataDir,corrected.params.eventid,num2str(corr_idx));
                 elseif tf_op ==2
-                    opath = sprintf('%s/CORRSEISAVTF_SAC/%s/',OUTdir,corrected.params.eventid);
+                    opath = sprintf('%s/CORRSEISAVTF_SAC/%s/',DataDir,corrected.params.eventid);
                 end
                 if ~exist(opath)
                     mkdir(opath);

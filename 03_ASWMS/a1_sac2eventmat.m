@@ -16,7 +16,7 @@ dbpath = parameters.dbpath;
 eventfile = parameters.eventfile;
 % outpath = './eventmat/';
 workingdir = parameters.workingdir;
-outpath = [workingdir,'eventmat/'];
+outpath = parameters.MatDbDir;
 minMw = parameters.minMw;
 maxdepth = parameters.maxdepth;
 max_dist_tol = parameters.max_dist_tol;
@@ -29,7 +29,8 @@ if iscleanevs
     system(['rm ',outpath,'*']);
 end
 
-eventids = textread([dbpath,eventfile],'%s');
+disp(eventfile)
+eventids = textread(eventfile,'%s');
 is_skip_mag_dep = 0; % Initialize to 0
 for ie = 1:length(eventids)
 	matfilename = [outpath,char(eventids(ie)),'_',comp,'.mat'];
@@ -56,6 +57,7 @@ for ie = 1:length(eventids)
             if sac.EVDP/1000 > maxdepth || sac.MAG < minMw
                 is_skip_mag_dep = 1;
                 disp(['Magnitude or depth exceeded for ',matfilename,', Skip!']);
+                disp(['Magnitude: ',num2str(sac.MAG),'; Depth: ',num2str(sac.EVDP)])
                 break;
             end
 			event.evla = sac.EVLA;

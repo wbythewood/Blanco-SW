@@ -11,8 +11,9 @@ setup_parameters
 % eventmatpath = './eventmat/';
 % outwinpath = './winpara/';
 workingdir = parameters.workingdir;
-eventmatpath = [workingdir,'eventmat/'];
-outwinpath = [workingdir,'winpara/'];
+eventmatpath = parameters.MatDbDir;
+outmatpath = [parameters.ASWMSDir,'eventmat/'];
+outwinpath = [parameters.ASWMSDir,'winpara/'];
 
 % wbh
 figdir = parameters.figdir;
@@ -25,6 +26,9 @@ end
 % wbh
 if ~exist(figdir,'dir')
     mkdir(figdir)
+end
+if ~exist(outmatpath,'dir')
+    mkdir(outmatpath)
 end
 % wbh end
 

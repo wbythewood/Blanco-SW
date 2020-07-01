@@ -18,18 +18,16 @@ clear;
 %plot native
 
 isdebug = 1;
-is_overwrite = 1;
+is_overwrite = 0;
 
 % Setup parameters
 setup_parameters
 
 workingdir = parameters.workingdir;
-% eventmatpath = './eventmat/';
-% CSoutputpath = './CSmeasure/';
-% winparapath = './winpara/';
-eventmatpath = [workingdir,'eventmat/'];
-CSoutputpath = [workingdir,'CSmeasure/'];
-winparapath = [workingdir,'winpara/'];
+eventmatpath = [parameters.dataDir,'eventmat/'];
+CSoutputpath = [parameters.ASWMSDir,'CSmeasure/'];
+winparapath = [parameters.ASWMSDir,'winpara/'];
+figPath = parameters.figdir;
 
 if ~exist(CSoutputpath,'dir')
 	mkdir(CSoutputpath)
@@ -51,6 +49,7 @@ if is_rm_resp
 end
 
 matfiles = dir([eventmatpath,'/*_',comp,'.mat']);
+%%
 for ie = 1:length(matfiles)
 %for ie = 100
 

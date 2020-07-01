@@ -4,7 +4,7 @@ clear;
 
 % eventmat_files = dir('eventmat/*.mat');
 setup_parameters
-workingdir = parameters.workingdir;
+workingdir = parameters.dataDir;
 eventmat_files = dir([workingdir,'eventmat/*.mat']);
 
 for ie=1:length(eventmat_files)

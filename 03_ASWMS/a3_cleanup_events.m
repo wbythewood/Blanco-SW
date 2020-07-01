@@ -11,9 +11,9 @@ setup_parameters
 % csmatpath = './CSmeasure/';
 % eikonalpath = './eikonal/';
 workingdir = parameters.workingdir;
-eventmatpath = [workingdir,'eventmat/'];
-csmatpath = [workingdir,'CSmeasure/'];
-eikonalpath = [workingdir,'eikonal/'];
+eventmatpath = parameters.MatDbDir;
+csmatpath = [parameters.ASWMSDir,'CSmeasure/'];
+eikonalpath = [parameters.ASWMSDir,'eikonal/'];
 
 % Setup Error Codes for Bad data
 setup_ErrorCode
@@ -43,7 +43,7 @@ for ie = 1:length(matfiles)
     % first check to make sure at least 5 stations observed event.
 	if ~isfield(event,'stadata')
 		isgood(ie)=0;
-	elseif length(event.stadata) < minSta 
+	elseif length(event.stadata) < parameters.minSta 
 		isgood(ie)=0;
 	end
 end % end of event loop
