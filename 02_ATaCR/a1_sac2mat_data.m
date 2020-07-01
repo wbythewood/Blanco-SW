@@ -11,11 +11,15 @@
 % J. Russell & H. Janiszewski
 % hjaniszewski@carnegiescience.edu
 % updated 11/19
+%
+% updated to use parameter file and set up for blanco project
+% william hawley
+% may 2020
 
 clear;
 setup_parameter;
 
-addpath ('function');
+addpath ('02_ATaCR/function');
 
 startlist = dayFile; % list of start times for data download
 datalength = NoiseDataLength; % length of time series after each start time in seconds (default 86400, code not thoroughly tested for other values)
@@ -23,12 +27,6 @@ sacdaydata = sacDayData; % path to local day sac files
 
 download_networks = NetworkName; % list of networks to download
 download_stations = StationNames; % list of stations to download (* for all)
-
-% % Channel Names
-% chz_vec = 'BHZ'; % list of acceptable names for Z component
-% ch1_vec = 'BH1'; % list of acceptable names for H1 component
-% ch2_vec = 'BH2'; % list of acceptable names for H2 component
-% chp_vec = 'BDH'; % list of acceptable names for P component
 
 datacache = NoisePreproDir; % output folder for data; preprocessed in SAC
 
