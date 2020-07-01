@@ -17,10 +17,13 @@ setup_parameters
 % eikonal_stack_file = ['eikonal_stack_',parameters.component];
 % helmholtz_path = './helmholtz/';
 workingdir = parameters.workingdir;
-eventcs_path = [workingdir,'CSmeasure/'];
-eikonal_data_path = [workingdir,'eikonal/'];
-eikonal_stack_file = [workingdir,'eikonal_stack_',parameters.component];
-helmholtz_path = [workingdir,'helmholtz/'];
+ASWMSDir = parameters.ASWMSDir;
+eventcs_path = [ASWMSDir,'CSmeasure/'];
+eikonal_data_path = [ASWMSDir,'eikonal/'];
+eikonal_stack_file = [ASWMSDir,'eikonal_stack_',parameters.component];
+helmholtz_path = [ASWMSDir,'helmholtz/'];
+
+figDir = parameters.figdir;
 
 if ~exist(helmholtz_path,'dir')
 	mkdir(helmholtz_path);
@@ -193,12 +196,16 @@ for ie = 1:length(eventfiles)
 			subplot(2,2,1)
 			ax = worldmap(lalim, lolim);
 			surfacem(xi,yi,eventGV);
-			colorbar
+            load seiscmap %wbh
+			colormap(gca,seiscmap) %wbh
+            cb1 = colorbar; %wbh
+            ylabel(cb1,'Vs (km/s)') %wbh
+			%colorbar
 			title('before cor');
 			subplot(2,2,2)
 			ax = worldmap(lalim, lolim);
 			surfacem(xi,yi,GV_cor);
-			colorbar
+			cb2 = colorbar %wbh
 			title('after cor');
 			nanind = find(isnan(eventGV(:)));
 			ampmap = ampmap';
@@ -210,11 +217,12 @@ for ie = 1:length(eventfiles)
 			surfacem(xi,yi,ampmap);
 			title('amplitude map')
 			plotm(stlas,stlos,'v')
-			colorbar
+            colormap default %wbh
+			cb3 = colorbar %wbh
 			subplot(2,2,4)
 			ax = worldmap(lalim, lolim);
 			surfacem(xi,yi,amp_term);
-			colorbar
+			cb4 = colorbar %wbh
 			[temp bestalphai] = min(alpha_errs);
 			title('correction term')
             drawnow;
@@ -225,8 +233,60 @@ for ie = 1:length(eventfiles)
 			plot(alphas,alpha_errs,'x');
             drawnow;
 %             pause;
+%             % wbh figure for all periods like a6
+%             N=3; 
+%             M = floor(length(periods)/N) +1;
+%             Mphvel = floor((1+length(periods))/N) +1;   % wbh
+%             figure(39)
+%             clf
+%             for ip = 1:length(periods)
+%                 subplot(M,N,ip)
+%                 ax = worldmap(lalim,lolim);
+%                 h1 = surfm(xi,yi,GV_cor);
+%                 title(["Period: ",num2str(periods(ip))],'fontsize',15)
+%                 avgv = nanmean(eventphv(ip).GV(:));
+%                 if isnan(avgv)
+%                     continue;
+%                 end
+%                 r = 0.1;
+%                 caxis([avgv*(1-r) avgv*(1+r)])
+%                 colorbar
+%                 load seiscmap
+%                 colormap(seiscmap)
+%                 h = colorbar; %wbh
+%                 ylabel(h,'Vs (km/s)') %wbh
+%             end
 		end % end of isfigure
 	end  % loop of period
+    % wbh figure for all periods like a6
+    N=3; 
+    M = floor(length(periods)/N) +1;
+    Mphvel = floor((1+length(periods))/N) +1;   % wbh
+    figure(39)
+    clf
+    for ip = 1:length(periods)
+        subplot(M,N,ip)
+        ax = worldmap(lalim,lolim);
+        h1 = surfm(xi,yi,GV_cor);
+        title(["Period: ",num2str(periods(ip))],'fontsize',15)
+        %avgv = nanmean(eventphv(ip).GV(:));
+        avgv = nanmean(helmholtz(ip).GV_cor(:));
+        if isnan(avgv)
+            continue;
+        end
+        r = 0.2;
+        caxis([avgv*(1-r) avgv*(1+r)])
+        colorbar
+        load seiscmap
+        colormap(seiscmap)
+        h = colorbar; %wbh
+        ylabel(h,'Vs (km/s)') %wbh
+
+    end
+    sgtitle("Corrected Phase Velocities for "+eventcs.id);
+    ofn = [figDir,eventid,'/PhaseVels_0.25_HCorr.png'];   % wbh save in event dir
+    saveas(gcf,ofn) 
+    drawnow;
 	matfilename = fullfile(helmholtz_path,[eventphv(1).id,'_helmholtz_',parameters.component,'.mat']);
 	save(matfilename,'helmholtz');
 	fprintf('\n');
