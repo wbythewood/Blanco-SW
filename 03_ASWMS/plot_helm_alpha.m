@@ -3,7 +3,7 @@
 clear;
 
 setup_parameters;
-phase_v_path = './Blanco_Test/helmholtz/'
+phase_v_path = './Blanco_Test/helmholtz/';
 comp = parameters.component;
 periods = parameters.periods;
 

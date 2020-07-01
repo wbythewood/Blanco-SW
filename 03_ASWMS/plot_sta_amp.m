@@ -5,7 +5,8 @@ setup_parameters;
 comp = parameters.component;
 
 % CSfiles = dir(['CSmeasure/*_',comp,'*.mat']);
-workingdir = parameters.workingdir;
+workingdir = parameters.ASWMSDir;
+configDir = parameters.configDir;
 CSfiles = dir([workingdir,'CSmeasure/*_',comp,'*.mat']);
 
 % Gather information
@@ -41,8 +42,8 @@ load png_amp_stainfo
 
 avg_band = 3:6;
 
-badstnms = textread('badampsta.lst','%s');
-OBSstnms = textread('OBS.lst','%s');
+badstnms = textread([configDir,'badAmpSta.lst'],'%s');
+OBSstnms = textread([configDir,'X9_stations.txt'],'%s');
 
 % calculate the means
 for ista = 1:length(stainfo)
@@ -85,7 +86,8 @@ for ip = avg_band
 			plot(ista, stainfo(ista).avgmean,'ro','markerfacecolor','g');
 		end
 		maxy = 3;
-		ylim([0 maxy]);
+		%ylim([0 maxy]);
+        ylim([0 10]);
 %		text(ista,-maxy/10,char(stainfo(ista).stnm),'rotation',90);
 		text(ista,-maxy/50,char(stainfo(ista).stnm),'rotation',-90);
 		set(gca, 'XTickLabel','')

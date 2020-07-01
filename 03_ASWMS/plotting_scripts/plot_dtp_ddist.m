@@ -16,9 +16,10 @@ is_fig = 1;
 
 eventfile = parameters.eventfile;
 workingdir = parameters.workingdir;
-evmat = ['../',workingdir,'eventmat/'];
-CSmat = ['../',workingdir,'CSmeasure/'];
-fig_PATH = ['../',workingdir,'figs/dtp_ddist/'];
+aswmsdir = parameters.ASWMSDir;
+evmat = [workingdir,'data/eventmat/'];
+CSmat = [aswmsdir,'CSmeasure/'];
+fig_PATH = [workingdir,'figures/'];
 
 maxstadist = parameters.maxstadist;
 xlims = [-maxstadist maxstadist];
@@ -31,7 +32,7 @@ end
 % LOAD MEASUREMENTS .mat
 obs_CSpath = [CSmat];
 obs_CSfiles = dir([obs_CSpath,'*.mat']);
-numCS = length(obs_CSfiles);
+numCS = length(obs_CSfiles); % one for each event
 
 for iev = 1:numCS
     load([obs_CSpath,obs_CSfiles(iev).name]); %loads structure called "eventcs"
@@ -72,7 +73,7 @@ end
 xlabel('Epicentral Distance Difference (km)','fontsize',12);
 xlim(xlims);
 ylabel('Phase Delay (sec)','fontsize',12);
-title([num2str(events_obs(ev).eventcs.id),' Data'],'fontsize',12);
+title([num2str(events_obs(ev).eventcs.id),' Phase Delays'],'fontsize',12);
 legend(h,lgd,'location','northeastoutside');
 ax = gca;
 set(ax,'ylim',[min_dtp max_dtp],'linewidth',2,'fontsize',16);
@@ -82,7 +83,9 @@ drawnow;
 %% EXPORT FIGURES
 if is_fig == 1
 %     export_fig(fig55,[fig_PATH,'obs_',num2str(events_obs(ev).eventcs.id)],'-pdf','-painters');
-    save2pdf([fig_PATH,'obs_',num2str(events_obs(ev).eventcs.id)],fig55,500)
+    %save2pdf([fig_PATH,'obs_',num2str(events_obs(ev).eventcs.id)],fig55)
+    ofn = [fig_PATH,'obs_',num2str(events_obs(ev).eventcs.id),'.pdf'];
+    saveas(fig55,ofn)
 %     export_fig(fig66,[fig_PATH,'synth_',num2str(events_synth(ev).event.id)],'-pdf','-painters');
 end
 %pause;

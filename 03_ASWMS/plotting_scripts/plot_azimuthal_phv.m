@@ -16,9 +16,10 @@ is_fig = 1;
 
 eventfile = parameters.eventfile;
 workingdir = parameters.workingdir;
-evmat = ['../',workingdir,'eventmat/'];
-CSmat = ['../',workingdir,'CSmeasure/'];
-fig_PATH = ['../',workingdir,'figs/dtp_ddist/'];
+aswmsdir = parameters.ASWMSDir;
+evmat = [workingdir,'data/eventmat/'];
+CSmat = [aswmsdir,'CSmeasure/'];
+fig_PATH = [workingdir,'figures/'];
 
 maxstadist = parameters.maxstadist;
 xlims = [-maxstadist maxstadist];

@@ -1,14 +1,14 @@
-% JBR - 1/7/16
+ % JBR - 1/7/16
 %
 % Plot ray geometry before and after quality control step
 %
 clear;
 
-addpath('../');
-addpath('../functions/');
-cd ..
+%addpath('../');
+%addpath('../functions/');
+%cd ..
 setup_parameters;
-cd plotting_scripts
+%cd plotting_scripts
 periods = parameters.periods;
 lalim = parameters.lalim;
 lolim = parameters.lolim;
@@ -21,8 +21,8 @@ is_fig = 0;
 % --------------------------
 
 eventfile = parameters.eventfile;
-evmat = '../Blanco_Test/eventmat/';
-CSmat = '../Blanco_Test/CSmeasure/';
+evmat = [parameters.workingdir,'data/eventmat/'];
+CSmat = [parameters.ASWMSDir,'CSmeasure/'];
 % fig_PATH = ['./',dir_PROJ,'/figs/'];
 
 % system(['mkdir ',fig_PATH]);
