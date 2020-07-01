@@ -7,7 +7,7 @@ setup_parameter;
 isfigure_sta = 1;
 isfigure_spectra = 1;
 issavefigure = 1;
-isoverwrite =1;
+isoverwrite =0;
 
 T1 = 10; T2= 150; %filter period range for plotting seismic data
 
@@ -116,7 +116,7 @@ for ie = 1:length(event_filename)
             continue
         end
 
-        [Zraw,H1raw,H2raw,Praw,taxisZ,taxis1,taxis2,taxisP,dt] = varsetup_correctevent(sta,chz_vec,ch1_vec,ch2_vec,chp_vec,T);
+        [Zraw,H1raw,H2raw,Praw,taxisZ,taxis1,taxis2,taxisP,dt] = varsetup_correctevent(sta,chz_vec,ch1_vec,ch2_vec,chp_vec,EventDataLength);
         if isnan(Zraw);
             continue
         end
