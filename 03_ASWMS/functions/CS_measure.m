@@ -4,6 +4,11 @@ function CS = CS_measure(event,sta1,sta2,parameters)
 	setup_ErrorCode;
 	isdebug = 0;
     isfigure = 1;
+    outfigdir = [parameters.figdir,event.id,'/waveforms/'];
+    
+     if ~exist(outfigdir,'dir')
+        mkdir(outfigdir)
+    end
 
 	refv = parameters.refv;
 	refphv = parameters.refphv;
@@ -28,6 +33,9 @@ function CS = CS_measure(event,sta1,sta2,parameters)
 
 	CS.sta1 = sta1;
 	CS.sta2 = sta2;
+    stnm1 = event.stadata(sta1).stnm;
+    stnm2 = event.stadata(sta2).stnm;
+    
     if isdebug
         disp([num2str(sta1),num2str(sta2)]);
     end
@@ -95,8 +103,10 @@ function CS = CS_measure(event,sta1,sta2,parameters)
 	lag = lag + taxis1(1) - taxis2(1);
 
 	if isfigure
+        ofn = [outfigdir,'waveforms-',stnm1,'-',stnm2,'.png'];
 		figure(43)
 		clf
+        sgtitle(["Waveforms for "+stnm1+" and "+stnm2])
 		subplot(3,1,1)
 		plot(taxis1,data1);
 		xlim([0 dist2/2])
@@ -106,6 +116,7 @@ function CS = CS_measure(event,sta1,sta2,parameters)
 		subplot(3,1,3)
 		plot(lag,xcor);
 		xlim([-1000 1000])
+        saveas(gcf,ofn)
 	end
 
 	%Find the window center (max amplitude within the window)
@@ -123,14 +134,18 @@ function CS = CS_measure(event,sta1,sta2,parameters)
 
 
 	if isfigure
+        ofn = [outfigdir,'xcorr-',stnm1,'-',stnm2,'.png'];
 		figure(44)
 		clf
+        sgtitle("Xcorr for "+stnm1+" and "+stnm2)
 		subplot(2,1,1)
 		plot(lag,xcor);
 		xlim([-500 500])
 		subplot(2,1,2)
 		plot(lag,win_xcor);
 		xlim([-500 500])
+
+        saveas(gcf,ofn)
 	end
 
 	% Apply Narrow-band filter
@@ -193,15 +208,17 @@ function CS = CS_measure(event,sta1,sta2,parameters)
 	for ip = 1:length(periods)
 		syndtp = CS.ddist./refphv(ip);
 		testdtp = CS.dtp(ip) + [-Ncircle:Ncircle]*periods(ip);
-		[temp besti] = min(abs(testdtp - syndtp));
+		[temp, besti] = min(abs(testdtp - syndtp));
 		CS.dtp(ip) = testdtp(besti);
 	end
 
 	if isfigure
+        ofn = [outfigdir,'xcorr_spec-',stnm1,'-',stnm2,'.png'];
 		figure(45)
 		clf
+        sgtitle(["Spectral Xcorr for "+stnm1+" and "+stnm2])
 		hold on
-		[xi yi] = ndgrid(lag,periods);
+		[xi, yi] = ndgrid(lag,periods);
 		for ip = 1:length(periods)
 			norm_nbands(:,ip) = nband_win_xcors(:,ip)./max(abs(nband_win_xcors(:,ip)));
 		end
@@ -210,17 +227,23 @@ function CS = CS_measure(event,sta1,sta2,parameters)
 			plot(CS.dtp(ip),periods(ip),'kx','linewidth',2);
 		end
 		xlim([-3*max(periods) 3*max(periods)]);
-%         	pause
+        xlabel('time');
+        ylabel('Period');
+        colorbar
+        saveas(gcf,ofn)
         drawnow
     end
     
     if isfigure
+        ofn = [outfigdir,'error-',stnm1,'-',stnm2,'.png'];
         figure(46)
         clf;
+        sgtitle("Fit error for "+stnm1+" and "+stnm2)
         hold on;
         plot(periods,CS.fiterr,'o')
-        xlabel('periods (s)');
-        ylabel('fit err');
+        xlabel('period (s)');
+        ylabel('fit error');
+        saveas(gcf,ofn)
     end
 
 

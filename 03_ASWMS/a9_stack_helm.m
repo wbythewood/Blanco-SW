@@ -11,7 +11,15 @@ setup_parameters
 
 % phase_v_path = './helmholtz/'
 workingdir = parameters.workingdir;
-phase_v_path = [workingdir,'helmholtz/'];
+ASWMSDir = parameters.ASWMSDir;
+phase_v_path = [ASWMSDir,'helmholtz/'];
+
+fig_base_dir = parameters.figdir;
+
+% plate boundaries
+mapsDir = [parameters.MapsDir,'PlateBoundaries_NnrMRVL/'];
+usgsFN = [parameters.MapsDir,'usgs_plates.txt.gmtdat'];
+[pbLat,pbLon] = importPlates(usgsFN);
 
 r = 0.10;
 
@@ -120,8 +128,12 @@ for ie=1:length(event_ids)
 	if abs(diff_percent) > event_bias_tol;
 % 		matfile = dir(fullfile('helmholtz',[char(event_ids(ie)),'*.mat']));
 % 		load(fullfile('helmholtz',matfile(1).name));
-        matfile = dir(fullfile(workingdir,'helmholtz',[char(event_ids(ie)),'*.mat']));
-		load(fullfile(workingdir,'helmholtz',matfile(1).name));
+%        matfile =
+%        dir(fullfile(workingdir,'helmholtz',[char(event_ids(ie)),'*.mat']));
+%        % wbh change paths
+%		load(fullfile(workingdir,'helmholtz',matfile(1).name));
+        matfile = dir(fullfile(ASWMSDir,'helmholtz',[char(event_ids(ie)),'*.mat']));
+		load(fullfile(ASWMSDir,'helmholtz',matfile(1).name));
 		evla = helmholtz(1).evla;
 		evlo = helmholtz(1).evlo;
 		epi_dist = distance(evla,evlo,mean(lalim),mean(lolim));
@@ -244,7 +256,7 @@ ip = demoip
 N=3; M = floor(length(periods)/N)+1;
 figure(89)
 clf
-title('stack for dynamics phv')
+sgtitle('stack for dynamics phv')
 for ip = 1:length(periods)
 	subplot(M,N,ip)
 	ax = worldmap(lalim, lolim);
@@ -285,7 +297,7 @@ drawnow;
 
 figure(91)
 clf
-title('stack for structure phv')
+sgtitle('stack for structure phv')
 for ip = 1:length(periods)
 	subplot(M,N,ip)
 	ax = worldmap(lalim, lolim);
@@ -301,12 +313,14 @@ for ip = 1:length(periods)
 	colorbar
 	load seiscmap
 	colormap(seiscmap)
+    h = colorbar;
+    ylabel(h,'Vs (km/s)')
 end
 drawnow;
 
 figure(92)
 clf
-title('Std for structure phv')
+sgtitle('Std for structure phv')
 for ip = 1:length(periods)
 	subplot(M,N,ip)
 	ax = worldmap(lalim, lolim);
@@ -320,14 +334,16 @@ for ip = 1:length(periods)
 	meanstd = nanmean(avgphv(ip).GV_std(:));
 	if ~isnan(meanstd)
 		caxis([0 2*meanstd])
-	end
+    end
+    h = colorbar;
+    ylabel(h,'std')
 %	caxis([0 0.5])
 end
 drawnow;
 
 figure(93)
 clf
-title('diff phv')
+sgtitle('Phase Velocity difference (corr?uncorr)')
 for ip = 1:length(periods)
 	subplot(M,N,ip)
 	ax = worldmap(lalim, lolim);
@@ -338,12 +354,15 @@ for ip = 1:length(periods)
 	colorbar
 	load seiscmap
 	colormap(seiscmap)
+    h = colorbar;
+    ylabel(h,'Vs Diff (km/s)')
 %	caxis([0 0.5])
 end
 drawnow;
 
 figure(95)
 clf
+sgtitle('Weight')
 for ip = 1:length(periods)
 	subplot(M,N,ip)
 	ax = worldmap(lalim, lolim);
@@ -354,6 +373,8 @@ for ip = 1:length(periods)
 	colorbar
 	load seiscmap
 	colormap(seiscmap)
+    h = colorbar;
+    ylabel(h,'weight')
 end
 drawnow;
 end
