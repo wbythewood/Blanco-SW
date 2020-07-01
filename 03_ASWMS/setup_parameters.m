@@ -5,12 +5,14 @@ fullMAINpath = mfilename('fullpath');
 functionspath = [fullMAINpath(1:regexp(fullMAINpath,mfilename)-1),'functions'];
 addpath(functionspath);
 
-parameters.workingdir = './Blanco_Test2/';
-% parameters.workingdir = './ORCA_M5.5_detrend_Zcorr_100km_snr3_600km/';
-% parameters.workingdir = './ORCA_M5.5_detrend_Zcorr_100km_snr3/';
-% parameters.workingdir = './ORCA_M5.5_Zcorr_100km_snr3/';
-
+parameters.workingdir = '/Users/whawley/Research/github/Blanco-SW/';
 parameters.figdir = [parameters.workingdir,'figures/'];  % wbh addition
+parameters.configDir = [parameters.workingdir,'config/'];
+parameters.dataDir = [parameters.workingdir,'data/'];
+parameters.SacDbDir = [parameters.dataDir,'CORRSEIS_SAC/'];
+parameters.MatDbDir = [parameters.dataDir,'eventmat/'];
+parameters.ASWMSDir = [parameters.workingdir,'03_ASWMS/'];
+parameters.MapsDir = '/Users/whawley/data/maps/';
 
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
 %%%% Global settings
@@ -18,7 +20,7 @@ parameters.proj_name = 'Blanco';
 parameters.component = 'LHZ';   % determined by filenames
 parameters.lalim = [42.5 45] ;
 parameters.lolim = [-131.5 -125.5];
-parameters.gridsize=0.5;   % in degrees
+parameters.gridsize = 0.25;   % in degrees
 % parameters.periods = [20 25 32 40 50 60 80 100];  % in seconds
 parameters.periods = [20 25 32 40 50 60 80 100 120 130 150]; 
 % parameters.periods = round(logspace(log10(20),log10(150),15));
@@ -26,28 +28,28 @@ parameters.minSta = 5; % if fewer than this no of stations, evt skipped.
 
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
 % % parameters for data downloading (if using IRIS DMC)
-parameters.start_time = '2012-11-01 00:00:00';
-parameters.end_time = '2012-11-20 00:00:00'; % put '' for using 4 days before current date
-parameters.is_use_timestamp = 0;
-parameters.network = 'X9';
-parameters.minMw = 6.5;
-parameters.maxdepth = 500;
-parameters.datalength = 7200;  % in second
-parameters.resample_delta = 1; % in second
-parameters.dbpath = './sacdata/';
-parameters.eventfile = 'eventlist';
+% parameters.start_time = '2012-11-01 00:00:00';
+% parameters.end_time = '2012-11-20 00:00:00'; % put '' for using 4 days before current date
+% parameters.is_use_timestamp = 0;
+% parameters.network = 'X9';
+% parameters.minMw = 6.5;
+% parameters.maxdepth = 500;
+% parameters.datalength = 7200;  % in second
+% parameters.resample_delta = 1; % in second
+% parameters.dbpath = './sacdata/';
+% parameters.eventfile = 'eventlist';
 
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
 % Parameters for own data selection criteria
-%parameters.dbpath = '/Users/russell/Lamont/PROJ_YoungPacificORCA/DATA/EVENTS/IRIS_XX_5.5_detrend_18sta_Zcorr/'; %'/Users/russell/Lamont/ENAM/DATA/EVENTS/IRIS_YO_6.5/';
-% parameters.eventfile = 'evlist.txt';
-% parameters.minMw = 5.5;
-% parameters.maxdepth = 500;
-% parameters.snr_tol = 3;
+parameters.dbpath = parameters.SacDbDir;
+parameters.eventfile = [parameters.configDir,'BlancoEventList_M6.5.txt'];
+parameters.minMw = 5.0;
+parameters.maxdepth = 500;
+parameters.snr_tol = 3;
 
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
 % parameters for the auto_win_select.m
-parameters.dbpath = '/Users/whawley/Research/github/ATaCR/X9_testdata/NOISETC/CORRSEIS/';
+parameters.dbpath = parameters.SacDbDir;
 parameters.largest_epidist_range = 3000;
 parameters.cycle_before = 2;
 parameters.cycle_after = 3;
@@ -123,4 +125,4 @@ if length(parameters.periods)~=length(parameters.smweight_array) || length(param
     error('Length of periods doesn''t match smweight_array and/or min_csgoodratio');
 end
 
-system(['cp ./setup_parameters.m ',parameters.workingdir]);
+%system(['cp ./setup_parameters.m ',parameters.workingdir]);

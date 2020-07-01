@@ -6,27 +6,26 @@ ConfigDir = BaseDir+'config/'
 DataDir = BaseDir+'data/'
 EventsDataDir = DataDir+'SAC_Events/'
 NoiseDataDir = DataDir+'SAC_Noise/'
-EventsFileName = ConfigDir+'EventsTest.txt'
-DayFileName = ConfigDir+'DayNoiseTest.txt'
-# two station lists, one for BXH, one for BDH
+EventsFileName = ConfigDir+'BlancoEventList_M5.5.txt'
+DayFileName = ConfigDir+'BlancoNoiseDays_M5.5.txt'
+# two station lists, one for BXH, one for all stations
 XStafn = ConfigDir+'X9_stations_X.txt'
-DStafn = ConfigDir+'X9_stations_D.txt'
 Stafn = ConfigDir+'X9_stations.txt'
 
 #  Event download
-minMag = 6.5
+minMag = 5.5
 webservice = "IRIS"
 network = "X9"  # X9 = Blanco
 isCMT_params = 1  # use GCMT parameters for SAC header; 0 = use IRIS
 isCentroid = 1  # if isCMT_params = 1, use centroid; 0 = epicentral
 
 #  Noise Download
-trLen = 60 * 60 * 24  # seconds
+trLen = 60 * 60 * 24  # seconds 
 noDays = 4  # number of days prior to event to use
 isCalDay = 1  # 0 to start each day at 00:00; 0 to use 24h segments prior to eq
 
-tstart = '2012-11-16T00:00:00'
-tend = '2012-11-16T23:00:00'
+tstart = '2012-09-18T00:00:00'
+tend = '2013-10-06T23:00:00'
 
 # Stations to download
 # need one for low-pass filtered stations
@@ -48,3 +47,9 @@ isDownsamp = 1  # downsample option
 isRemoveResp = 1  # remove response option
 srNew = 1  # new sample rate, samples/sec
 trLen = 6000  # len of traces (sec)
+
+# Frequency Limits for Response Removal
+# Hi corner deternimed by Nyquist
+# Lo corner defined by
+LoFreq1 = 0.001
+LoFreq2 = 0.005
