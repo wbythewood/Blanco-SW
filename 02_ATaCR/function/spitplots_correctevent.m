@@ -38,7 +38,8 @@ set(gcf,'PaperPositionMode','manual');
 set(gcf,'PaperUnits','inches');
 set(gcf,'PaperOrientation','portrait');
 set(gcf,'PaperPosition',[.05 .05 8 10.5]);
-subplot(length(corrseis),1,length(corrseis))
+%subplot(length(corrseis),1,length(corrseis))
+subplot(length(corrseis)+1,1,1)
 plot(taxis,Z_filt,'-k');
 xlim([min(taxis),max(taxis)]);
 title(sprintf('Original Z'));
@@ -57,7 +58,8 @@ for is = 1:length(corrseis)
     elseif strcmp(corrseis(is).label(1),'P')==1
         seiscmp = P_filt;
     end
-    subplot(length(corrseis),1,is)
+    %subplot(length(corrseis),1,is)
+    subplot(length(corrseis)+1,1,is+1)
 %     plot(taxis,seiscmp,'-','LineWidth',.5,'Color',[.5 .5 .5]); hold on
     plot(taxis,filtfilt(b,a,corrseis(is).timeseries),'-','LineWidth',.5,'Color',col)
     xlim([min(taxis),max(taxis)]);
