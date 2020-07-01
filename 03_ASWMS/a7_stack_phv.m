@@ -6,9 +6,15 @@ isfigure = 1;
 
 setup_parameters
 
-workingdir = parameters.workingdir;
+workingdir = parameters.ASWMSDir;
 % phase_v_path = './eikonal/'
 phase_v_path = [workingdir,'eikonal/'];
+fig_base_dir = parameters.figdir;
+
+% plate boundaries
+mapsDir = [parameters.MapsDir,'PlateBoundaries_NnrMRVL/'];
+usgsFN = [parameters.MapsDir,'usgs_plates.txt.gmtdat'];
+[pbLat,pbLon] = importPlates(usgsFN);
 
 r = 0.10;
 load seiscmap
@@ -39,10 +45,21 @@ phvmatfiles = dir([phase_v_path,'/*_eikonal_',comp,'.mat']);
 GV_mat = zeros(Nx,Ny,length(phvmatfiles),length(periods));
 raydense_mat = zeros(Nx,Ny,length(phvmatfiles),length(periods));
 
+Baz = zeros(length(phvmatfiles),1);
+evlas = zeros(length(phvmatfiles),1);
+evlos = zeros(length(phvmatfiles),1);
+
 for ie = 1:length(phvmatfiles)
 	temp = load([phase_v_path,phvmatfiles(ie).name]);
 	eventphv = temp.eventphv;
 	event_ids(ie) = {eventphv(1).id};
+    
+    % wbh save back azimuth
+    baz = azimuth(eventphv(1).evla,eventphv(1).evlo,eventphv(1).stlas(1),eventphv(1).stlos(1));
+    baz = azimuth(eventphv(1).stlas(1),eventphv(1).stlos(1),eventphv(1).evla,eventphv(1).evlo);
+    evlas(ie) = eventphv(1).evla;
+    evlos(ie) = eventphv(1).evlo;
+    Baz(ie) = baz;
 			
 	disp(eventphv(1).id);
 	for ip=1:length(periods)
@@ -62,7 +79,9 @@ for ie = 1:length(phvmatfiles)
 end
 
 avgphv = average_GV_mat(GV_mat, raydense_mat, parameters);
-
+disp(Baz)
+Baz = Baz.* (pi/180);
+disp(Baz)
 % Calculate std, remove the outliers
 GV_mat = 1./GV_mat;
 for ip=1:length(periods)
@@ -146,12 +165,15 @@ save([workingdir,'eikonal_stack_',comp,'.mat'],'avgphv','GV_mat','GV_mat','rayde
 if isfigure
 
 N=3; M = floor(length(periods)/N)+1;
+Mphvel = floor((1+length(periods))/N) +1;   % wbh
+
 figure(89)
 clf
-title('stack for dynamics phv')
+ofn = strcat(fig_base_dir,"/phv_stack.0.25.png");
 for ip = 1:length(periods)
-	subplot(M,N,ip)
+	subplot(Mphvel,N,ip)
 	ax = worldmap(lalim, lolim);
+    plotm(pbLat,pbLon,'LineWidth',2,'Color','k') % plate boundaries
 	set(ax, 'Visible', 'off')
 	h1=surfacem(xi,yi,avgphv(ip).GV);
 	% set(h1,'facecolor','interp');
@@ -159,17 +181,42 @@ for ip = 1:length(periods)
 	avgv = nanmean(avgphv(ip).GV(:));
 	if isnan(avgv)
 		continue;
-	end
+    end
+    plotm(pbLat,pbLon,'LineWidth',0.5,'Color','k') % plate boundaries
 	caxis([avgv*(1-r) avgv*(1+r)])
 	colorbar
 	load seiscmap
 	colormap(seiscmap)
+    h = colorbar;
+    ylabel(h,'Vs (km/s)')
 end
+% wbh draw backaz hist
+subplot(Mphvel,N,length(periods)+1)
+title('Back Az Distribution','fontsize',15)
+polarhistogram(Baz,8)
+paz = gca;
+paz.ThetaZeroLocation = 'Top';
+paz.ThetaDir = 'clockwise';
+sgtitle("Phase velocities");
+saveas(gcf,ofn)
+drawnow;
+
+figure(2)
+clf
+sgtitle('event dist')
+ax = worldmap('World');
+load coastlines
+plotm(coastlat,coastlon)
+geoshow(evlas,evlos,'DisplayType','point','Marker','x','MarkerEdgeColor','r','MarkerSize',12)
+plotm(43.75,-128.5,'Marker','s','MarkerSize',12,'MarkerEdgeColor','k')
+ofn = '/Users/whawley/Research/github/Blanco-SW/figures/EvtMap.png';
+saveas(gcf,ofn)
 drawnow;
 
 figure(90)
 clf
-title('Std for dynamics phv')
+ofn = strcat(fig_base_dir,"/std.0.25.png");
+sgtitle('Std for stack')
 for ip = 1:length(periods)
 	subplot(M,N,ip)
 	ax = worldmap(lalim, lolim);
@@ -180,16 +227,21 @@ for ip = 1:length(periods)
 	colorbar
 	load seiscmap
 	colormap(seiscmap)
+    h = colorbar;
+    ylabel(h,'std')
 	meanstd = nanmean(avgphv(ip).GV_std(:));
 	if ~isnan(meanstd)
 		caxis([0 2*meanstd])
 	end
 end
+saveas(gcf,ofn)
 drawnow;
 
 
 figure(95)
 clf
+ofn = strcat(fig_base_dir,"/weight.0.25.png");
+sgtitle('Weights for stack')
 for ip = 1:length(periods)
 	subplot(M,N,ip)
 	ax = worldmap(lalim, lolim);
@@ -200,6 +252,9 @@ for ip = 1:length(periods)
 	colorbar
 	load seiscmap
 	colormap(seiscmap)
+    h = colorbar;
+    ylabel(h,'weight')
 end
 drawnow;
+saveas(gcf,ofn)
 end
