@@ -21,6 +21,14 @@ dr = deg2km(mean(diff(xnode)))/1e3;
 Dx = xmax - xmin;
 Dy = ymax - ymin;
 G=spalloc(nray,Nm*2,2*nray*Nx); % for each ray, maximum number of pixels to be sampled is 2*Nx
+% wbh check the above is true...
+if Nx > Ny
+    Na = Nx;
+else
+    Na = Ny;
+G=spalloc(nray,Nm*2,2*nray*Na); % for each ray, maximum number of pixels to be sampled is 2*Nx
+%end wbh
+
 %G=zeros(nray,Nm);
 bins=[1:Nm];
 
