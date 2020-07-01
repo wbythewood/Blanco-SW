@@ -1,4 +1,4 @@
-% parameters for the NoiseTiltComp_pck
+% parameters for the Blanco-SW/02_ATaCR
 
 % path for matlab codes and functions
 addpath ('function');
@@ -35,20 +35,14 @@ OUTdir = strcat(BaseDir,'data/NOISETC/');
 FIGdir = strcat(BaseDir,'figures/');
 
 % paths for the event and noise time lists
-evFile = strcat(BaseDir,'config/EventsTest.txt');
-dayFile = strcat(BaseDir,'config/DayNoiseTest.txt');
-
-
-%evFile = 'config_files/Events_X9_M6.5.txt';
-%dayFile = 'config_files/starttimes_X9_M6.5.txt.txt';
+evFile = strcat(BaseDir,'config/BlancoEventList_M5.5.txt');
+dayFile = strcat(BaseDir,'config/BlancoNoiseDays_M5.5.txt');
 
 %--- Data to download ---%
 
 % networks -- still only can do one
-%NetworkNames = '7D';
 NetworkName = 'X9';
 % stations
-%StationNames = {'M07A'};
 %StationNames = {'*'};
 StationNames = textread(strcat(BaseDir,'config/X9_stations.txt'),'%s');
 
@@ -64,6 +58,7 @@ RespAfterFlag = 0;
 % useful to remove very long period signals from the data
 FilterBeforeFlag = 1;
 LoPassCorner = 0.005; %Hz
+LoPassCorner = 0.001; %Hz
 
 % Channel Names and Corrections
 % in the a_ sections there can only be one vertical channel per station
@@ -113,10 +108,14 @@ Ndays = 4;
 NoiseDataLength = 86400;
 EventDataLength = 6000;
 
+%--- SAC I/O ---%
+% which corrected seismogram to use:
+% 1=Z1; 2=Z2-1; 3=ZP-21; 4=ZH; 5=ZP-H; 6=ZP
+corr_idx = 3;
+
 %--- Preprocessing ---%
 
 % Sample Rate of seismic data you want -- will downsample to this
-%SampleRate = 5;
 SampleRate = 1; %LHZ is 1 sps
 % preprocessing high-pass filter (if hpFilt above is 1)
 nPoles = 5;
@@ -126,8 +125,8 @@ nPoles = 5;
 % Spectral Properties Windowing
 % the legnth of each time window, in sec, should match the event data
 % length for corrections
-T    = 7200;
-T    = 6000;
+
+T = 'Use EventDataLength'; %unclear why these weren't the same before...
 
 % fraction of window overlap for spectra calculation
 overlap = 0.3;
