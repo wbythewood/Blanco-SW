@@ -20,12 +20,13 @@ aswmsdir = parameters.ASWMSDir;
 evmat = [workingdir,'data/eventmat/'];
 CSmat = [aswmsdir,'CSmeasure/'];
 fig_PATH = [workingdir,'figures/'];
+figDir = [fig_PATH,'DistPlots/'];
 
 maxstadist = parameters.maxstadist;
 xlims = [-maxstadist maxstadist];
 
-if ~exist(fig_PATH)
-    mkdir(fig_PATH);
+if ~exist(figDir)
+    mkdir(figDir);
 end
 %% LOAD DATA STRUCTURES
 
@@ -58,6 +59,7 @@ for iper = 1:numper
         if events_obs(ev).eventcs.CS(imeas).isgood(iper) ~= 1 %QC
         %if events_obs(ev).eventcs.CS(imeas).isgood(iper) == -2 %QC high tp error
             plot(events_obs(ev).eventcs.CS(imeas).ddist,events_obs(ev).eventcs.CS(imeas).dtp(iper),'o','color',[.8 .8 .8],'linewidth',1);
+            alpha(0.1)
         else
             if events_obs(ev).eventcs.CS(imeas).dtp(iper) < min_dtp
                 min_dtp = events_obs(ev).eventcs.CS(imeas).dtp(iper);
@@ -66,6 +68,7 @@ for iper = 1:numper
                 max_dtp = events_obs(ev).eventcs.CS(imeas).dtp(iper);
             end
             h(iper) = plot(events_obs(ev).eventcs.CS(imeas).ddist,events_obs(ev).eventcs.CS(imeas).dtp(iper),'+','color',clr_per(iper,:),'linewidth',1);
+            alpha(0.1)
         end
     end
     lgd{iper} = [num2str(periods(iper)),'s'];
@@ -77,6 +80,7 @@ title([num2str(events_obs(ev).eventcs.id),' Phase Delays'],'fontsize',12);
 legend(h,lgd,'location','northeastoutside');
 ax = gca;
 set(ax,'ylim',[min_dtp max_dtp],'linewidth',2,'fontsize',16);
+alpha(0.1)
 drawnow;
 % pause;
 
@@ -84,7 +88,7 @@ drawnow;
 if is_fig == 1
 %     export_fig(fig55,[fig_PATH,'obs_',num2str(events_obs(ev).eventcs.id)],'-pdf','-painters');
     %save2pdf([fig_PATH,'obs_',num2str(events_obs(ev).eventcs.id)],fig55)
-    ofn = [fig_PATH,'obs_',num2str(events_obs(ev).eventcs.id),'.pdf'];
+    ofn = [figDir,'obs_',num2str(events_obs(ev).eventcs.id),'.pdf'];
     saveas(fig55,ofn)
 %     export_fig(fig66,[fig_PATH,'synth_',num2str(events_synth(ev).event.id)],'-pdf','-painters');
 end
