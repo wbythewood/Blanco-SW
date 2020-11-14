@@ -5,7 +5,7 @@ function [winpara outevent] = auto_win_select(event,mingroupv,maxgroupv,bandnum,
 % v2 = winpara(3); t2 = winpara(4);
 % and the window is defined by L/v1+t1 -- L/v2+t2
 
-isdebug = 0;
+isdebug =0;
 
 setup_parameters
 setup_ErrorCode
@@ -292,6 +292,8 @@ if isdebug
     hold on
     plot(dist,bgtime,'o');
     plot(dist,endtime,'ro');
+    xlabel('Distance')
+    ylabel('Time window')
 end
 isgood = [event.stadata(:).isgood];
 goodind = find(isgood > 0);
@@ -302,8 +304,9 @@ para = polyfit(dist(goodind),endtime(goodind),1);
 v2 = 1/para(1);
 t2 = para(2);
 winpara = [v1,t1,v2,t2];
-if 0
+if isdebug
     for ista = 1:length(event.stadata)
+        stationName = event.stadata(ista).stnm;
         envelop_nbands = stadata(ista).envelop_nbands;
         peaks = stadata(ista).peaks;
         if isempty(envelop_nbands)
@@ -314,6 +317,7 @@ if 0
         end
         figure(36)
         clf
+        title(['Envelope for station ' stationName]);
         hold on
         [xi yi] = ndgrid(taxis,freqs);
         contourf(xi,yi,norm_envelop);
@@ -329,10 +333,19 @@ if 0
         plot([endt endt],[freqs(1) freqs(end)],'r','linewidth',3);
         
         xlim([dist(ista)/maxgroupv, dist(ista)/mingroupv])
+        xlabel('time (s)')
+        ylabel('frequency (Hz)')
+        Ttemp = 1./freqs;
+        Xtemp = zeros(1,length(Ttemp));
+        Xtemp = Xtemp + bgt;
+        yyaxis right
+        ylabel('period (s)')
+        plot(Xtemp,Ttemp,'r.','markersize',0.1)
+        
         pause
     end
 end
-if 0
+if isdebug
     for ip=1:length(freqs)
         figure(38)
         clf
