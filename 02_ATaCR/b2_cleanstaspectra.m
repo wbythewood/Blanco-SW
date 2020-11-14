@@ -40,6 +40,11 @@ for ista = 1:length(StationNames)
     end
 
     spectra_filenames = dir(fullfile(inpath,['*.mat']));
+    
+    % wbh if no files continue
+    if isempty(spectra_filenames)
+        continue
+    end
 
     for ie = 1:length(spectra_filenames)
         load(fullfile(inpath,spectra_filenames(ie).name));
