@@ -5,9 +5,17 @@ setup_parameters;
 comp = parameters.component;
 
 % CSfiles = dir(['CSmeasure/*_',comp,'*.mat']);
-workingdir = parameters.ASWMSDir;
+%workingdir = parameters.ASWMSDir;
+workingdir = parameters.MatFilesDir;
 configDir = parameters.configDir;
-CSfiles = dir([workingdir,'CSmeasure/*_',comp,'*.mat']);
+%CSfiles = dir([workingdir,'CSmeasure/*_',comp,'*.mat']);
+CSfiles = dir([parameters.MatFilesDir,'CSmeasure/*_',comp,'*.mat']);
+figDir = [parameters.figdir,'Amp/'];
+
+if ~exist(figDir)
+    mkdir(figDir);
+end
+
 
 % Gather information
 stnms = {};
@@ -42,7 +50,8 @@ load png_amp_stainfo
 
 avg_band = 3:6;
 
-badstnms = textread([configDir,'badAmpSta.lst'],'%s');
+badstnms = textread([configDir,'badsta.lst'],'%s');
+disp(['Bad Stations: ',string(badstnms)]);
 OBSstnms = textread([configDir,'X9_stations.txt'],'%s');
 
 % calculate the means
@@ -50,6 +59,7 @@ for ista = 1:length(stainfo)
 	stainfo(ista).meanamp = mean(stainfo(ista).norm_amp,1);
 	stainfo(ista).avgmean = mean(stainfo(ista).meanamp(avg_band));
 	if ismember(stainfo(ista).stnm,badstnms)
+        disp(['Not using station ',stainfo(ista).stnm]);
 		stainfo(ista).isgood = 0;
 	else
 		stainfo(ista).isgood = 1;
@@ -73,21 +83,30 @@ OBS_cor = onland_avg/OBS_avg;
 %% making plots
 % Before the correction
 figure(23)
+ofn = strcat(figDir,"/amp_noCorr.png");
 clf
 subplot(2,1,1)
 hold on
+maxy = 1;
 for ip = avg_band
 	for ista = 1:length(stainfo)
+        % wbh edit don't show bad stations
+        if stainfo(ista).isgood == 0
+            continue
+        end
 		norm_amp = stainfo(ista).norm_amp;
 		x = ones(size(norm_amp,1),1)*ista;
 		plot(x,norm_amp(:,ip),'x');
+        maxy = max(maxy,max(norm_amp(:,ip)));
 		errorbar(ista, mean(norm_amp(:,ip)), std(norm_amp(:,ip)),'ro','markerfacecolor','r');
 		if stainfo(ista).isgood
+            disp(['Sta: ',stainfo(ista).stnm, ' isgood: ',num2str(stainfo(ista).isgood)]);
 			plot(ista, stainfo(ista).avgmean,'ro','markerfacecolor','g');
 		end
-		maxy = 3;
-		%ylim([0 maxy]);
-        ylim([0 10]);
+		%maxy = 3;
+        %maxy = max(norm_amp);
+		ylim([0 maxy]);
+        %ylim([0 3]);
 %		text(ista,-maxy/10,char(stainfo(ista).stnm),'rotation',90);
 		text(ista,-maxy/50,char(stainfo(ista).stnm),'rotation',-90);
 		set(gca, 'XTickLabel','')
@@ -97,14 +116,17 @@ subplot(2,1,2)
 isgood = [stainfo.isgood];
 ind = find(isgood);
 hist([stainfo(ind).avgmean],10);
-xlim([0 2])
+xlim([0 maxy])
+
+saveas(gcf,ofn)
 
 % Gather information
 stnms = {};
 stainfo = [];
 for ie = 1:length(CSfiles)
 	clear eventcs amps
-	load(fullfile('CSmeasure',CSfiles(ie).name));
+	%load(fullfile('CSmeasure',CSfiles(ie).name));
+    load(fullfile(workingdir,'CSmeasure',CSfiles(ie).name));
 	disp(CSfiles(ie).name)
 	for ista = 1:length(eventcs.stnms)
 		if ismember(eventcs.stnms(ista),OBSstnms)
@@ -153,6 +175,7 @@ load('png_amp_stainfo_cor');
 
 % after the correction
 figure(24)
+ofn = strcat(figDir,"/amp_Corr.png");
 clf
 hold on
 title('After Correction');
@@ -167,7 +190,7 @@ for ip = avg_band
 		if stainfo(ista).isgood
 			plot(ista, stainfo(ista).avgmean,'ro','markerfacecolor','g');
 		end
-		maxy = 3;
+		%maxy = 3;
 		ylim([0 maxy]);
 %		text(ista,-maxy/10,char(stainfo(ista).stnm),'rotation',90);
 		text(ista,-maxy/50,char(stainfo(ista).stnm),'rotation',-90);
@@ -178,4 +201,6 @@ subplot(2,1,2)
 isgood = [stainfo.isgood];
 ind = find(isgood);
 hist([stainfo(ind).avgmean],10);
-xlim([0 2])
+xlim([0 maxy])
+
+saveas(gcf,ofn)
