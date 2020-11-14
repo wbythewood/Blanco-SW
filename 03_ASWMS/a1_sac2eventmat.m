@@ -40,7 +40,7 @@ for ie = 1:length(eventids)
 	end
 	clear event
 	datapath = [dbpath, char(eventids(ie)),'/'];
-	disp(datapath);
+	%disp(datapath);
 	saclist = dir([datapath,'*',comp,'.sac']);
     if isempty(saclist)
         continue
@@ -69,6 +69,13 @@ for ie = 1:length(eventids)
 			event.otimestr = datestr(datenum(sac.NZYEAR-1,12,31,sac.NZHOUR,sac.NZMIN,sac.NZSEC)+sac.NZJDAY);
             event.Mw = sac.MAG;
         end
+
+        % wbh check for timing errors
+        %disp(abs(event.otime - otime))
+        if abs(event.otime - otime) > 1
+            disp(['Data start time more than 1 s different from event time for ',matfilename]);
+        end
+        
         % calculate snr
         snr = calc_SNR(sac,parameters,isplotsnr);
         if snr <= snr_tol
