@@ -7,13 +7,14 @@ clear;
 setup_parameters;
 
 ghDir = '~/Research/github/';
-ASWMSDir = [ghDir,'ASWMS-ani/'];
+ghDir = '~/Research/Seismology/Blanco-SW/'
+ASWMSDir = [ghDir,'03_ASWMS/'];
 workingDir = parameters.workingdir;
 outPath = [workingDir,'eventmat/'];
 comp = parameters.component;
 
 
-ATaCRDir = [ghDir,'ATaCR/'];
+ATaCRDir = [ghDir,'02_ATaCR/'];
 evFileName = 'eventtimes_x9testX.txt';
 outFileName = [ASWMSDir,'datacache/'];
 
