@@ -17,8 +17,11 @@ cohere_tol = parameters.cohere_tol;
 fiterr_tol = 1e-2; % wavelet fitting error, throw out measurements greater than this
 maxstadist = 600;
 minstadist = 200;
-cohere_tol = 0.80;
-min_stadist_wavelength = 0.33; %0.5; % minimum station separation in wavelengths
+maxstadist = parameters.maxstadist;
+minstadist = parameters.minstadist;
+%cohere_tol = 0.80;
+%min_stadist_wavelength = 0.33; %0.5; % minimum station separation in wavelengths
+min_stadist_wavelength = 0; % minimum station separation in wavelengths
 max_stadist_wavelength = 999;
 ref_phv = [3.9936 4.0041 4.0005 3.9999 3.9929 3.9832 3.9813 3.9841 3.9874 3.9996 4.0138 4.0519 4.0930 4.1677 4.2520]; % for calculating wavelength
 
@@ -32,15 +35,30 @@ is_overwrite = 1;
 % % output path
 % eikonl_output_path = './eikonal/';
 
-workingdir = parameters.workingdir;
+workingdir = parameters.ASWMSDir;
+matFileDir = parameters.MatFilesDir;
 % input path
-eventcs_path = [workingdir,'CSmeasure/'];
+eventcs_path = [matFileDir,'CSmeasure/'];
 % output path
-eikonl_output_path = [workingdir,'eikonal/'];
+eikonl_output_path = [matFileDir,'eikonal-flat/'];
+% figures directory
+fig_dir_base = parameters.figdir;
+figDirPhv = [parameters.figdir,'BackAz-flat/'];
+badStaList = [parameters.configDir,'badsta.lst'];
+
+
+if ~exist(figDirPhv)
+    mkdir(figDirPhv);
+end
 
 if ~exist(eikonl_output_path)
 	mkdir(eikonl_output_path);
 end
+
+% plate boundaries
+mapsDir = [parameters.MapsDir,'PlateBoundaries_NnrMRVL/'];
+usgsFN = [parameters.MapsDir,'usgs_plates.txt.gmtdat'];
+[pbLat,pbLon] = importPlates(usgsFN);
 
 comp = parameters.component;
 lalim=parameters.lalim;
@@ -100,11 +118,17 @@ toc
 F2 = flat_kernel_build(xnode, ynode, Nx*Ny);
 
 % read in bad station list, if existed
-if exist('badsta.lst')
-	badstnms = textread('badsta.lst','%s');
+% wbh use config file, dont hardwire
+if exist(badStaList)
+	badstnms = textread(badStaList,'%s');
 	disp('Found Bad stations:')
 	disp(badstnms)
 end
+% if exist('badsta.lst')
+% 	badstnms = textread('badsta.lst','%s');
+% 	disp('Found Bad stations:')
+% 	disp(badstnms)
+% end
 
 csmatfiles = dir([eventcs_path,'/*cs_',comp,'.mat']);
 for ie = 1:length(csmatfiles)
@@ -145,7 +169,7 @@ for ie = 1:length(csmatfiles)
 	end
 
 	% Calculate the relative travel time compare to one reference station
-	travel_time = Cal_Relative_dtp(eventcs);
+	travel_time = Cal_Relative_dtp_wbh(eventcs,badstaids);
 
 	% Build the ray locations
 	clear rays 
