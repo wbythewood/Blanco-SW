@@ -97,8 +97,8 @@ tic
 toc
 
 % read in bad station list, if existed
-if exist('badsta.lst')
-	badstnms = textread('badsta.lst','%s');
+if exist(badStaList)
+	badstnms = textread(badStaList,'%s');
 	disp('Found Bad stations:')
 	disp(badstnms)
 end
@@ -149,7 +149,7 @@ for ie = 1:length(csmatfiles)
 	end
 
 	% Calculate the relative travel time compare to one reference station
-	travel_time = Cal_Relative_dtp(eventcs);
+	travel_time = Cal_Relative_dtp_wbh(eventcs,badstaids);
 
 	% Build the ray locations
 	clear rays
