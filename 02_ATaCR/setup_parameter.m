@@ -2,12 +2,12 @@
 
 % path for matlab codes and functions
 addpath ('function');
-javaaddpath('IRIS-WS-2.0.18.jar');
+javaaddpath('./IRIS-WS-2.0.18.jar');
 
 %--- Directory Structure ---%
 
 %Base Directory for Output
-BaseDir = '/Users/whawley/Research/github/Blanco-SW/';
+BaseDir = '/Users/wbhawley/Research/Seismology/Blanco-SW/';
 DataDir = strcat(BaseDir,'data/');
 
 % If Downloading using MATLAB code...
@@ -35,16 +35,20 @@ OUTdir = strcat(BaseDir,'data/NOISETC/');
 FIGdir = strcat(BaseDir,'figures/');
 
 % paths for the event and noise time lists
-evFile = strcat(BaseDir,'config/BlancoEventList_M5.5.txt');
-dayFile = strcat(BaseDir,'config/BlancoNoiseDays_M5.5.txt');
+evFile = strcat(BaseDir,'config/BlancoEventTest_M6.5.txt');
+dayFile = strcat(BaseDir,'config/BlancoNoiseTest_M6.5.txt');
 
 %--- Data to download ---%
 
 % networks -- still only can do one
-NetworkName = 'X9';
 % stations
 %StationNames = {'*'};
+
+NetworkName = 'X9';
 StationNames = textread(strcat(BaseDir,'config/X9_stations.txt'),'%s');
+
+%NetworkName = '7D';
+%StationNames = textread(strcat(BaseDir,'config/7D_stations.txt'),'%s');
 
 % Response Removal
 % option of removing response from Z component only after corrections have
@@ -165,3 +169,8 @@ filop = 2; %how to filter TF
 % 2 - %lowpass - 0.005+freqcomp, adaptive to the infragravity wave cutoff, no high pass;
 tap_width = 0.01; %width in percent of frequency vector of cosine taper is this actually used?????
 taper_lim = [0 1]; % upper and lower freuqncy in Hz limit for taper if user specified (option 1); zero means not applied
+
+
+% %% Octave Things
+% pkg load financial
+% pkg load signal
