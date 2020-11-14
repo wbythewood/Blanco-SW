@@ -18,15 +18,19 @@ is_overwrite = 1;
 setup_parameters
 
 workingdir = parameters.ASWMSDir;
-% input path
-eventcs_path = [workingdir,'CSmeasure/'];
+matFileDir = parameters.MatFilesDir;
+% input pathu
+eventcs_path = [matFileDir,'CSmeasure/'];
 % output path
-eikonl_output_path = [workingdir,'eikonal/'];
+eikonl_output_path = [matFileDir,'eikonal/'];
 % figures directory
-fig_dir_base = [parameters.workingdir,'figures/'];
+fig_dir_base = parameters.figdir;
+figDirPhv = [parameters.figdir,'BackAz_no150/'];
+%figDirPhv = [parameters.figdir,'BackAz/'];
+badStaList = [parameters.configDir,'badsta.lst'];
 
-if ~exist([fig_dir_base,'BackAz/'])
-    mkdir([fig_dir_base,'BackAz/']);
+if ~exist(figDirPhv)
+    mkdir(figDirPhv);
 end
 
 % plate boundaries
@@ -368,7 +372,10 @@ for ie = 1:length(csmatfiles)
         plotm(pbLat,pbLon,'LineWidth',2,'Color','k') % plate boundaries
         %geoshow(eventcs.stlas,eventcs.stlos,'DisplayType','point','Marker','.','MarkerEdgeColor','b','MarkerSize',12)
         amps = [];
-        for ista = 1:length(eventcs.stnms)
+        for ista = 1:length(eventcs.stnms) % loop through stations
+            if ismember(ista,badstaids) % don't plot the bad stations
+                continue
+            end
             amps(ista) = mean(eventcs.autocor(ista).amp);
         end
         scatterm(eventcs.stlas,eventcs.stlos,30,amps,'o','filled')
@@ -392,7 +399,7 @@ for ie = 1:length(csmatfiles)
         
         sgtitle("Phase Velocities for "+eventcs.id+' M'+MwStr+' Dist: '+DistStr+'\circ'); %wbh
         %ofn = [figDir,'PhaseVels_0.25.png'];   % wbh save in event dir
-        ofn = [fig_dir_base,'BackAz/',num2str(round(az)),'_',DistStr,'_M',MwStr,'_PhaseVels_0.25.png'];   % wbh save in BackAz dir
+        ofn = [figDirPhv,'/',num2str(round(az)),'_',DistStr,'_M',MwStr,'_PhaseVels_0.25.png'];   % wbh save in BackAz dir
 
         saveas(gcf,ofn) %wbh
         drawnow;
