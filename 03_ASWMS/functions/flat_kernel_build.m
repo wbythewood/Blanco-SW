@@ -12,11 +12,11 @@ Nx = length(xnode);
 Ny = length(ynode);
 
 % Smoothing in y
-[i,j] = ndgrid(1:Nx,1:(Ny-1));
-ind = j(:) + Ny*(i(:)-1);
-dy = diff(ynode);
+[i,j] = ndgrid(1:Nx,1:(Ny-1)); % set up grid of points that correspond to grid size, smaller by 1 than y
+ind = j(:) + Ny*(i(:)-1); % the indices of each point
+dy = diff(ynode); % grid spacing
 % dy1 = dy(j(:)-1);
-dy2 = dy(j(:));
+dy2 = dy(j(:)); % grid spacing mapped to each adjacent pair of points
 Areg = sparse(repmat(ind,1,2),[ind,ind+1], ...
     [-1./dy2, 1./dy2],N,N);
 % Smoothing in x
@@ -46,6 +46,7 @@ if 0
         end
         figure(99); clf;
         imagesc(xnode,ynode,Fgrid);
+        colorbar
         pause;
     end
 end
