@@ -140,6 +140,13 @@ for ie = 1:length(csmatfiles)
 	disp(eventcs.id)
 	evla = eventcs.evla;
 	evlo = eventcs.evlo;
+    
+
+    % set up fig dir name
+    figDir = [fig_dir_base,eventcs.id,'/'];
+    if ~exist(figDir)
+        mkdir(figDir);
+    end
 
 	matfilename = [eikonl_output_path,'/',eventcs.id,'_eikonal_',comp,'.mat'];
 	if exist(matfilename,'file') && ~is_overwrite
@@ -438,10 +445,13 @@ for ie = 1:length(csmatfiles)
 	end % end of periods loop
 	if isfigure
 		N=3; M = floor(length(periods)/N) +1;
+        Mphvel = floor((1+length(periods))/N) +1;   % wbh
+
 		figure(88)
 		clf
 		for ip = 1:length(periods)
-			subplot(M,N,ip)
+			%subplot(M,N,ip)
+            subplot(Mphvel,N,ip)   % wbh
 			ax = worldmap(lalim, lolim);
 			set(ax, 'Visible', 'off')
 			h1=surfacem(xi,yi,eventphv(ip).GV);
@@ -458,6 +468,8 @@ for ie = 1:length(csmatfiles)
 			colorbar
 			load seiscmap
 			colormap(seiscmap)
+            h = colorbar; %wbh
+            ylabel(h,'Vs (km/s)') %wbh
             
 %             % Plot ray paths
 %             jj=0;
@@ -475,9 +487,77 @@ for ie = 1:length(csmatfiles)
 %             h = plotm([lat1 lat2]',[lon1 lon2]','-k','linewidth',0.5); hold on;
 		
         end
+                % wbh draw map with stations and backaz
+        subplot(Mphvel,N,length(periods)+1)
+        
+        ax = worldmap(lalim,lolim);
+        set(ax, 'Visible', 'off')
+        plotm(pbLat,pbLon,'LineWidth',2,'Color','k') % plate boundaries
+        %geoshow(eventcs.stlas,eventcs.stlos,'DisplayType','point','Marker','.','MarkerEdgeColor','b','MarkerSize',12)
+        amps = [];
+        for ista = 1:length(eventcs.stnms) % loop through stations
+            if ismember(ista,badstaids) % don't plot the bad stations
+                continue
+            end
+            amps(ista) = mean(eventcs.autocor(ista).amp);
+        end
+        scatterm(eventcs.stlas,eventcs.stlos,30,amps,'o','filled')
+        caxis([min(amps) max(amps)]);
+        h = colorbar;
+        ylabel(h,'Amplitude');
+        % get event azimuth
+        az = azimuth(eventcs.stlas(1),eventcs.stlos(1),evla,evlo);
+        [distdeg,az] = distance(eventcs.stlas(1),eventcs.stlos(1),evla,evlo);
+        arrlen = 1.4;
+        arru = arrlen.*cosd(az);
+        arrv = arrlen.*sind(az);
+        arrLat = mean(lalim);
+        arrLon = mean(lolim);
+        quiverm(arrLat,arrLon,arru,arrv,'r')
+        azstr = ["az: "+num2str(round(az))+'\circ'];
+        textm(lalim(1)+0.5,lolim(1)+0.5,azstr,'FontSize',12) 
+        
+        MwStr = sprintf('%.2f',eventphv(ip).Mw);
+        DistStr = sprintf('%.0f',distdeg);
+        
+        sgtitle("Phase Velocities for "+eventcs.id+' M'+MwStr+' Dist: '+DistStr+'\circ'); %wbh
+        %ofn = [figDir,'PhaseVels_0.25.png'];   % wbh save in event dir
+        ofn = [figDirPhv,'/',num2str(round(az)),'_',DistStr,'_M',MwStr,'_PhaseVels_0.25.png'];   % wbh save in BackAz dir
+
+        saveas(gcf,ofn) %wbh
+        drawnow;
+
+        % wbh draw ray density
+        figure(89)
+        clf
+        ofn = [figDirPhv,'RayDensity_0.25.png'];
+        for ip = 1:length(periods)
+            subplot(M,N,ip)
+            ax = worldmap(lalim, lolim);
+            set(ax, 'Visible', 'off')
+            h2 = surfacem(xi,yi,eventphv(ip).raydense);
+            title(['Period:', num2str(periods(ip))],'fontsize', 15)
+            avgv = nanmean(eventphv(ip).GV(:));
+            if isnan(avgv)
+                continue;
+            end
+            maxRayDensity = max(eventphv(ip).raydense,[],'all');
+            caxis([0,maxRayDensity])
+            colorbar
+            colormap summer
+            h = colorbar;
+            ylabel(h,'Ray Density')
+        end
+        sgtitle("Ray density for "+eventcs.id);
+        saveas(gcf,ofn)
+
 		drawnow;
 	end
 	matfilename = [eikonl_output_path,'/',eventcs.id,'_eikonal_',comp,'.mat'];
 	save(matfilename,'eventphv');
 	disp(['Save the result to: ',matfilename])
 end % end of loop ie
+disp(['Min sta dist of ',num2str(min_stadist_wavelength),' corresponds to:'])
+for ip = 1:length(periods)
+    disp(['Period: ',num2str(periods(ip)),', dist: ',num2str(ref_phv(ip)*periods(ip)*min_stadist_wavelength),' km.'])
+end
