@@ -7,9 +7,16 @@ isfigure = 1;
 setup_parameters
 
 workingdir = parameters.ASWMSDir;
+matFileDir = parameters.MatFilesDir;
 % phase_v_path = './eikonal/'
-phase_v_path = [workingdir,'eikonal/'];
+%phase_v_path = [workingdir,'eikonal/'];
+phase_v_path = [matFileDir,'eikonal/'];
 fig_base_dir = parameters.figdir;
+figDirStack = [parameters.figdir,'Stack/'];
+
+if ~exist(figDirStack)
+    mkdir(figDirStack);
+end
 
 % plate boundaries
 mapsDir = [parameters.MapsDir,'PlateBoundaries_NnrMRVL/'];
@@ -169,7 +176,7 @@ Mphvel = floor((1+length(periods))/N) +1;   % wbh
 
 figure(89)
 clf
-ofn = strcat(fig_base_dir,"/phv_stack.0.25.png");
+ofn = strcat(figDirStack,"/phv_stack.0.25.png");
 for ip = 1:length(periods)
 	subplot(Mphvel,N,ip)
 	ax = worldmap(lalim, lolim);
@@ -209,13 +216,13 @@ load coastlines
 plotm(coastlat,coastlon)
 geoshow(evlas,evlos,'DisplayType','point','Marker','x','MarkerEdgeColor','r','MarkerSize',12)
 plotm(43.75,-128.5,'Marker','s','MarkerSize',12,'MarkerEdgeColor','k')
-ofn = '/Users/whawley/Research/github/Blanco-SW/figures/EvtMap.png';
+ofn = strcat(figDirStack,"EvtMap.png");
 saveas(gcf,ofn)
 drawnow;
 
 figure(90)
 clf
-ofn = strcat(fig_base_dir,"/std.0.25.png");
+ofn = strcat(figDirStack,"/std.0.25.png");
 sgtitle('Std for stack')
 for ip = 1:length(periods)
 	subplot(M,N,ip)
@@ -240,7 +247,7 @@ drawnow;
 
 figure(95)
 clf
-ofn = strcat(fig_base_dir,"/weight.0.25.png");
+ofn = strcat(figDirStack,"/weight.0.25.png");
 sgtitle('Weights for stack')
 for ip = 1:length(periods)
 	subplot(M,N,ip)
