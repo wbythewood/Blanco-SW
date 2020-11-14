@@ -6,17 +6,33 @@
 clear
 setup_parameters
 
-setup_parameters
-workingdir = parameters.dataDir;
-eventmat_files = dir([workingdir,'eventmat/*.mat']);
+c = colormap('jet');
+is_reduce_v = 1; 
+ref_v = 4;
 
+setup_parameters
+workingdir = parameters.MatFilesDir;
+eventmatDir = [workingdir,'eventmat/'];
+eventmat_files = dir([eventmatDir,'*.mat']);
+
+figDir = [parameters.figdir,'RecSections/'];
+if ~exist(figDir,'dir')
+    mkdir(figDir);
+end
+
+lalim = parameters.lalim;
+lolim = parameters.lolim;
 
 % make record section for each event
 % first loop over event files
 
 for ie=1:length(eventmat_files)
-    load(fullfile(workingdir,'eventmat',eventmat_files(ie).name));
+    load(fullfile(eventmatDir ,eventmat_files(ie).name));
     ofn = [parameters.figdir,'RecSections/',event.id,'.pdf'];
+    minDist = min([event.stadata.dist]);
+    maxDist = max([event.stadata.dist]);
+    startTime = minDist / event.winpara(1) + event.winpara(2);
+    endTime = maxDist / event.winpara(3) + event.winpara(4);
 
 
     periods = parameters.periods;
@@ -24,18 +40,23 @@ for ie=1:length(eventmat_files)
     evla = event.evla;
     evlo = event.evlo;
 
-    time_range = [0 6000];
-    N_trace = 20;
+    %time_range = [0 6000];
+    time_range = [startTime endTime];
+
+    N_trace = 200;
     stlas = [stadata.stla];
     stlos = [stadata.stlo];
     [dists azi] = distance(evla,evlo,stlas,stlos);
 
-    %corner_dists(1) = distance(evla,evlo,lalim(1),lolim(1));
-    %corner_dists(2) = distance(evla,evlo,lalim(1),lolim(2));
-    %corner_dists(3) = distance(evla,evlo,lalim(2),lolim(1));
-    %corner_dists(4) = distance(evla,evlo,lalim(2),lolim(2));
-    %dist_range = [min(corner_dists) max(corner_dists)];
-    %dist_range = [min(dists)-1 max(dists)+1];
+    corner_dists(1) = distance(evla,evlo,lalim(1),lolim(1));
+    corner_dists(2) = distance(evla,evlo,lalim(1),lolim(2));
+    corner_dists(3) = distance(evla,evlo,lalim(2),lolim(1));
+    corner_dists(4) = distance(evla,evlo,lalim(2),lolim(2));
+    dist_range = [min(corner_dists) max(corner_dists)];
+    dist_range = [min(dists)-1 max(dists)+1];
+    
+    cc=interp1(1:256,c,(dists-min(dists))/(max(dists)-min(dists))*255+1);
+
 
     % prepare the data
     for ista=1:length(stadata);
@@ -58,15 +79,13 @@ for ie=1:length(eventmat_files)
     azi_range = [min(azi) max(azi)];
     zoom_level = 1;
     hist_time_range(zoom_level,:) = time_range;
-    %hist_dist_range(zoom_level,:) = dist_range;
+    hist_dist_range(zoom_level,:) = dist_range;
     freq_band = 0; 
     comp = 1;
     single_norm = 0;
     amp = 5;
     norm_amp = 0;
     isfill = 0;
-    is_reduce_v = 0;
-    ref_v = 10;
     is_dist = 1;
     is_cheatsheet = 0;
     is_bin = 0;
@@ -90,6 +109,8 @@ for ie=1:length(eventmat_files)
             timeaxis = stadata(ista).timeaxis;
             if is_reduce_v
                 timeaxis = timeaxis - deg2km(dists(ista))./ref_v;
+                time_range = [-500 500];
+                ofn = [parameters.figdir,'RecSections/Red.',event.id,'.pdf'];
             end
             ind = find(timeaxis > time_range(1) & timeaxis < time_range(2));
             data = stadata(ista).data;
@@ -146,7 +167,8 @@ for ie=1:length(eventmat_files)
                 end
                 %trace_amp = amp*diff(dist_range)/(2*N_trace);
                 %plot(timeaxis,data*trace_amp+dists(ista),'k');
-                plot(timeaxis,data+dists(ista),'k');
+                %plot(timeaxis,data+dists(ista),'r');
+                plot(timeaxis,data+dists(ista),'Color',cc(ista,:));
                 text(timeaxis(length(timeaxis))+100,data(length(timeaxis))+dists(ista),event.stadata(ista).stnm)
                 %text(-00,data(length(timeaxis))+dists(ista),event.stadata(ista).stnm)
 
@@ -353,4 +375,12 @@ for ie=1:length(eventmat_files)
 
     %outevent.winpara = event.winpara;
     %outevent.isgood = event.isgood;
+    
+    % loop over periods
+%     for ip = 1:periods
+%         loP = ip - ip*0.05;
+%         hiP = ip + ip*0.05;
+%         [buB,buA] = butter(2,[1/hiP,1/loP]/(1/delta/2),'bandpass')
+        
+    
     end
