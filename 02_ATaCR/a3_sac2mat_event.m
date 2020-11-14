@@ -19,7 +19,7 @@
 clear;
 setup_parameter;
 
-addpath ('02_ATaCR/function');
+addpath ('function');
 
 startlist = evFile; % list of start times for data download, this will be the beginning of the waveform so specify appropriately, signal of interest should not be at edges of time series
 datalength = EventDataLength; % length of time series after each start time in seconds (default 86400, code not thoroughly tested for other values)
@@ -77,7 +77,7 @@ for id = 1:length(startlist)
 		catch e
             e.message;
             error = 1;
-            display('Could not load data file');
+            disp(['Could not load data file',sac_filename]);
         end
     end
 
