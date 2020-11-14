@@ -19,7 +19,7 @@
 clear;
 setup_parameter;
 
-addpath ('02_ATaCR/function');
+addpath ('function');
 
 startlist = dayFile; % list of start times for data download
 datalength = NoiseDataLength; % length of time series after each start time in seconds (default 86400, code not thoroughly tested for other values)
@@ -44,7 +44,9 @@ for id = 1:length(startlist)
    otime = datenum(eventid,'yyyymmddHHMM');
    starttime = datestr(otime,'yyyy-mm-dd HH:MM:SS');
    endtime = datestr(otime+datalength/3600/24,'yyyy-mm-dd HH:MM:SS');
-   jday = otime - datenum(year(otime),1,1) + 1;
+   %jday = otime - datenum(year(otime),1,1) + 1;
+   % wbh edit bc I don't have the financial toolbox
+   jday = otime - datenum(year(datetime(datestr(otime))),1,1) + 1;
 
    for ista =1:length(download_stations)
        clear traces_day
@@ -69,7 +71,7 @@ for id = 1:length(startlist)
             for ch = {chp_vec ch1_vec ch2_vec chz_vec}
                 ich = ich + 1;
                 %sac_filename = [stnm,'.',num2str(year(otime)),'.',num2str(jday,'%03d'),'.00.00.00.',ch{:},'.sac'];
-                sac_filename = strcat(stnm,'.',num2str(year(otime)),'.',num2str(jday,'%03d'),'.00.00.00.',ch{:},'.sac');
+                sac_filename = strcat(stnm,'.',num2str(year(datetime(datestr(otime)))),'.',num2str(jday,'%03d'),'.00.00.00.',ch{:},'.sac');
                 sac_fullPath = fullfile(sacdaydata,NetSta,sac_filename);
                 sac = rdsac(sac_fullPath{1});
                 traces_day(ich) = sac2mat( sac );
@@ -77,7 +79,7 @@ for id = 1:length(startlist)
             save(sta_filename,'traces_day');
 		catch e
             e.message;
-            display('Missing data file');
+            disp(['Missing data file:',sac_filename]);
             error = 1;
         end
     end
