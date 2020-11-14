@@ -12,8 +12,8 @@ setup_parameters
 % outwinpath = './winpara/';
 workingdir = parameters.workingdir;
 eventmatpath = parameters.MatDbDir;
-outmatpath = [parameters.ASWMSDir,'eventmat/'];
-outwinpath = [parameters.ASWMSDir,'winpara/'];
+outmatpath = [parameters.MatFilesDir,'eventmat/'];
+outwinpath = [parameters.MatFilesDir,'winpara/'];
 
 % wbh
 figdir = parameters.figdir;
@@ -93,7 +93,10 @@ for ie = 1:length(matfiles)
 	fprintf(fp,'%s %f %f %f %f\n',event.id,winpara(1),winpara(2),winpara(3),winpara(4));
 	fclose(fp);
 	event.winpara = winpara;
-	save([eventmatpath,matfiles(ie).name],'event');
+	%save([eventmatpath,matfiles(ie).name],'event');
+    disp(['Save to ',outmatpath,matfiles(ie).name])
+	save([outmatpath,matfiles(ie).name],'event');
+    
 	disp(winpara);
 	
 end % end of event
