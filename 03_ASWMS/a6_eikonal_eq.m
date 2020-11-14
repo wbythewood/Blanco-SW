@@ -116,7 +116,10 @@ for ie = 1:length(csmatfiles)
     
     % set up fig dir name
     figDir = [fig_dir_base,eventcs.id,'/'];
-    disp(figDir)
+    if ~exist(figDir)
+        mkdir(figDir);
+    end
+    %disp(figDir)
 
 	matfilename = [eikonl_output_path,'/',eventcs.id,'_eikonal_',comp,'.mat'];
 	if exist(matfilename,'file') && ~is_overwrite
@@ -336,8 +339,7 @@ for ie = 1:length(csmatfiles)
 				'Badnum:',num2str(eventphv(ip).badnum)]);
 	end % end of periods loop
 	if isfigure
-		N=3; 
-        M = floor(length(periods)/N) +1;
+		N=3; M = floor(length(periods)/N) +1;
         Mphvel = floor((1+length(periods))/N) +1;   % wbh
 		figure(88)
 		clf
