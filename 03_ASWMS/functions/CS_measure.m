@@ -6,7 +6,7 @@ function CS = CS_measure(event,sta1,sta2,parameters)
     isfigure = 1;
     outfigdir = [parameters.figdir,event.id,'/waveforms/'];
     
-     if ~exist(outfigdir,'dir')
+    if ~exist(outfigdir,'dir')
         mkdir(outfigdir)
     end
 
@@ -222,11 +222,12 @@ function CS = CS_measure(event,sta1,sta2,parameters)
 		for ip = 1:length(periods)
 			norm_nbands(:,ip) = nband_win_xcors(:,ip)./max(abs(nband_win_xcors(:,ip)));
 		end
-		contourf(xi,yi,norm_nbands);
+		contourf(xi,yi,norm_nbands,'Linewidth',1.5);
 		for ip=1:length(periods)
 			plot(CS.dtp(ip),periods(ip),'kx','linewidth',2);
 		end
 		xlim([-3*max(periods) 3*max(periods)]);
+        xline(0,'r');
         xlabel('time');
         ylabel('Period');
         colorbar
