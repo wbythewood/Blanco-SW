@@ -5,24 +5,38 @@ fullMAINpath = mfilename('fullpath');
 functionspath = [fullMAINpath(1:regexp(fullMAINpath,mfilename)-1),'functions'];
 addpath(functionspath);
 
-parameters.workingdir = '/Users/whawley/Research/github/Blanco-SW/';
-parameters.figdir = [parameters.workingdir,'figures/'];  % wbh addition
+%IdString = 'TaTest_wide';
+IdString = 'New';
+
+parameters.workingdir = '/Users/wbhawley/Research/Seismology/Blanco-SW/';
+%parameters.figdir = [parameters.workingdir,'figures/'];  % wbh addition
+parameters.figdir = [parameters.workingdir,'figures/',IdString,'/'];  % wbh addition
 parameters.configDir = [parameters.workingdir,'config/'];
 parameters.dataDir = [parameters.workingdir,'data/'];
 parameters.SacDbDir = [parameters.dataDir,'CORRSEIS_SAC/'];
+%parameters.SacDbDir = [parameters.dataDir,'SAC_Events_TA/'];
+%parameters.SacDbDir = [parameters.dataDir,'SAC_Events/'];
 parameters.MatDbDir = [parameters.dataDir,'eventmat/'];
+parameters.MatDbDir = [parameters.dataDir,'eventmat_',IdString,'/'];
 parameters.ASWMSDir = [parameters.workingdir,'03_ASWMS/'];
-parameters.MapsDir = '/Users/whawley/data/maps/';
+parameters.MatFilesDir = [parameters.ASWMSDir,'matfiles_',IdString,'/'];
+%parameters.MatFilesDir = [parameters.ASWMSDir,'matfiles_New/'];
+parameters.MapsDir = '/Users/wbhawley/data/maps/';
 
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
 %%%% Global settings
 parameters.proj_name = 'Blanco';
 parameters.component = 'LHZ';   % determined by filenames
-parameters.lalim = [42.5 45] ;
-parameters.lolim = [-131.5 -125.5];
+parameters.lalim = [41.5 45.5];%[42.5 45] ;
+parameters.lolim = [-131.5 -125.25];%[-131.5 -125.5];
+%TA
+%parameters.lalim = [33.0 38.0];%[42.5 45] ;
+%parameters.lolim = [-120.0 -114.0];%[-131.5 -125.5];
+
 parameters.gridsize = 0.25;   % in degrees
-% parameters.periods = [20 25 32 40 50 60 80 100];  % in seconds
 parameters.periods = [20 25 32 40 50 60 80 100 120 130 150]; 
+%parameters.periods = [20 25 32 40 50 60 80 100];  % SP in seconds
+%parameters.periods = [80 100 120 140 160]; %LP
 % parameters.periods = round(logspace(log10(20),log10(150),15));
 parameters.minSta = 5; % if fewer than this no of stations, evt skipped.
 
@@ -42,7 +56,8 @@ parameters.minSta = 5; % if fewer than this no of stations, evt skipped.
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
 % Parameters for own data selection criteria
 parameters.dbpath = parameters.SacDbDir;
-parameters.eventfile = [parameters.configDir,'BlancoEventList_M6.5.txt'];
+parameters.eventfile = [parameters.configDir,'BlancoEventTest_M6.5.txt'];
+%parameters.eventfile = [parameters.configDir,'BlancoEventTest_LP.txt'];
 parameters.minMw = 5.0;
 parameters.maxdepth = 500;
 parameters.snr_tol = 3;
@@ -65,29 +80,38 @@ parameters.min_sta_num = 5; %10 %JBR
 % parameters for the cross-correlation measurement
 % (gsdfmain.m)
 parameters.minstadist = 5;
-parameters.maxstadist = 600; %600; %250 %200;   % station cross-correlation distance in km
+parameters.maxstadist = 250; %200;   % station cross-correlation distance in km
+parameters.maxstadist = 600;   % station cross-correlation distance in km
 parameters.is_rm_resp = 0;
 parameters.periods = sort(parameters.periods);  % make sure periods are ascending
 parameters.refv = 4;   % to select the correct cycle
+%parameters.refv = 5;   % to select the correct cycle
 parameters.refphv = ones(size(parameters.periods))*4;
+%parameters.refphv = ones(size(parameters.periods))*5;
 parameters.min_width = 0.06;  % to build up gaussian filters
 parameters.max_width = 0.10;  
 parameters.wintaperlength = 30;   % taper to build up the isolation filter
 parameters.prefilter = [10,160]; %[15,160]; %[10,200];
-parameters.xcor_win_halflength = 200; %300; %200 %150;  % window for the cross-correlation
+%parameters.prefilter = [10,110]; %SP
+%parameters.prefilter = [70,200]; %LP
+parameters.xcor_win_halflength = 300; %200;  % window for the cross-correlation
 parameters.xcor_win_iter = zeros(size(parameters.periods)); % re-apply the xcor window due to measured group delay, should be same length as periods, not used anymore
 parameters.Nfit = 2; %4; % 2
 parameters.Ncircle = 5;
 parameters.cohere_tol = 0.65; % minimum coherenecy between two stations
 parameters.tp_tol = 10;  % seconds away from averaged phase velocity 
+parameters.tp_tol = 20;  % seconds away from averaged phase velocity 
 
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
 % parameters for the tomography
 % (eikonal_eq.m helmholtz_eq.m)
 % parameters.smweight_array = 3*[0.4 0.3 0.2 0.2 0.2 0.5 1 2];  % smoothing weight for the deltaSx and delta Sy
 parameters.smweight_array = 3*[0.4 0.3 0.2 0.2 0.2 0.5 1 2 2 3 3]; 
+%parameters.smweight_array = 3*[0.4 0.3 0.2 0.2 0.2 0.5 1 2]; %SP
+%parameters.smweight_array = 3*[1 2 2 3 3]; %LP
 % parameters.smweight_array = 3*[0.4 0.3 0.2 0.2 0.2 0.5 0.5 0.5 1 1 1 2 3 3 3]; 
 parameters.flweight_array = 100*ones(length(parameters.periods)); % JBR
+parameters.flweight_array = 5*ones(length(parameters.periods)); % JBR
 parameters.raydensetol=deg2km(parameters.gridsize)*2;
 parameters.Tdumpweight = 0;  % dumping the ray to the girgle circle path
 parameters.Rdumpweight = 0;  % dumping the region to have the same phase velocity
