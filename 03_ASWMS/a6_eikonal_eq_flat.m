@@ -199,20 +199,53 @@ for ie = 1:length(csmatfiles)
 		dt = zeros(length(eventcs.CS),1);
 		w = zeros(length(eventcs.CS),1);
         ddist = zeros(length(eventcs.CS),1);
+        N_coh_tol = 0;
+        N_minWavelength = 0;
+        N_maxWavelength = 0;
+        N_maxDist = 0;
+        N_minDist = 0;
+        N_fiterr = 0;
+        N_usable = 0;
+        N_isbadBefore = 0;
+        N_badSta = 0;
 		for ics = 1:length(eventcs.CS)
             if eventcs.CS(ics).cohere(ip)<cohere_tol && eventcs.CS(ics).isgood(ip)>0
                 eventcs.CS(ics).isgood(ip) = ErrorCode.low_cohere;
+                N_coh_tol = N_coh_tol + 1;
             end
-			if (eventcs.CS(ics).ddist < ref_phv(ip)*periods(ip)*min_stadist_wavelength || ...
+			%if (eventcs.CS(ics).ddist < ref_phv(ip)*periods(ip)*min_stadist_wavelength || ...
+			if (abs(eventcs.CS(ics).ddist) < ref_phv(ip)*periods(ip)*min_stadist_wavelength || ...
                     eventcs.CS(ics).ddist > ref_phv(ip)*periods(ip)*max_stadist_wavelength) && eventcs.CS(ics).isgood(ip)>0
 				eventcs.CS(ics).isgood(ip) = ErrorCode.min_stadist_wavelength;
+                %N_wavelength = N_wavelength + 1;
+                if eventcs.CS(ics).ddist > ref_phv(ip)*periods(ip)*max_stadist_wavelength
+                    N_maxWavelength = N_maxWavelength + 1;
+                end
+                if abs(eventcs.CS(ics).ddist) < ref_phv(ip)*periods(ip)*min_stadist_wavelength
+                    N_minWavelength = N_minWavelength + 1;
+                    disp([num2str(eventcs.CS(ics).ddist),' < ',num2str(ref_phv(ip)*periods(ip)*min_stadist_wavelength),' (wavelength)'])
+                    disp((['Stations ',eventcs.stnms(eventcs.CS(ics).sta1),' ',eventcs.stnms(eventcs.CS(ics).sta2)]))
+                    disp(' ')
+                end
             end
             if (eventcs.CS(ics).ddist > maxstadist || ...
                     eventcs.CS(ics).ddist < minstadist) && eventcs.CS(ics).isgood(ip)>0
                 eventcs.CS(ics).isgood(ip) = -13;
+                %N_maxDist = N_maxDist + 1;
+                if eventcs.CS(ics).ddist > maxstadist
+                    N_maxDist = N_maxDist + 1;
+                end
+                %if eventcs.CS(ics).ddist < minstadist
+                if abs(eventcs.CS(ics).ddist) < minstadist
+                    N_minDist = N_minDist + 1;
+                    disp([num2str(eventcs.CS(ics).ddist),' < ',num2str(minstadist)])
+                    disp(['Stations ',eventcs.stnms(eventcs.CS(ics).sta1),' ',eventcs.stnms(eventcs.CS(ics).sta2)])
+                    disp(' ')
+                end
             end
             if (eventcs.CS(ics).fiterr(ip) > fiterr_tol)
                 eventcs.CS(ics).isgood(ip) = -14;
+                N_fiterr = N_fiterr + 1;
             end
             if eventcs.CS(ics).cohere(ip)>=cohere_tol && eventcs.CS(ics).isgood(ip)==ErrorCode.low_cohere
                 eventcs.CS(ics).isgood(ip) = 1;
@@ -220,15 +253,27 @@ for ie = 1:length(csmatfiles)
 			if eventcs.CS(ics).isgood(ip) > 0 
 				dt(ics,:) = eventcs.CS(ics).dtp(ip);
 				w(ics,:) = 1;
+                N_usable = N_usable + 1;
 			else
 				dt(ics,:) = eventcs.CS(ics).dtp(ip);
 				w(ics,:) = 0;
+                N_isbadBefore = N_isbadBefore + 1;
 			end
 			if sum(ismember([eventcs.CS(ics).sta1 eventcs.CS(ics).sta2],badstaids)) > 0
 				w(ics,:) = 0;
+                N_badSta = N_badSta + 1;
             end
             ddist(ics,:) = eventcs.CS(ics).ddist;
-		end
+        end
+        disp(['Too low coherence: ', num2str(N_coh_tol)])
+        disp(['Stations too many wavelengths apart: ',num2str(N_maxWavelength)])
+        disp(['Stations too few wavelengths apart: ',num2str(N_minWavelength)])
+        disp(['Stations too far apart: ',num2str(N_maxDist)])
+        disp(['Stations too close: ',num2str(N_minDist)])
+        disp(['Fit error too high: ',num2str(N_fiterr)])
+        disp(['Number of good observations: ',num2str(N_usable)])
+        disp(['Number of prior bad observations: ',num2str(N_isbadBefore)])
+        disp(['Number of observations with bad stations: ',num2str(N_badSta)])
 		W = sparse(diag(w));
 
 		% Normalize smoothing kernel
