@@ -1,0 +1,6 @@
+.DS_Store
+*.mat
+*.csv
+*.pdf
+*.ps
+*.m~
