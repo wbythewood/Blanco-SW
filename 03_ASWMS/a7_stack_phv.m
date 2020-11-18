@@ -11,6 +11,7 @@ matFileDir = parameters.MatFilesDir;
 % phase_v_path = './eikonal/'
 %phase_v_path = [workingdir,'eikonal/'];
 phase_v_path = [matFileDir,'eikonal/'];
+phase_v_path = [matFileDir,'eikonal-flat/'];
 fig_base_dir = parameters.figdir;
 figDirStack = [parameters.figdir,'Stack/'];
 
@@ -117,8 +118,8 @@ for ie=1:length(event_ids)
 	if abs(diff_percent) > event_bias_tol;
 % 		matfile = dir(fullfile('eikonal',[char(event_ids(ie)),'*.mat']));
 % 		load(fullfile('eikonal',matfile(1).name));
-        matfile = dir(fullfile(workingdir,'eikonal',[char(event_ids(ie)),'*.mat']));
-		load(fullfile(workingdir,'eikonal',matfile(1).name));
+        matfile = dir(fullfile(phase_v_path,[char(event_ids(ie)),'*.mat']));
+		load(fullfile(phase_v_path,matfile(1).name));
 		evla = eventphv(1).evla;
 		evlo = eventphv(1).evlo;
 		epi_dist = distance(evla,evlo,mean(lalim),mean(lolim));
