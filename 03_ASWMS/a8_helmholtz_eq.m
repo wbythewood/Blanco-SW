@@ -24,10 +24,22 @@ eikonal_stack_file = [ASWMSDir,'eikonal_stack_',parameters.component];
 helmholtz_path = [ASWMSDir,'helmholtz/'];
 
 figDir = parameters.figdir;
+AzFigDir = [figDir,'BackAzHelmRemove5/'];
 
 if ~exist(helmholtz_path,'dir')
 	mkdir(helmholtz_path);
 end
+
+if ~exist(AzFigDir)
+    mkdir(AzFigDir);
+end
+
+% wbh load plate boundaries
+% plate boundaries
+mapsDir = [parameters.MapsDir,'PlateBoundaries_NnrMRVL/'];
+usgsFN = [parameters.MapsDir,'usgs_plates.txt.gmtdat'];
+[pbLat,pbLon] = importPlates(usgsFN);
+
 
 % load stacked phase velocity map
 load(eikonal_stack_file);
@@ -205,7 +217,7 @@ for ie = 1:length(eventfiles)
 			subplot(2,2,2)
 			ax = worldmap(lalim, lolim);
 			surfacem(xi,yi,GV_cor);
-			cb2 = colorbar %wbh
+			cb2 = colorbar; %wbh
 			title('after cor');
 			nanind = find(isnan(eventGV(:)));
 			ampmap = ampmap';
@@ -218,11 +230,11 @@ for ie = 1:length(eventfiles)
 			title('amplitude map')
 			plotm(stlas,stlos,'v')
             colormap default %wbh
-			cb3 = colorbar %wbh
+			cb3 = colorbar; %wbh
 			subplot(2,2,4)
 			ax = worldmap(lalim, lolim);
 			surfacem(xi,yi,amp_term);
-			cb4 = colorbar %wbh
+			cb4 = colorbar; %wbh
 			[temp bestalphai] = min(alpha_errs);
 			title('correction term')
             drawnow;
@@ -265,7 +277,8 @@ for ie = 1:length(eventfiles)
     figure(39)
     clf
     for ip = 1:length(periods)
-        subplot(M,N,ip)
+        %subplot(M,N,ip)
+        subplot(Mphvel,N,ip)
         ax = worldmap(lalim,lolim);
         h1 = surfm(xi,yi,GV_cor);
         title(["Period: ",num2str(periods(ip))],'fontsize',15)
@@ -283,8 +296,42 @@ for ie = 1:length(eventfiles)
         ylabel(h,'Vs (km/s)') %wbh
 
     end
-    sgtitle("Corrected Phase Velocities for "+eventcs.id);
-    ofn = [figDir,eventid,'/PhaseVels_0.25_HCorr.png'];   % wbh save in event dir
+    % wbh add station map
+    subplot(Mphvel,N,length(periods)+1)
+        
+        ax = worldmap(lalim,lolim);
+        set(ax, 'Visible', 'off')
+        plotm(pbLat,pbLon,'LineWidth',2,'Color','k') % plate boundaries
+        %geoshow(eventcs.stlas,eventcs.stlos,'DisplayType','point','Marker','.','MarkerEdgeColor','b','MarkerSize',12)
+        amps = [];
+        for ista = 1:length(eventcs.stnms)
+            amps(ista) = mean(eventcs.autocor(ista).amp);
+        end
+        scatterm(eventcs.stlas,eventcs.stlos,30,amps,'o','filled')
+        caxis([min(amps) max(amps)]);
+        h = colorbar;
+        ylabel(h,'Amplitude');
+        % get event azimuth
+        az = azimuth(eventcs.stlas(1),eventcs.stlos(1),eventcs.evla,eventcs.evlo);
+        [distdeg,az] = distance(eventcs.stlas(1),eventcs.stlos(1),eventcs.evla,eventcs.evlo);
+        arrlen = 1.4;
+        arru = arrlen.*cosd(az);
+        arrv = arrlen.*sind(az);
+        arrLat = mean(lalim);
+        arrLon = mean(lolim);
+        quiverm(arrLat,arrLon,arru,arrv,'r')
+        azstr = ["az: "+num2str(round(az))+'\circ'];
+        textm(lalim(1)+0.5,lolim(1)+0.5,azstr,'FontSize',12) 
+    %sgtitle("Corrected Phase Velocities for "+eventcs.id);
+    
+    MwStr = sprintf('%.2f',eventphv(ip).Mw);
+    DistStr = sprintf('%.0f',distdeg);
+    sgtitle("Corrected Phase Velocities for "+eventcs.id+' M'+MwStr+' Dist: '+DistStr+'\circ'); %wbh
+
+    %ofn = [figDir,eventid,'/PhaseVels_0.25_HCorr.png'];   % wbh save in event dir
+    ofn = [AzFigDir,num2str(round(az)),'_',DistStr,'_M',MwStr,'_HelmPhaseVels_0.25.png'];   % wbh save in BackAz dir
+    %set(gcf,'PaperUnits','centimeters');
+    %set(gcf,'PaperPosition', [0,0,10,15]);
     saveas(gcf,ofn) 
     drawnow;
 	matfilename = fullfile(helmholtz_path,[eventphv(1).id,'_helmholtz_',parameters.component,'.mat']);
