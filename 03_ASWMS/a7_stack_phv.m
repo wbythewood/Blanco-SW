@@ -164,7 +164,8 @@ if issmoothmap
 end
 
 
-save([workingdir,'eikonal_stack_',comp,'.mat'],'avgphv','GV_mat','GV_mat','raydense_mat','event_ids');
+%save([workingdir,'eikonal_stack_',comp,'.mat'],'avgphv','GV_mat','GV_mat','raydense_mat','event_ids');
+save([matFileDir,'eikonal_stack_',comp,'.mat'],'avgphv','GV_mat','GV_mat','raydense_mat','event_ids');
 
 
 % plot section
