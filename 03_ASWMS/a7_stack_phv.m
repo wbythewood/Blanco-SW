@@ -11,7 +11,7 @@ matFileDir = parameters.MatFilesDir;
 % phase_v_path = './eikonal/'
 %phase_v_path = [workingdir,'eikonal/'];
 phase_v_path = [matFileDir,'eikonal/'];
-phase_v_path = [matFileDir,'eikonal-flat/'];
+%phase_v_path = [matFileDir,'eikonal-flat/'];
 fig_base_dir = parameters.figdir;
 figDirStack = [parameters.figdir,'Stack/'];
 
@@ -24,8 +24,10 @@ mapsDir = [parameters.MapsDir,'PlateBoundaries_NnrMRVL/'];
 usgsFN = [parameters.MapsDir,'usgs_plates.txt.gmtdat'];
 [pbLat,pbLon] = importPlates(usgsFN);
 
-r = 0.10;
-load seiscmap
+r = 0.05; % color scale is +/- this value
+%load seiscmap
+load roma
+load lajolla
 
 comp = parameters.component;
 periods = parameters.periods;
@@ -172,21 +174,34 @@ save([matFileDir,'eikonal_stack_',comp,'.mat'],'avgphv','GV_mat','GV_mat','rayde
 % plot section
 
 if isfigure
+    
+figure(2)
+clf
+sgtitle('Event distribution')
+ax = worldmap('World');
+load coastlines
+plotm(coastlat,coastlon)
+geoshow(evlas,evlos,'DisplayType','point','Marker','x','MarkerEdgeColor','r','MarkerSize',12)
+plotm(43.75,-128.5,'Marker','s','MarkerSize',12,'MarkerEdgeColor','k')
+ofn = strcat(figDirStack,"EvtMap.png");
+set(gcf, 'PaperPosition', [0 0 10 10]);
+saveas(gcf,ofn)
+drawnow;
 
 N=3; M = floor(length(periods)/N)+1;
-Mphvel = floor((1+length(periods))/N) +1;   % wbh
+Mphvel = floor((1+length(periods))/N) ;   % wbh
 
 figure(89)
 clf
-ofn = strcat(figDirStack,"/phv_stack.0.25.png");
+ofn = strcat(figDirStack,"/phv_stack.0.25.pdf");
 for ip = 1:length(periods)
 	subplot(Mphvel,N,ip)
 	ax = worldmap(lalim, lolim);
-    plotm(pbLat,pbLon,'LineWidth',2,'Color','k') % plate boundaries
+    %plotm(pbLat,pbLon,'LineWidth',2,'Color','k') % plate boundaries
 	set(ax, 'Visible', 'off')
 	h1=surfacem(xi,yi,avgphv(ip).GV);
 	% set(h1,'facecolor','interp');
-	title(['Periods: ',num2str(periods(ip))],'fontsize',15)
+	title(['Period: ',num2str(periods(ip))],'fontsize',15)
 	avgv = nanmean(avgphv(ip).GV(:));
 	if isnan(avgv)
 		continue;
@@ -194,8 +209,9 @@ for ip = 1:length(periods)
     plotm(pbLat,pbLon,'LineWidth',0.5,'Color','k') % plate boundaries
 	caxis([avgv*(1-r) avgv*(1+r)])
 	colorbar
-	load seiscmap
-	colormap(seiscmap)
+	%load seiscmap
+	%colormap(seiscmap)
+    colormap(roma)
     h = colorbar;
     ylabel(h,'Vs (km/s)')
 end
@@ -207,18 +223,7 @@ paz = gca;
 paz.ThetaZeroLocation = 'Top';
 paz.ThetaDir = 'clockwise';
 sgtitle("Phase velocities");
-saveas(gcf,ofn)
-drawnow;
-
-figure(2)
-clf
-sgtitle('event dist')
-ax = worldmap('World');
-load coastlines
-plotm(coastlat,coastlon)
-geoshow(evlas,evlos,'DisplayType','point','Marker','x','MarkerEdgeColor','r','MarkerSize',12)
-plotm(43.75,-128.5,'Marker','s','MarkerSize',12,'MarkerEdgeColor','k')
-ofn = strcat(figDirStack,"EvtMap.png");
+set(gcf, 'PaperPosition', [0 0 15 15]);
 saveas(gcf,ofn)
 drawnow;
 
@@ -233,9 +238,9 @@ for ip = 1:length(periods)
 	h1=surfacem(xi,yi,avgphv(ip).GV_std);
 	% set(h1,'facecolor','interp');
 	title(['Periods: ',num2str(periods(ip))],'fontsize',15)
+    plotm(pbLat,pbLon,'LineWidth',0.5,'Color','k') % plate boundaries
 	colorbar
-	load seiscmap
-	colormap(seiscmap)
+	colormap(lajolla)
     h = colorbar;
     ylabel(h,'std')
 	meanstd = nanmean(avgphv(ip).GV_std(:));
@@ -243,6 +248,7 @@ for ip = 1:length(periods)
 		caxis([0 2*meanstd])
 	end
 end
+set(gcf, 'PaperPosition', [0 0 15 15]);
 saveas(gcf,ofn)
 drawnow;
 
@@ -259,11 +265,11 @@ for ip = 1:length(periods)
 	% set(h1,'facecolor','interp');
 	title(['Periods: ',num2str(periods(ip))],'fontsize',15)
 	colorbar
-	load seiscmap
-	colormap(seiscmap)
+	colormap(lajolla)
     h = colorbar;
     ylabel(h,'weight')
 end
 drawnow;
+set(gcf, 'PaperPosition', [0 0 15 15]);
 saveas(gcf,ofn)
 end
