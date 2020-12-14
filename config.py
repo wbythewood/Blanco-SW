@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 #  dirs and files
-BaseDir = '/Users/wbhawley/Research/Seismology/Blanco-SW/'
+BaseDir = '/Users/whawley/Research/github/Blanco-SW/'
 ConfigDir = BaseDir+'config/'
 DataDir = BaseDir+'data/'
 EventsDataDir = DataDir+'SAC_Events/'
@@ -27,7 +27,7 @@ isCMT_params = 1  # use GCMT parameters for SAC header; 0 = use IRIS
 isCentroid = 1  # if isCMT_params = 1, use centroid; 0 = epicentral
 
 #  Noise Download
-trLen = 60 * 60 * 24  # seconds 
+trLen = 60 * 60 * 24  # seconds
 noDays = 4  # number of days prior to event to use
 isCalDay = 1  # 0 to start each day at 00:00; 0 to use 24h segments prior to eq
 

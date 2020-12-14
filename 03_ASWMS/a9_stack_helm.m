@@ -15,6 +15,11 @@ matFileDir = parameters.MatFilesDir;
 phase_v_path = [matFileDir,'helmholtz/'];
 
 fig_base_dir = parameters.figdir;
+figDirStack = [parameters.figdir,'Stack/'];
+
+if ~exist(figDirStack)
+    mkdir(figDirStack);
+end
 
 % plate boundaries
 mapsDir = [parameters.MapsDir,'PlateBoundaries_NnrMRVL/'];
@@ -59,7 +64,7 @@ for ie = 1:length(phvmatfiles)
 		end
 	end
 	event_ids(ie) = {helmholtz(1).id};
-			
+
 	disp(helmholtz(1).id);
 	for ip=1:length(periods)
         ind = find(helmholtz(ip).GV_cor < min_phv_tol);
@@ -75,7 +80,7 @@ for ie = 1:length(phvmatfiles)
 			helmholtz(ip).GV_cor(:) = NaN;
 			helmholtz(ip).GV(:) = NaN;
         end
-		
+
         GV_cor_mat(:,:,ie,ip) = helmholtz(ip).GV_cor;
         GV_mat(:,:,ie,ip) = helmholtz(ip).GV;
 
@@ -185,7 +190,7 @@ if issmoothmap
 		GV_cor = smoothmap(xi,yi,avgphv(ip).GV_cor,D);
 		GV_cor(find(isnan(avgphv(ip).GV_cor))) = NaN;
 		avgphv(ip).GV_cor = GV_cor;
-	end	
+	end
 end
 
 
@@ -196,6 +201,7 @@ save([matFileDir,'helmholtz_stack_',comp,'.mat'],'avgphv','GV_mat','GV_cor_mat',
 
 if isfigure
 figure(71)
+ofn = strcat(figDirStack,"/HelmCorrections.png");
 clf
 %for ip = 1:length(periods)
 ip = demoip
@@ -253,8 +259,11 @@ ip = demoip
 	load seiscmap
 	colormap(seiscmap)
 
+saveas(gcf,ofn)
+
 N=3; M = floor(length(periods)/N)+1;
 figure(89)
+ofn = strcat(figDirStack,"/HelmDynamic_Stack.png");
 clf
 sgtitle('stack for dynamics phv')
 for ip = 1:length(periods)
@@ -274,8 +283,10 @@ for ip = 1:length(periods)
 	colormap(seiscmap)
 end
 drawnow;
+saveas(gcf,ofn)
 
 figure(90)
+ofn = strcat(figDirStack,"/HelmDynamic_STD.png");
 clf
 title('Std for dynamics phv')
 for ip = 1:length(periods)
@@ -294,8 +305,10 @@ for ip = 1:length(periods)
 	end
 end
 drawnow;
+saveas(gcf,ofn)
 
 figure(91)
+ofn = strcat(figDirStack,"/HelmStructure_Stack.png");
 clf
 sgtitle('stack for structure phv')
 for ip = 1:length(periods)
@@ -317,8 +330,10 @@ for ip = 1:length(periods)
     ylabel(h,'Vs (km/s)')
 end
 drawnow;
+saveas(gcf,ofn)
 
 figure(92)
+ofn = strcat(figDirStack,"/HelmStructure_STD.png");
 clf
 sgtitle('Std for structure phv')
 for ip = 1:length(periods)
@@ -340,8 +355,10 @@ for ip = 1:length(periods)
 %	caxis([0 0.5])
 end
 drawnow;
+saveas(gcf,ofn)
 
 figure(93)
+ofn = strcat(figDirStack,"/HelmDifference.png");
 clf
 sgtitle('Phase Velocity difference (corr?uncorr)')
 for ip = 1:length(periods)
@@ -359,8 +376,10 @@ for ip = 1:length(periods)
 %	caxis([0 0.5])
 end
 drawnow;
+saveas(gcf,ofn)
 
 figure(95)
+ofn = strcat(figDirStack,"/HelmWeight.png");
 clf
 sgtitle('Weight')
 for ip = 1:length(periods)
@@ -377,4 +396,5 @@ for ip = 1:length(periods)
     ylabel(h,'weight')
 end
 drawnow;
+saveas(gcf,ofn)
 end
