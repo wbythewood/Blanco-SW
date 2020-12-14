@@ -1,26 +1,26 @@
 #!/usr/bin/env python3
 
 #  dirs and files
-BaseDir = '/Users/wbhawley/Research/Seismology/Blanco-SW/'
+BaseDir = '/Users/whawley/Research/github/Blanco-SW/'
 ConfigDir = BaseDir+'config/'
 DataDir = BaseDir+'data/'
-EventsDataDir = DataDir+'SAC_Events_TA/'
+EventsDataDir = DataDir+'SAC_Events/'
 NoiseDataDir = DataDir+'SAC_Noise/'
-EventsFileName = ConfigDir+'BlancoEventTest_M6.5.txt'
-DayFileName = ConfigDir+'BlancoNoiseTest_M6.5.txt'
+EventsFileName = ConfigDir+'BlancoEventList_M6.5.txt'
+DayFileName = ConfigDir+'BlancoNoiseDays_M6.5.txt'
 # two station lists, one for BXH, one for all stations
 XStafn = ConfigDir+'X9_stations_X.txt'
 Stafn = ConfigDir+'X9_stations.txt'
-#Stafn = ConfigDir+'7D_stations.txt'
-Stafn = ConfigDir+'SC_stations.txt'
+Stafn = ConfigDir+'7D_stations.txt'
+#Stafn = ConfigDir+'SC_stations.txt'
 
 #  Event download
 minMag = 6.5
 webservice = "IRIS"
-webservice = "SCEDC"
+#webservice = "SCEDC"
 #network = "X9"  # X9 = Blanco
-#network = "7D"  # 7D = Cascadia Initiative
-network = "CI"
+network = "7D"  # 7D = Cascadia Initiative
+#network = "CI"
 isCMT_params = 1  # use GCMT parameters for SAC header; 0 = use IRIS
 isCentroid = 1  # if isCMT_params = 1, use centroid; 0 = epicentral
 
@@ -38,6 +38,9 @@ tend = '2013-08-17T23:59:59'
 tstart = '2013-02-09T00:00:00'
 tend = '2013-02-28T23:59:59'
 
+tstart = '2012-09-20T00:00:00'
+tend = '2013-10-07T00:00:00'
+
 # Stations to download
 # need one for low-pass filtered stations
 inFile = open(XStafn)
@@ -52,7 +55,7 @@ StaList = []
 for line in inFile:
     StaList.append(line.rstrip('\n'))
 ChanList = ['LHZ', 'LH1', 'LH2', 'BDH']
-ChanList = ['LHZ']
+#ChanList = ['LHZ']
 
 # Event trace info
 isDownsamp = 1  # downsample option
