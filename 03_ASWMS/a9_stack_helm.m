@@ -11,8 +11,8 @@ setup_parameters
 
 % phase_v_path = './helmholtz/'
 workingdir = parameters.workingdir;
-ASWMSDir = parameters.ASWMSDir;
-phase_v_path = [ASWMSDir,'helmholtz/'];
+matFileDir = parameters.MatFilesDir;
+phase_v_path = [matFileDir,'helmholtz/'];
 
 fig_base_dir = parameters.figdir;
 
@@ -132,8 +132,8 @@ for ie=1:length(event_ids)
 %        dir(fullfile(workingdir,'helmholtz',[char(event_ids(ie)),'*.mat']));
 %        % wbh change paths
 %		load(fullfile(workingdir,'helmholtz',matfile(1).name));
-        matfile = dir(fullfile(ASWMSDir,'helmholtz',[char(event_ids(ie)),'*.mat']));
-		load(fullfile(ASWMSDir,'helmholtz',matfile(1).name));
+        matfile = dir(fullfile(matFileDir,'helmholtz',[char(event_ids(ie)),'*.mat']));
+		load(fullfile(matFileDir,'helmholtz',matfile(1).name));
 		evla = helmholtz(1).evla;
 		evlo = helmholtz(1).evlo;
 		epi_dist = distance(evla,evlo,mean(lalim),mean(lolim));
@@ -189,7 +189,7 @@ if issmoothmap
 end
 
 
-save([workingdir,'helmholtz_stack_',comp,'.mat'],'avgphv','GV_mat','GV_cor_mat','raydense_mat','event_ids');
+save([matFileDir,'helmholtz_stack_',comp,'.mat'],'avgphv','GV_mat','GV_cor_mat','raydense_mat','event_ids');
 
 
 % plot section
