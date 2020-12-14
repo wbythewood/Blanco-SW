@@ -5,9 +5,9 @@ c = colormap('jet');
 hangint = hangs(2)-hangs(1);
 
 days = dayofyear(str2num(dayid(1:4)),str2num(dayid(5:6)),str2num(dayid(7:8)),0,0);
-%cc=interp1(1:64,c,((days)/(365))*63+1);
+cc=interp1(1:64,c,((days)/(365))*63+1);
 % wbh Newer matlab versions now have colormaps 256 elements long, not 64
-cc=interp1(1:256,c,((days)/(365))*255+1);
+%cc=interp1(1:256,c,((days)/(365))*255+1);
 
 
 ph_points = zeros(1,2);
