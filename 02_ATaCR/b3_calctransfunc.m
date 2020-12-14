@@ -7,7 +7,7 @@ clear all; close all
 
 isfigure = 1;
 issavefigure = 1;
-isoverwrite = 1;
+isoverwrite = 0;
 
 %%%%%% DO NOT EDIT BELOW %%%%%%%
 setup_parameter;
