@@ -7,8 +7,8 @@ clear;
 setup_parameters;
 
 %======================= PARAMETERS =======================%
-comp = 'ZZ'; %'ZZ'; %'RR'; %'TT';
-period_lims = [2 50];
+comp = parameters.strNAMEcomp; 
+period_lims = parameters.PeriodRange;
 windir = 'window3hr';
 pts_smooth = 20; % just for plotting purposes
 issemilogx = 0;
@@ -122,7 +122,7 @@ for ista1=1:nsta % loop over all stations
         xlim([1/period_lims(2) 1/period_lims(1)]);
         %xlim([0.04 0.16])
         xlabel('Frequency');
-        ylim([-0.03 0.03]);
+        %ylim([-0.03 0.03]);
         %ylim([-0.01 0.01]);
         set(gca,'linewidth',1.5);
         
@@ -142,7 +142,7 @@ for ista1=1:nsta % loop over all stations
         xlim([1/period_lims(2) 1/period_lims(1)]);
         %xlim([0.04 0.16])
         xlabel('Frequency');
-        ylim([-0.03 0.03]);
+        %ylim([-0.03 0.03]);
         %ylim([-0.01 0.01]);
         set(gca,'linewidth',1.5);
         
@@ -169,10 +169,13 @@ for ista1=1:nsta % loop over all stations
 %         pause;
         %print(f201,'-dpdf',[figpath,'bessel_',comp,'_',sta1,'_',sta2,'.pdf']); % Save figure
         if issemilogx
-            save2pdf([figpath,'log_bessel_',comp,'_',sta1,'_',sta2,'_',num2str(pts_smooth),'pts_comparewin.pdf'],f201,1000);
+            %save2pdf([figpath,'log_bessel_',comp,'_',sta1,'_',sta2,'_',num2str(pts_smooth),'pts_comparewin.pdf'],f201,1000);
+            ofn = [figpath,'log_bessel_',comp,'_',sta1,'_',sta2,'_',num2str(pts_smooth),'pts_comparewin.pdf'];
         else
-            save2pdf([figpath,'bessel_',comp,'_',sta1,'_',sta2,'_',num2str(pts_smooth),'pts_comparewin.pdf'],f201,1000);
+            %save2pdf([figpath,'bessel_',comp,'_',sta1,'_',sta2,'_',num2str(pts_smooth),'pts_comparewin.pdf'],f201,1000);
+            ofn = [figpath,'bessel_',comp,'_',sta1,'_',sta2,'_',num2str(pts_smooth),'pts_comparewin.pdf'];
         end
+        saveas(f201,ofn);
     end % ista2
 end % ista1
 

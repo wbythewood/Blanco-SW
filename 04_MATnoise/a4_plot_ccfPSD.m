@@ -6,18 +6,14 @@ clear;
 setup_parameters;
 
 %======================= PARAMETERS =======================%
-comp = 'ZZ'; %'ZZ'; %'RR'; %'TT';
-windir = 'window3hr_Z'; 
-
-%==========================================================%
+comp = parameters.strNAMEcomp; 
+windir = parameters.winDirName;
 
 stalist = parameters.stalist;
 nsta = parameters.nsta;
 winlength = parameters.winlength;
 figpath = parameters.figpath;
-%fig_winlength_path = [figpath,'window',num2str(winlength),'hr/fullStack/'];
-% custom directory names
-    fig_winlength_path = [figpath,windir,'/fullStack/'];
+fig_winlength_path = [figpath,windir,'/fullStack/'];
 dt = parameters.dt;
 
 %------------ PATH INFORMATION -------------%
@@ -196,5 +192,7 @@ set(gca,'Xtick',[1 2 3 4 5 6 7 8 10 20 30 40 50 70 100]);
 %pause;
 
 % print(f203,'-dpdf',[figpath,'psd_ccfwin_allsta',comp,'_log_pwelch.pdf']); % Save figure
-save2pdf([figpath,'psd_ccfwin_allsta',comp,'_log_pwelch_ORALS.pdf'],f203,1000);
+%save2pdf([figpath,'psd_ccfwin_allsta',comp,'_log_pwelch_ORALS.pdf'],f203,1000);
+ofn = [figpath,'psd_ccfwin_allsta',comp,'_log_pwelch.pdf'];
+saveas(f203, ofn);
 % export_fig([figpath,'psd_ccfwin_allsta',comp,'_log_pwelch_ORALS.pdf'],'-pdf','-q100','-p0.02','-painters',f203)

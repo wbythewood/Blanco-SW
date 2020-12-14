@@ -10,29 +10,30 @@ IsFigure = 0;
 IsFigure_GAUS = 0; % Plot frequency domain filtered and unfiltered
 
 %======================= PARAMETERS =======================%
-comp = 'ZZ'; %'ZZ'; %'RR'; %'TT';
-coperiod = [5 10]; % Periods to filter between
 amp = 8e0;
-windir = 'window3hr';
-windir_for_SNR = 'window3hr'; % Data to use for calculating SNR threshold (for plotting purposes)
-trace_space = 0; % km
-snr_thresh = 2.5;
-dep_tol = [0 0]; % [sta1, sta2] OBS Depth tolerance;
-max_grv = inf; %5.5;
-min_grv = 1.4; %1.6
-xlims = [-250 250];
-ylims = [0 450];
-IsButterworth = 1; % 1=butterworth; 0=tukey
-
-%%% --- Parameters to build up gaussian filters --- %%% 
-% (effects the width of the filter in the frequency domain)
-costap_wid = 0.2; % 0 => box filter; 1 => Hann window
-
 isplotwin = 0; %1;
 isploth20 = 0;
 isfigure_snr = 0;
 
-h20_grv = 1.5;
+% parameters from param file
+comp = parameters.strNAMEcomp; 
+coperiod = parameters.PeriodRange; 
+windir = parameters.winDirName;
+windir_for_SNR = parameters.winDirName; % Data to use for calculating SNR threshold (for plotting purposes)
+trace_space = parameters.trace_space; 
+snr_thresh = parameters.snr_thresh;
+dep_tol = parameters.dep_tol; 
+max_grv = parameters.max_grv; 
+min_grv = parameters.min_grv; 
+xlims = parameters.xlims;
+ylims = parameters.ylims;
+IsButterworth = parameters.IsButterworth; 
+FiltStr = parameters.FiltStr;
+
+%%% --- Parameters to build up gaussian filters --- %%% 
+% (effects the width of the filter in the frequency domain)
+costap_wid = parameters.costap_wid;
+h20_grv = parameters.h20_grv;
 %==========================================================%
 
 dt = parameters.dt;
@@ -296,15 +297,20 @@ ylabel('SNR','FontWeight','bold');
 xlim([0 500]);
 ylim([1e-1 1e3]);
 
+%wbh define output file name and save fig
+ofn = [figpath,'SNR_',comp,'_',FiltStr,'_',num2str(min_grv),'_',num2str(max_grv),'.pdf'];
+saveas(gcf,ofn)
+%save2pdf([figpath,'SNR_',comp,'_tukeyfilt_',num2str(min_grv),'_',num2str(max_grv),'.pdf'],101,1000);
 
-save2pdf([figpath,'SNR_',comp,'_tukeyfilt_',num2str(min_grv),'_',num2str(max_grv),'.pdf'],101,1000);
 %%
 % print(f102,'-dpdf',[figpath,'all_ccf',comp,'_tukeyfilt.pdf']); % Save figure
 if isplotwin
-    figname = [figpath,'all_ccf',comp,'_tukeyfilt_win',num2str(min_grv),'_',num2str(max_grv),'_TEI19.pdf'];
+    figname = [figpath,'all_ccf',comp,'_',FiltStr,'_win',num2str(min_grv),'_',num2str(max_grv),'_TEI19.pdf'];
 else
-    figname = [figpath,'all_ccf',comp,'_tukeyfilt_TEI19.pdf'];
+    figname = [figpath,'all_ccf',comp,'_',FiltStr,'_TEI19.pdf'];
 end
-save2pdf(figname,f102,1000);
+set(f102, 'PaperPosition', [0 0 8.5 11]);
+saveas(f102,figname)
+%save2pdf(figname,f102,1000);
 % export_fig(figname,'-pdf','-q100','-p0.02','-painters',f102)
 % print(f102,'-dpdf',figname);
