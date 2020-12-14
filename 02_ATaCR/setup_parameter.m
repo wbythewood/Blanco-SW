@@ -35,8 +35,8 @@ OUTdir = strcat(BaseDir,'data/NOISETC/');
 FIGdir = strcat(BaseDir,'figures/');
 
 % paths for the event and noise time lists
-evFile = strcat(BaseDir,'config/BlancoEventTest_M6.5.txt');
-dayFile = strcat(BaseDir,'config/BlancoNoiseTest_M6.5.txt');
+evFile = strcat(BaseDir,'config/BlancoProblematicEvt.txt');
+dayFile = strcat(BaseDir,'config/BlancoProblematicDay.txt');
 
 %--- Data to download ---%
 

@@ -2,34 +2,33 @@
 %
 % https://github.com/jbrussell
 clear; close all;
+setup_parameters;
+
 
 %======================= PARAMETERS =======================%
-comp = {'ZZ'};
-xspdir = 'phv_dir';
-windir = 'window3hr'; 
+comp = {parameters.strNAMEcomp};
+windir = parameters.winDirName; 
 
-frange = [1/10 1/5]; % [Hz]
+frange = 1./parameters.PeriodRange;
 
 % QC parameters
-snr_tol = 3; % minimum signal-to-noise
-r_tol_min = 90; % [km] minimum station separation
-r_tol_max = 600; % [km] maximum station separation
-err_tol = 0.5; % maximum misfit of bessel fit between observed and synthetic
+snr_tol = parameters.tomo_snr_tol;
+r_tol_min = parameters.r_tol_min;
+r_tol_max = parameters.r_tol_max;
+err_tol = parameters.err_tol;
 
 %==========================================================%
 %%
 % Load color scale
 load seiscmap.mat
 % figure output path
-phv_fig_path = ['./figs/',windir,'/fullStack/raytomo/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',xspdir,'/'];
+phv_fig_path = ['./figs/',windir,'/fullStack/raytomo/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_phv_dir/'];
 if ~exist(phv_fig_path)    
     mkdir(phv_fig_path);
 end
 
 % Set up geometry parameters
-setup_parameters_tomo;
-setup_parameters;
-station_list = parameters.station_list;
+station_list = parameters.StaListFile;
 lalim = parameters.lalim;
 lolim = parameters.lolim;
 gridsize = parameters.gridsize;
@@ -39,7 +38,7 @@ Nx = length(xnode);
 Ny = length(ynode);
 
 % Load station info
-[sta.name, sta.lat, sta.lon, sta.dep] = textread(station_list,'%s %f %f %f');
+[sta.nw, sta.name, sta.lat, sta.lon, sta.dep] = textread(station_list,'%s %s %f %f %f');
 
 fiterrtol = parameters.fiterrtol;
 maxerrweight = parameters.maxerrweight;
@@ -67,7 +66,7 @@ if exist('badsta.lst')
 end
 
 % Initialize the xsp structure
-Xsp_path = ['../Xsp/',windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',xspdir,'/'];
+Xsp_path = ['Xsp/',windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_1wl_phv_dir/'];
 xspfiles = dir([Xsp_path,'*_xsp.mat']);
 
 disp('Looking at Xsp Files')
@@ -75,6 +74,7 @@ for ixsp = 1:length(xspfiles)
     
     temp = load([Xsp_path,xspfiles(ixsp).name]);
     xspinfo = temp.xspinfo;
+    %disp([xspinfo.sta1,' ',xspinfo.sta2,' ',num2str(length(xspinfo.tw))])
     
     if ixsp ==1
         Tperiods = (2*pi)./temp.twloc;
@@ -86,6 +86,7 @@ for ixsp = 1:length(xspfiles)
         xspinfo.isgood = 0;
         xspsum = [xspsum;xspinfo];
     end
+    %disp(length(temp.twloc))
     clear temp
 
     if xspinfo.snr >= snr_tol && xspinfo.r >= r_tol_min && xspinfo.r <= r_tol_max && xspinfo.sumerr <= err_tol
@@ -103,7 +104,7 @@ for ip=1:length(Tperiods)
     disp(['Inversing Period: ',num2str(Tperiods(ip))]);
     clear rays dt fiterr mat phaseg err raydense dist snrs phv phv_cor
     raynum = 0;
-    
+    isbad = 0;
     for ixsp = 1:length(xspsum)
         if xspsum(ixsp).isgood ==0;
             continue;
@@ -116,6 +117,8 @@ for ip=1:length(Tperiods)
         rays(raynum,4) = xspsum(ixsp).lon2;
         
         dist(raynum) = deg2km(distance(rays(raynum,1),rays(raynum,2),rays(raynum,3),rays(raynum,4)));
+        
+
         dt(raynum) = xspsum(ixsp).tw(ip);
         snrs(raynum) = xspsum(ixsp).snr;
         
@@ -146,12 +149,13 @@ end
 
 %%
 
-Mp = 3; Np = 4;
+Mp = 6; Np = 4;
 
 fig20 = figure(20);
 set(gcf,'position',[1    1   1244   704]);
 clf
-rbc = flip(redbluecmap);
+%rbc = flip(redbluecmap);
+load seiscmap
 % rbc = rbc([1 2 3 4 5 7 8 9 10 11],:);
 for ip=1:length(Tperiods)
 subplot(Mp,Np,ip)
@@ -160,7 +164,8 @@ subplot(Mp,Np,ip)
     
 %     avgv = nanmean(dat(ip).phv_cor);
     avgv = nanmean(dat(ip).phv);
-    vels = linspace(avgv*(1-r),avgv*(1+r),size(rbc,1));
+    %vels = linspace(avgv*(1-r),avgv*(1+r),size(rbc,1));
+    vels = linspace(avgv*(1-r),avgv*(1+r),size(seiscmap,1));
     clrs = [];
     for ixsp = 1:length(dat(ip).phv)
         lat1 = dat(ip).rays(ixsp,1);
@@ -170,7 +175,9 @@ subplot(Mp,Np,ip)
 %         [~,iclr] = min(abs(vels - dat(ip).phv_cor(ixsp)));
         [~,iclr] = min(abs(vels - dat(ip).phv(ixsp)));
 %         plotm([lat1 lat2],[lon1 lon2],dat(ip).phv(ixsp),'color',rbc(iclr,:),'linewidth',1.5);
-        clrs(ixsp,:) = rbc(iclr,:);
+        %clrs(ixsp,:) = rbc(iclr,:);
+        clrs(ixsp,:) = seiscmap(iclr,:);
+
         hold on;
     %     drawlocal
     end
@@ -178,15 +185,15 @@ subplot(Mp,Np,ip)
     set(h,{'color'},num2cell(clrs,2));
     title([num2str(Tperiods(ip))],'fontsize',15)
     colorbar
-%     colormap(seiscmap)
-    colormap(rbc);
+    colormap(seiscmap)
+%    colormap(rbc);
     caxis([vels(1) vels(end)]);
     
     plotm(sta.lat,sta.lon,'ok','markerfacecolor',[0 0 0]);
 %     [c,h] = contourm(age_grid.LAT,age_grid.LON,age_grid.AGE,'k','LevelStep',5);
     drawnow;
 end
-save2pdf([phv_fig_path,comp{1}(1),'_','r',num2str(r_tol_min),'_',num2str(r_tol_max),'_snr',num2str(snr_tol),'_err',num2str(err_tol),'_rays.pdf'],fig20,1000);
+%save2pdf([phv_fig_path,comp{1}(1),'_','r',num2str(r_tol_min),'_',num2str(r_tol_max),'_snr',num2str(snr_tol),'_err',num2str(err_tol),'_rays.pdf'],fig20,1000);
 
 %%
 fig22 = figure(22); % without azi corr
@@ -210,14 +217,14 @@ title([num2str(Tperiods(ip))],'fontsize',15)
 avgv = nanmean(dat(ip).phv);
 caxis([avgv*(1-r) avgv*(1+r)])
 colorbar
-% colormap(seiscmap)
+colormap(seiscmap)
 % colormap(flip(jet))
-rbc = flip(redbluecmap);
+%rbc = flip(redbluecmap);
 % rbc = rbc([1 2 3 4 5 7 8 9 10 11],:);
-colormap(rbc);
+%colormap(rbc);
 
-[c,h] = contourm(age_grid.LAT,age_grid.LON,age_grid.AGE,'k','LevelStep',5);
+%[c,h] = contourm(age_grid.LAT,age_grid.LON,age_grid.AGE,'k','LevelStep',5);
 end
 
 % save2pdf([phv_fig_path,comp{1}(1),'_','r',num2str(r_tol_min),'_',num2str(r_tol_max),'_snr',num2str(snr_tol),'_err',num2str(err_tol),'_ray_midpts_azicorr.pdf'],fig21,1000);
-save2pdf([phv_fig_path,comp{1}(1),'_','r',num2str(r_tol_min),'_',num2str(r_tol_max),'_snr',num2str(snr_tol),'_err',num2str(err_tol),'_ray_midpts.pdf'],fig22,1000);
+%save2pdf([phv_fig_path,comp{1}(1),'_','r',num2str(r_tol_min),'_',num2str(r_tol_max),'_snr',num2str(snr_tol),'_err',num2str(err_tol),'_ray_midpts.pdf'],fig22,1000);

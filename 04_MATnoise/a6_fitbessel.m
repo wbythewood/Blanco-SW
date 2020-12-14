@@ -18,28 +18,29 @@ global weight
 setup_parameters;
 
 %======================= PARAMETERS =======================%
-comp = {'ZZ'}; %'RR'; 'ZZ'; 'TT'
-windir = 'window3hr';
-xspdir = 'phv_dir'; % output directory of phase velocities
-frange = [1/5 1/10]; % frequency range over which to fit bessel function
-N_wl = 1; % Number of wavelengths required
+is_resume = 0; % Resume from last processed file or overwrite
+isoutput = 1; % Save *.mat file with results?
 
-
-Npers = 21; % Number of periods
+comp = {parameters.strNAMEcomp};
+windir = parameters.winDirName;
+figDir = parameters.figpath;
+frange = 1./parameters.PeriodRange; 
+N_wl = parameters.Wavelengths; 
+Npers = parameters.npers; % Number of periods
 xlims = [1/12 1/3]; % limits for plotting
 t_vec_all = 1./flip(linspace(frange(1) , frange(2) ,Npers)); % periods at which to extract phase velocity
 
-damp = [1; 1; 1]; % [fit, smoothness, slope]
-is_normbessel = 0; % normalize bessel function by analytic envelope?
+damp = parameters.damp;
+is_normbessel = parameters.is_normbessel;
+iswin = parameters.iswin;
 
 % % Manually input phase velocity
 % c = []';
 
-is_resume = 0; % Resume from last processed file or overwrite
-iswin = 1; % Use the time-domain windowed ccfs?
+
 npts_smooth = 1; % 1 = no smoothing
 
-isoutput = 1; % Save *.mat file with results?
+
 nearstadist = 0;
 IsFigure = 1;
 isfigure2 = 0;
@@ -102,7 +103,7 @@ end
 ccf_path = [parameters.ccfpath,windir,'/fullStack/ccf',comp{1},'/'];
 
 % output path
-XSP_path = ['./Xsp/',windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(N_wl),'wl_',xspdir,'/'];
+XSP_path = ['./Xsp/',windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(N_wl),'wl_phv_dir/'];
 
 if ~exist(XSP_path)
     if ~exist('./Xsp/')
@@ -122,9 +123,9 @@ end
 
 % figure output path
 if iswin
-    XSP_fig_path = ['./figs/',windir,'/fullStack/Xsp/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(N_wl),'wl_',xspdir,'/TEI19/'];
+    XSP_fig_path = [figDir,windir,'/fullStack/Xsp/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(N_wl),'wl_phv_dir/TEI19/'];
 else
-    XSP_fig_path = ['./figs/',windir,'/fullStack/Xsp/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(N_wl),'wl_',xspdir,'/TEI19_nowin/'];
+    XSP_fig_path = [figDir,windir,'/fullStack/Xsp/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(N_wl),'wl_phv_dir/TEI19_nowin/'];
 end
 
 if ~exist(XSP_fig_path)
@@ -255,11 +256,13 @@ for ista1=1:nsta
         %%% - Invert for the bessel function 2x - %%%
         options = optimoptions(@lsqnonlin,'TolFun',1e-12,'MaxIter',1500,'MaxFunEvals',1500);
         weight  = 1./waxis;
+        
         tw2 = lsqnonlin(@(x) besselerr(x,[xsp1],damp,is_normbessel),[tw1],[tw1]*0.8,[tw1]*1.2,options);
 %         tw2 = lsqnonlin(@(x) besselerr(x,[xsp1]),[tw1],[],[],options);
         
         weight(:) = 1;
         [tw,~,res,~,~,~,J] = lsqnonlin(@(x) besselerr(x,[xsp1],damp,is_normbessel),[tw2],[tw2]*0.8,[tw2]*1.2,options);
+        disp([tN,length(tw2),length(tw)])
 %         tw = lsqnonlin(@(x) besselerr(x,[xsp1]),[tw2],[tw2]*0.8,[tw2]*1.2,options);
 %         tw = lsqnonlin(@(x) besselerr(x,[xsp1]),[tw2],[],[],options);
         
@@ -402,7 +405,8 @@ for ista1=1:nsta
             %print('-dpsc2',psfile);
             drawnow
             if isoutput
-                save2pdf(psfile,f3,250);
+                %save2pdf(psfile,f3,250);
+                saveas(f3,psfile);
             end
 
             

@@ -19,12 +19,13 @@ setup_parameters
 workingdir = parameters.workingdir;
 matFileDir = parameters.MatFilesDir;
 eventcs_path = [matFileDir,'CSmeasure/'];
-eikonal_data_path = [matFileDir,'eikonal-flat/'];
+%eikonal_data_path = [matFileDir,'eikonal-flat/'];
+eikonal_data_path = [matFileDir,'eikonal/'];
 eikonal_stack_file = [matFileDir,'eikonal_stack_',parameters.component];
 helmholtz_path = [matFileDir,'helmholtz/'];
 
 figDir = parameters.figdir;
-AzFigDir = [figDir,'BackAzHelmRemove5/'];
+AzFigDir = [figDir,'BackAzHelm/'];
 
 if ~exist(helmholtz_path,'dir')
 	mkdir(helmholtz_path);

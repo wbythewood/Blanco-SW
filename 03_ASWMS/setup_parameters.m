@@ -1,4 +1,4 @@
-% Script to setup parameters used for the whole project
+% Script to setup parameters used for ASWMS
 
 % prepend functions directory to MATLAB path
 fullMAINpath = mfilename('fullpath');
@@ -7,9 +7,10 @@ addpath(functionspath);
 
 %IdString = 'TaTest_wide';
 IdString = 'New';
+IdString = 'AGU_7D';
 
+% Set up paths
 parameters.workingdir = '/Users/wbhawley/Research/Seismology/Blanco-SW/';
-%parameters.figdir = [parameters.workingdir,'figures/'];  % wbh addition
 parameters.figdir = [parameters.workingdir,'figures/',IdString,'/'];  % wbh addition
 parameters.configDir = [parameters.workingdir,'config/'];
 parameters.dataDir = [parameters.workingdir,'data/'];
@@ -57,6 +58,7 @@ parameters.minSta = 5; % if fewer than this no of stations, evt skipped.
 % Parameters for own data selection criteria
 parameters.dbpath = parameters.SacDbDir;
 parameters.eventfile = [parameters.configDir,'BlancoEventTest_M6.5.txt'];
+%parameters.eventfile = [parameters.configDir,'BlancoProblematicEvt.txt'];
 %parameters.eventfile = [parameters.configDir,'BlancoEventTest_LP.txt'];
 parameters.minMw = 5.0;
 parameters.maxdepth = 500;
@@ -111,7 +113,7 @@ parameters.smweight_array = 3*[0.4 0.3 0.2 0.2 0.2 0.5 1 2 2 3 3];
 %parameters.smweight_array = 3*[1 2 2 3 3]; %LP
 % parameters.smweight_array = 3*[0.4 0.3 0.2 0.2 0.2 0.5 0.5 0.5 1 1 1 2 3 3 3]; 
 parameters.flweight_array = 100*ones(length(parameters.periods)); % JBR
-parameters.flweight_array = 5*ones(length(parameters.periods)); % JBR
+parameters.flweight_array = 0.5*ones(length(parameters.periods)); % JBR
 parameters.raydensetol=deg2km(parameters.gridsize)*2;
 parameters.Tdumpweight = 0;  % dumping the ray to the girgle circle path
 parameters.Rdumpweight = 0;  % dumping the region to have the same phase velocity
@@ -133,7 +135,7 @@ parameters.max_phv_tol = 5;
 parameters.is_raydense_weight = 0; %1; % manual says suggested turned off for large azimuthal anisotropy
 parameters.min_event_num = 3; %10;
 parameters.err_std_tol = 2;
-parameters.issmoothmap = 1;
+parameters.issmoothmap = 0;%1;
 parameters.smooth_wavelength = 0.25;
 parameters.event_bias_tol = 3; %2;
 
@@ -143,7 +145,7 @@ parameters.event_bias_tol = 3; %2;
 % beta version
 parameters.smsize = 10; %1;  % averaging nearby grid number
 parameters.off_azi_tol = 30; % differ from great circle path in degrees
-parameters.is_one_phi = 0; %1;
+parameters.is_one_phi = 0;
 
 if length(parameters.periods)~=length(parameters.smweight_array) || length(parameters.periods)~=length(parameters.min_csgoodratio)
     error('Length of periods doesn''t match smweight_array and/or min_csgoodratio');

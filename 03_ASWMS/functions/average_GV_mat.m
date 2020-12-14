@@ -48,5 +48,5 @@ for ip=1:length(periods)
 end	
 
 for ip=1:length(periods)
-	avgphv(ip).GV = 1./avgphv(ip).GV;
+	avgphv(ip).GV = 1./avgphv(ip).GV; % go from slowness to velocity
 end

@@ -12,12 +12,13 @@
 
 clear;
 %plot native
-% close 11
+ close 11
 setup_parameters
 
 % phase_v_path = './eikonal/'
 workingdir = parameters.workingdir;
-phase_v_path = [workingdir,'eikonal/'];
+matFileDir = parameters.MatFilesDir;
+phase_v_path = [matFileDir,'eikonal-flat/'];
 
 dc_thresh = 5; % [%] remove velocity perturbations larger than this
 min_goodnum = 5; % minimum number of GSDF measurements
@@ -27,8 +28,8 @@ min_nodes_resolved = 0; % minimum number of resolved nodes in final model
 
 r = 0.05;
 isfigure = 1;
-APM = 114; % absolute plate motion (GSRM 2.1; NNR) https://www.unavco.org/software/geodetic-utilities/plate-motion-calculator/plate-motion-calculator.html
-FSD = 75; 
+APM = 0;%114; % absolute plate motion (GSRM 2.1; NNR) https://www.unavco.org/software/geodetic-utilities/plate-motion-calculator/plate-motion-calculator.html
+FSD = 0;%75; 
 
 comp = parameters.component;
 periods = parameters.periods;
@@ -218,7 +219,7 @@ for ip = 1:length(periods)
 				%plot native 
                 figure(11)
                 subplot(M,N,ip);
-%                 clf
+ %                clf
                 hold on
                 azi(azi<0) = azi(azi<0)+360;
                 dv = (phV-isophv(mi,mj))./isophv(mi,mj)*100;
@@ -290,13 +291,14 @@ xlim([20 150]);
 ylabel('2A');
 %plot native
 subplot(3,1,3); hold on;
-plot([periods(1),periods(end)],FSD*[1 1],'--k','linewidth',1.5); hold on;
-plot([periods(1),periods(end)],APM*[1 1],'--','color',[0.5 0.5 0.5],'linewidth',1.5);
+%plot([periods(1),periods(end)],FSD*[1 1],'--k','linewidth',1.5); hold on;
+%plot([periods(1),periods(end)],APM*[1 1],'--','color',[0.5 0.5 0.5],'linewidth',1.5);
 plot(pers,fastdir,'-o','color',[0.8 0.8 0.8]);
 errorbar(periods,aniso_azi,aniso_azi_std,'-or');
 errorbar(periods,aniso_azi+180,aniso_azi_std,'-or');
 errorbar(periods,aniso_azi-180,aniso_azi_std,'-or');
-ylim([50 140]);
+%ylim([50 140]);
+ylim([0 360]);
 xlim([20 150]);
 ylabel('\phi');
 xlabel('Periods (s)');

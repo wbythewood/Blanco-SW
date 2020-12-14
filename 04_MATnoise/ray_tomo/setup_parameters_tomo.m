@@ -6,11 +6,16 @@ addpath('../functions');
 addpath('./tomo_functions');
 % parameters.qpath = './MINEOS_qfile/';
 
-parameters.station_list = '../stalist_good12.txt';
+parameters.workingdir = '/Users/wbhawley/Research/Seismology/Blanco-SW/';
+parameters.NoiseDir = [parameters.workingdir,'/04_MATnoise/'];
+parameters.dataDir = [parameters.workingdir,'data/'];
+parameters.configDir = [parameters.workingdir,'config/'];
+%parameters.station_list = [parameters.configDir,'stalist_nw.txt'];%'../stalist_good12.txt';
+parameters.station_list = [parameters.configDir,'stalist.txt'];%'../stalist_good12.txt';
 
 % Lat Lon
-parameters.lalim = [-9 -3] ;
-parameters.lolim = [-136 -130];
+parameters.lalim = [41.5 45.5] ;
+parameters.lolim = [-131.5 -125.25];
 parameters.gridsize = 0.25; % degrees?
 parameters.agebins = [165:5:175];
 parameters.bathybins = [-9000 :5000: 1000];

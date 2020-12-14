@@ -9,34 +9,29 @@ setup_parameters;
 IsFigure = 1;
 
 %======================= PARAMETERS =======================%
-comps = {'ZZ'}; % {'ZZ','RR','TT'}
-coperiod = [5 10]; % Periods to filter between
-windir = 'window3hr'; 
-% Mode Branches
-max_grv = inf; %5.5;
-min_grv = 1.4; %1.6; %2.2;
-
-
 IsVelLines = 1;
-% WATER
-H20grv = 1.4;
-xlims = [-500 500];
-%==========================================================%
 
+% from param file
+comps = {parameters.strNAMEcomp}; 
+coperiod = parameters.PeriodRange;
+windir = parameters.winDirName;
+% Mode Branches
+max_grv = parameters.max_grv; 
+min_grv = parameters.min_grv; 
+% WATER
+H20grv = parameters.h20_grv;
+xlims = parameters.xlims;
 stalist = parameters.stalist;
 nsta = parameters.nsta;
 winlength = parameters.winlength;
 figpath = parameters.figpath;
 dt = parameters.dt;
-%fig_winlength_path = [figpath,'window',num2str(winlength),'hr/fullStack/'];
-% custom directory names
-    fig_winlength_path = [figpath,windir,'/fullStack/'];
+fig_winlength_path = [figpath,windir,'/fullStack/'];
 
 %------------ PATH INFORMATION -------------%
 % OLD CCF
 ccf_path = parameters.ccfpath;
-%ccf_winlength_path = [ccf_path,'window',num2str(winlength),'hr/'];
-    ccf_winlength_path = [ccf_path,windir,'/'];
+ccf_winlength_path = [ccf_path,windir,'/'];
 ccf_singlestack_path = [ccf_winlength_path,'single/'];
 ccf_daystack_path = [ccf_winlength_path,'dayStack/'];
 ccf_monthstack_path = [ccf_winlength_path,'monthStack/'];

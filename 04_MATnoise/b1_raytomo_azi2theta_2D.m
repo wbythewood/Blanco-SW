@@ -11,26 +11,25 @@
 clear; close all;
 
 %%
-%======================= PARAMETERS =======================%
-comp = {'ZZ'};
-xspdir = 'phv_dir'; %'Nomelt3inttaper_iso.s0to333_br1avg'; %'4.0_S1_10pers_avg'; %'Nomelt3inttaper_iso.s0to333_br1avg'; %'4.0_S0_waverage';
-windir = 'window3hr'; 
-
 % Save results?
 isoutput = 1;
 savefile = ['test'];
-
-frange = [1/10 1/5]; % [Hz]
+%======================= PARAMETERS =======================%
+setup_parameters;
+comp = {parameters.strNAMEcomp};
+windir = parameters.winDirName; 
+frange = 1./parameters.PeriodRange; 
+Nwl = parameters.Wavelengths;
 
 average_vel = 3.8; % [km/s] For calculating wavelength for determining r_tol_min
 
 % QC parameters
-snr_tol = 3; % minimum signal-to-noise
-is_rtolmin_wavelength = 0; wl_fac = 1.0; % determine distance tolerance by wavelength?
-r_tol_min = 90; % [km] minimum station separation
-r_tol_max = 600; % [km] maximum station separation
-err_tol = 0.5; % maximum misfit of bessel fit between observed and synthetic
-
+snr_tol = parameters.tomo_snr_tol;
+is_rtolmin_wavelength = parameters.is_rtolmin_wavelength; 
+wl_fac = parameters.wl_fac;
+r_tol_min = parameters.r_tol_min;
+r_tol_max = parameters.r_tol_max;
+err_tol = parameters.err_tol; 
 fastdir = 78; % Fast direction for azimuthal anisotropy (only for plotting purposes);
 iscompare_aniso = 0; % compare to old anisotropic measurements
 
@@ -40,20 +39,19 @@ iscompare_aniso = 0; % compare to old anisotropic measurements
 load seiscmap.mat
 % Load anisotropy data (from old inversion)
 if iscompare_aniso
-    load(['./aniso_DATA/',xspdir,'/',aniso_data]);
+    load(['./aniso_DATA/phv_dir/',aniso_data]);
 end
 
 % Set up geometry parameters
-setup_parameters_tomo;
 setup_parameters;
 lalim = parameters.lalim;
 lolim = parameters.lolim;
 gridsize = parameters.gridsize;
 gridsize_azi = parameters.gridsize_azi;
-station_list = parameters.station_list;
+station_list = parameters.StaListFile;
 
 % Load station info
-[sta.name, sta.lat, sta.lon, sta.dep] = textread(station_list,'%s %f %f %f');
+[sta.nw sta.name, sta.lat, sta.lon, sta.dep] = textread(station_list,'%s %s %f %f %f');
 
 fiterrtol = parameters.fiterrtol;
 maxerrweight = parameters.maxerrweight;
@@ -79,7 +77,8 @@ Nx_azi = length(xnode_azi);
 Ny_azi = length(ynode_azi);
 
 % figure output path
-phv_fig_path = ['./figs/',windir,'/fullStack/raytomo_azi2theta_2D/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',xspdir,'/',stafile,'/'];
+%phv_fig_path = ['./figs/',windir,'/fullStack/raytomo_azi2theta_2D/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',xspdir,'/',stafile,'/'];
+phv_fig_path = ['./figs/',windir,'/fullStack/raytomo_azi2theta_2D/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_phv_dir/',station_list,'/'];
 if ~exist(phv_fig_path)    
     mkdir(phv_fig_path);
 end
@@ -115,7 +114,8 @@ J_azis(1:end,Nx*Ny+Nx_azi*Ny_azi+[1:Nx_azi*Ny_azi]) = J_azi;
 %%
 % Initialize the xsp structure
 % Xsp_path = './Xsp/';
-Xsp_path = ['../Xsp/',windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',xspdir,'/'];
+%Xsp_path = ['../Xsp/',windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',xspdir,'/'];
+Xsp_path = ['Xsp/',windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(Nwl),'wl_phv_dir/'];
 xspfiles = dir([Xsp_path,'*_xsp.mat']);
 
 disp('Looking at Xsp Files')
@@ -472,7 +472,7 @@ end
 
 %% Azimuthal anisotropy (%)
 
-Mp = 3; Np = 4;
+Mp = 6; Np = 4;
 fig16 = figure(16);
 set(gcf,'position',[1    1   1244   704]);
 clf
@@ -490,11 +490,11 @@ for ip=1:length(Tperiods)
     title([num2str(Tperiods(ip))],'fontsize',15)
     caxis([min(levels) max(levels)])
     colorbar
-%     colormap(seiscmap)
-    rbc = flip(redbluecmap);
+     colormap(seiscmap)
+%    rbc = flip(redbluecmap);
 %     rbc = rbc([1 2 3 4 5 7 8 9 10 11],:);
 %     colormap(rbc);
-    colormap('parula');
+%    colormap('parula');
     
     u=raytomo(ip).A2 .* cosd(raytomo(ip).phi2)*20;
 	v=raytomo(ip).A2 .* sind(raytomo(ip).phi2)*20./cosd(mean(lalim));
@@ -556,9 +556,9 @@ end
 
 %% Phase Velocity Maps (%)
 % Load seafloor age
-load('age_grid.mat');
+%load('age_grid.mat');
 
-Mp = 3; Np = 4;
+Mp = 3; Np = 3;
 fig19 = figure(19);
 set(gcf,'position',[1    1   1244   704]);
 clf
@@ -575,14 +575,14 @@ for ip=1:length(Tperiods)
     title([num2str(Tperiods(ip))],'fontsize',15)
     caxis([min(levels) max(levels)])
     colorbar
-%     colormap(seiscmap)
-    rbc = flip(redbluecmap);
+     colormap(seiscmap)
+%    rbc = flip(redbluecmap);
 %     rbc = rbc([1 2 3 4 5 7 8 9 10 11],:);
-    colormap(rbc);
+%    colormap(rbc);
     
     hold on;
     plotm(sta.lat,sta.lon,'ok','markerfacecolor',[0 0 0]);
-    [c,h] = contourm(age_grid.LAT,age_grid.LON,age_grid.AGE,'k','LevelStep',5);
+%    [c,h] = contourm(age_grid.LAT,age_grid.LON,age_grid.AGE,'k','LevelStep',5);
 end
 % save2pdf([phv_fig_path,comp{1}(1),'_','r',num2str(r_tol_min),'_',num2str(r_tol_max),'_snr',num2str(snr_tol),'_err',num2str(err_tol),'_raytomo_perc.pdf'],fig19,1000);
 
@@ -604,7 +604,7 @@ subplot(Mp,Np,ip)
     colormap(flip(hot));
     caxis([0 500])
 end
-save2pdf([phv_fig_path,comp{1}(1),'_','r',num2str(r_tol_min),'_',num2str(r_tol_max),'_snr',num2str(snr_tol),'_err',num2str(err_tol),'_raydense.pdf'],fig18,1000);
+%save2pdf([phv_fig_path,comp{1}(1),'_','r',num2str(r_tol_min),'_',num2str(r_tol_max),'_snr',num2str(snr_tol),'_err',num2str(err_tol),'_raydense.pdf'],fig18,1000);
 
 % % ERRORS ON XSP
 % fig19 = figure(19)
@@ -668,7 +668,11 @@ if iscompare_aniso
 end
 % h3(2) = plot(periods,A4_rt*2*100,'-ob','linewidth',2);
 h3(1) = plot(periods,A2_rt*2*100,'-o','color',[0 0.7 0],'linewidth',2);
-xlim(flip(1./frange));
+xlimvals = [1./frange]; %wbh make sure xlimvals is increasing
+if xlimvals(1) > xlimvals(2)
+    xlimvals = flip(xlimvals);
+end
+xlim(xlimvals);
 ylim([0 5]);
 set(gca,'linewidth',1.5,'xminortick','on','yminortick','on','fontsize',18);
 xlabel('Period (s)','fontsize',18);
@@ -756,7 +760,7 @@ end
 plot(periods,phi2_rt,'-o','color',[0 0.7 0],'linewidth',2);
 ylabel('Fast Direction (%)','fontsize',18);
 ylim([fastdir-130 fastdir+130]);
-xlim(flip(1./frange));
+xlim(xlimvals);
 set(gca,'linewidth',1.5,'xminortick','on','yminortick','on','fontsize',18);
 xlabel('Period (s)','fontsize',18);
 
@@ -776,7 +780,7 @@ xlabel('Period (s)','fontsize',18);
 % legend({'A_{c2}','A_{s2}','A_{c4}','A_{s4}'},'fontsize',13,'box','off');
 
 % save2pdf([phv_fig_path,comp{1}(1),'_','r',num2str(r_tol_min),'_',num2str(r_tol_max),'_snr',num2str(snr_tol),'_err',num2str(err_tol),'_A_phi_plots.pdf'],fig4,1000);
-stop
+%stop
 %% Plot phase velocities
 for ip = 1:length(Tperiods)
     avgv(ip) = nanmean(raytomo(ip).GV(:));
@@ -803,7 +807,7 @@ xlabel('Period (s)','fontsize',16);
 ylabel('Phase Velocity (km/s)','fontsize',16);
 set(gca,'fontsize',16,'linewidth',1.5);
 legend({'Starting','Raytomo Avg.'},'location','southeast','fontsize',12,'box','off');
-xlim(flip(1./frange));
+xlim(xlimvals);
 if comp{1}(1) == 'Z'
     ylim([3.4 4.3]);
 elseif comp{1}(1) == 'T'
@@ -826,7 +830,7 @@ if iscompare_aniso
     ylim([-2 2]);
 end
 
-save2pdf([phv_fig_path,comp{1}(1),'_','r',num2str(r_tol_min),'_',num2str(r_tol_max),'_snr',num2str(snr_tol),'_err',num2str(err_tol),'_compareisophv.pdf'],fig2,1000);
+%save2pdf([phv_fig_path,comp{1}(1),'_','r',num2str(r_tol_min),'_',num2str(r_tol_max),'_snr',num2str(snr_tol),'_err',num2str(err_tol),'_compareisophv.pdf'],fig2,1000);
 
 %% Plot Azimuthal Data
 fig6 = figure(6); clf;
@@ -836,7 +840,7 @@ for iper = 1:length(periods)
     azi = raytomo(iper).azi;
 %     dphv = (raytomo(iper).phv - phv_av_rt(iper))./phv_av_rt(iper);
      dphv = (raytomo(iper).phv' - raytomo(iper).phv_iso) ./ raytomo(iper).phv_iso;
-    subplot(3,4,iper); hold on;
+    subplot(Mp,4,iper); hold on;
 %     if comp{1}(1) == 'Z' || comp{1}(1) == 'R'
 %         c = 2; % 2 theta
 %         e_patty = 78;
@@ -849,7 +853,7 @@ for iper = 1:length(periods)
     if iscompare_aniso
         h2(1) = plot(x,A2_2(iper)*cosd(2*(x-phi2_2(iper)))*100+A4_2(iper)*cosd(4*(x-phi4_2(iper)))*100,'--','color',[0.5 0.5 0.5],'linewidth',3);
     end
-    h2(2) = plot(x,A2_rt(iper)*cosd(2*(x-phi2_rt(iper)))*100+A4_rt(iper)*cosd(4*(x-phi4_rt(iper)))*100,'-','color',[0.5 0.5 0.5],'linewidth',3);
+%    h2(2) = plot(x,A2_rt(iper)*cosd(2*(x-phi2_rt(iper)))*100+A4_rt(iper)*cosd(4*(x-phi4_rt(iper)))*100,'-','color',[0.5 0.5 0.5],'linewidth',3);
 %     h2(1) = plot(x,d4*cosd(4*(x-e4))*100,'-b','linewidth',3);
 %     h2(2) = plot(x,d2*cosd(2*(x-e2))*100,'-','color',[0 0.7 0],'linewidth',3);
 %     plot(azi,dphv*100,'xr','linewidth',1); hold on;
@@ -880,4 +884,4 @@ for iper = 1:length(periods)
     
 end
 
-save2pdf([phv_fig_path,comp{1}(1),'_','r',num2str(r_tol_min),'_',num2str(r_tol_max),'_snr',num2str(snr_tol),'_err',num2str(err_tol),'_sinplots_24theta.pdf'],fig6,1000);
+%save2pdf([phv_fig_path,comp{1}(1),'_','r',num2str(r_tol_min),'_',num2str(r_tol_max),'_snr',num2str(snr_tol),'_err',num2str(err_tol),'_sinplots_24theta.pdf'],fig6,1000);

@@ -8,6 +8,7 @@ import os
 import config
 dataDir = 'data/CORRSEIS_SAC/'
 eventDirs = os.listdir(dataDir) 
+eventDirs = [x for x in eventDirs if not x.startswith('.')] # get rid of hidden dirs
 MatlabConfigFile = '03_ASWMS/setup_parameters.m'
 
 # first get the periods

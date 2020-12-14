@@ -21,37 +21,30 @@
 clear;
 setup_parameters;
 
-strSACcomp = 'Z';
-strNAMEcomp = 'ZZ';
+strSACcomp = parameters.strSACcomp;
+strNAMEcomp = parameters.strNAMEcomp;
 IsFigure1 = 1;
 IsFigure2 = 0;
 
 % OUTPUT SETTINGS
 IsOutputFullstack = 1; % Save full year ccf stacks
-IsOutputMonthstack = 0; % save month ccf stacks
+IsOutputMonthstack = 1; % save month ccf stacks
 IsOutputDaystack = 0; % save day ccf stacks
 IsOutputSinglestack = 0; % save single ccf before stacking
 IsOutputSeismograms = 0; % save raw seismograms before cross-correlating
 
 % GENERAL PROCESSING
-IsRemoveIR = 0; % remove instrument response
-units_RemoveIR = 'M'; % 'M' displacement | 'M/S' velocity
-IsDetrend = 1; % detrend the data
-IsTaper = 1; % Apply cosine taper to data chunks
+IsRemoveIR = parameters.IsRemoveIR; 
+units_RemoveIR = parameters.units_RemoveIR; 
+IsDetrend = parameters.IsDetrend; 
+IsTaper = parameters.IsTaper;
 
-%%%%%%%%%%% OPTIONS FOR PREPROCESSING %%%%%%%%%%%%
-% (1) ONE-BIT NORMALIZATION & SPECTRAL WHITENING? (Bensen et al. 2007)
-IsSpecWhiten = 0; % Whiten spectrum
-IsOBN = 0; % One-bit normalization
-
-% (2) TIME-FREQUENCY NORMALIZATION (Ekstrom et al. 2009; Shen et al. 2011)
-IsFTN = 0; % Frequency-time normalization? (If 1, applied instead of whitening and one-bit normalization)
-frange_FTN = [1/60 1/10]; % frequency range over which to construct FTN seismograms
-
-% (3) BASIC PREFILTER (Ekstrom 2011)
-IsPrefilter = 0; % apply butterworth bandpass filter before cross-correlation?
-frange_prefilt = [1/100 1/10];
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+IsSpecWhiten = parameters.IsSpecWhiten;
+IsOBN = parameters.IsOBN;
+IsFTN = parameters.IsFTN; 
+frange_FTN = parameters.frange_FTN; 
+IsPrefilter = parameters.IsPrefilter; 
+frange_prefilt = parameters.frange_prefilt;
 
 % % Setup parallel pool
 % Nworkers = 4; % number of workers in pool for parallel processing
@@ -66,6 +59,7 @@ seis_path = parameters.seis_path;
 orientation_path = parameters.orientation_path;
 dt = parameters.dt;
 winlength = parameters.winlength;
+winDirName = parameters.winDirName;
 
 year = ''; %'2012';
 Nstart_sec = parameters.Nstart_sec; % (seconds) offset start of file
@@ -77,7 +71,7 @@ dist_min = parameters.mindist;
 
 % Build File Structure: cross-correlations
 ccf_path = parameters.ccfpath;
-ccf_winlength_path = [ccf_path,'window',num2str(winlength),'hr/'];
+ccf_winlength_path = [ccf_path,winDirName,'/'];
 ccf_singlestack_path = [ccf_winlength_path,'single/'];
 ccf_daystack_path = [ccf_winlength_path,'dayStack/'];
 ccf_monthstack_path = [ccf_winlength_path,'monthStack/'];
@@ -111,7 +105,7 @@ for ipath = 1:length(PATHS)
 end
 
 % Build File Structure: figures
-fig_winlength_path = [figpath,'window',num2str(winlength),'hr/'];
+fig_winlength_path = [figpath,winDirName,'/'];
 if ~exist(figpath)
     mkdir(figpath);
 end
@@ -120,7 +114,7 @@ if ~exist(fig_winlength_path)
 end
 
 % Build File Structure: windowed seismograms
-seis_winlength_path = [seis_path,'window',num2str(winlength),'hr/'];
+seis_winlength_path = [seis_path,winDirName,'/'];
 if ~exist(seis_path)
     mkdir(seis_path);
 end
@@ -132,6 +126,7 @@ warning('off','MATLAB:nargchk:deprecated')
 %% ------------------- loop through center station station-------------------
 
 stalist = parameters.stalist;
+nwlist = parameters.nwlist;
 nsta=parameters.nsta; % number of target stations to calculate for
 
 % READ OBS ORIENTATIONS
@@ -145,6 +140,7 @@ end
 for ista1=1:nsta
 
     sta1=char(stalist(ista1,:));
+    nw1 = char(nwlist(ista1,:));
     % Build station directories
     for ipath = 1:length(PATHS)
         ccfZ_path = [PATHS{ipath},'ccf',strNAMEcomp,'/'];
@@ -157,12 +153,14 @@ for ista1=1:nsta
         mkdir([seisZ_path,sta1]);
     end
 
-    list1 = dir([datadir,sta1,'/*',strSACcomp,'.sac']);
+    %list1 = dir([datadir,sta1,'/*',strSACcomp,'.sac']);
+    list1 = dir([datadir,nw1,'_',sta1,'/*',strSACcomp,'.sac']); %wbh edit to use multiple networks
 
     for ista2=1:nsta
         clear lat1 lat2 lon1 lon2 dist az baz vec_tz2 Z2raw vec_tz Z1raw
 
         sta2=char(stalist(ista2,:));
+        nw2 = char(nwlist(ista2,:));
 
         % if same station, skip
         if(strcmp(sta1,sta2))
@@ -190,7 +188,8 @@ for ista1=1:nsta
             file1cZ = list1(ifil).name;
 
             % Check that day file exists for station 2
-            file2cZ = dir([datadir,sta2,'/',strrep(file1cZ,sta1,sta2)]);
+            %file2cZ = dir([datadir,sta2,'/',strrep(file1cZ,sta1,sta2)]);
+            file2cZ = dir([datadir,nw2,'_',sta2,'/',strrep(file1cZ,sta1,sta2)]); %wbh edit multiple nwk
             str = strsplit(file1cZ,'.');
             hdayid = [str{2},'.',str{3},'.',str{4},'.',str{5},'.',str{6}];
             
@@ -212,11 +211,15 @@ for ista1=1:nsta
 
             disp(['Looking at ',hdayid,' ',sta2]);
 
-            data1cZ= dir([datadir,sta1,'/',year,'/',sta1,'.',hdayid,'.*',strSACcomp,'.sac']);
-            data2cZ= dir([datadir,sta2,'/',year,'/',sta2,'.',hdayid,'.*',strSACcomp,'.sac']);
+            %data1cZ= dir([datadir,sta1,'/',year,'/',sta1,'.',hdayid,'.*',strSACcomp,'.sac']);
+            data1cZ= dir([datadir,nw1,'_',sta1,'/',year,'/',sta1,'.',hdayid,'.*',strSACcomp,'.sac']);
+            %data2cZ= dir([datadir,sta2,'/',year,'/',sta2,'.',hdayid,'.*',strSACcomp,'.sac']);
+            data2cZ= dir([datadir,nw2,'_',sta2,'/',year,'/',sta2,'.',hdayid,'.*',strSACcomp,'.sac']);
 
-            data1cZ =  [datadir,sta1,'/',year,'/',data1cZ.name];
-            data2cZ =  [datadir,sta2,'/',year,'/',data2cZ.name];
+            %data1cZ =  [datadir,sta1,'/',year,'/',data1cZ.name];
+            %data2cZ =  [datadir,sta2,'/',year,'/',data2cZ.name];
+            data1cZ =  [datadir,nw1,'_',sta1,'/',year,'/',data1cZ.name];
+            data2cZ =  [datadir,nw2,'_',sta2,'/',year,'/',data2cZ.name];
 
             %------------------- TEST IF DATA EXIST------------------------
             [S1Zt,S1Zraw,S1,S1Ztstart] = load_sac(data1cZ);
@@ -491,7 +494,9 @@ for ista1=1:nsta
                 xlabel('Frequency')
                 drawnow
 
-                print(f101,'-dpsc',[fig_winlength_path,sta1,'_',sta2,'.ps']);
+                %print(f101,'-dpsc',[fig_winlength_path,sta1,'_',sta2,'.ps']);
+                ofn = [fig_winlength_path,sta1,'_',sta2,'.pdf'];
+                save(f101,ofn)
                 %pause;
             end
             if IsOutputFullstack

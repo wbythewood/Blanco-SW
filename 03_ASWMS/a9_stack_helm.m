@@ -64,7 +64,7 @@ for ie = 1:length(phvmatfiles)
 		end
 	end
 	event_ids(ie) = {helmholtz(1).id};
-			
+
 	disp(helmholtz(1).id);
 	for ip=1:length(periods)
         ind = find(helmholtz(ip).GV_cor < min_phv_tol);
@@ -80,7 +80,7 @@ for ie = 1:length(phvmatfiles)
 			helmholtz(ip).GV_cor(:) = NaN;
 			helmholtz(ip).GV(:) = NaN;
         end
-		
+
         GV_cor_mat(:,:,ie,ip) = helmholtz(ip).GV_cor;
         GV_mat(:,:,ie,ip) = helmholtz(ip).GV;
 
@@ -137,8 +137,8 @@ for ie=1:length(event_ids)
 %        dir(fullfile(workingdir,'helmholtz',[char(event_ids(ie)),'*.mat']));
 %        % wbh change paths
 %		load(fullfile(workingdir,'helmholtz',matfile(1).name));
-        matfile = dir(fullfile(phase_v_path,[char(event_ids(ie)),'*.mat']));
-		load(fullfile(phase_v_path,matfile(1).name));
+        matfile = dir(fullfile(matFileDir,'helmholtz',[char(event_ids(ie)),'*.mat']));
+		load(fullfile(matFileDir,'helmholtz',matfile(1).name));
 		evla = helmholtz(1).evla;
 		evlo = helmholtz(1).evlo;
 		epi_dist = distance(evla,evlo,mean(lalim),mean(lolim));
@@ -190,7 +190,7 @@ if issmoothmap
 		GV_cor = smoothmap(xi,yi,avgphv(ip).GV_cor,D);
 		GV_cor(find(isnan(avgphv(ip).GV_cor))) = NaN;
 		avgphv(ip).GV_cor = GV_cor;
-	end	
+	end
 end
 
 
@@ -258,7 +258,7 @@ ip = demoip
 	colorbar
 	load seiscmap
 	colormap(seiscmap)
-    
+
 saveas(gcf,ofn)
 
 N=3; M = floor(length(periods)/N)+1;
