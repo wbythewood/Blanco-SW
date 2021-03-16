@@ -12,16 +12,16 @@ DayFileName = ConfigDir+'BlancoProblematicDay.txt'
 ANTDayFileName = ConfigDir+'BlancoANTDaysTest_M6.5.txt'
 # two station lists, one for BXH, one for all stations
 XStafn = ConfigDir+'X9_stations_X.txt'
-Stafn = ConfigDir+'X9_stations.txt'
-#Stafn = ConfigDir+'7D_stations.txt'
+#Stafn = ConfigDir+'X9_stations.txt'
+Stafn = ConfigDir+'7D_stations.txt'
 #Stafn = ConfigDir+'SC_stations.txt'
 
 #  Event download
 minMag = 6.5
 webservice = "IRIS"
 #webservice = "SCEDC"
-network = "X9"  # X9 = Blanco
-#network = "7D"  # 7D = Cascadia Initiative
+#network = "X9"  # X9 = Blanco
+network = "7D"  # 7D = Cascadia Initiative
 #network = "CI"
 isCMT_params = 1  # use GCMT parameters for SAC header; 0 = use IRIS
 isCentroid = 1  # if isCMT_params = 1, use centroid; 0 = epicentral
@@ -42,6 +42,10 @@ tend = '2013-02-28T23:59:59'
 
 tstart = '2013-07-21T00:00:00'
 tend = '2013-07-21T10:00:00'
+
+tstart = '2012-09-18T00:00:00'
+tend = '2013-10-05T23:59:59'
+
 
 # Stations to download
 # need one for low-pass filtered stations
