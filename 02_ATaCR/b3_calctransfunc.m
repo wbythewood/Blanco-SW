@@ -7,7 +7,7 @@ clear all; close all
 
 isfigure = 1;
 issavefigure = 1;
-isoverwrite = 0;
+isoverwrite = 1;
 
 %%%%%% DO NOT EDIT BELOW %%%%%%%
 setup_parameter;
@@ -34,6 +34,13 @@ for is = 1 : length(station_dir)
     figure(1);clf
     end
     station = station_dir(is).name;
+    % wbh edit what stations to use appear to be hardwired into the code by
+    % whatever happens to be in the directory... 
+    % use station names from param file to check if we should use it
+    useStation = contains(station, StationNames);
+    if useStation == 0
+        continue
+    end
     inpath = sprintf('%s/SPECTRA/%s/',OUTdir,station);
     inpathav = sprintf('%s/AVG_STA/',OUTdir);
     if ~isdir(inpath)
@@ -53,6 +60,24 @@ for is = 1 : length(station_dir)
     end
 
 for ie = 1 : length(spectra_filenames)+1
+    % wbh edit i bloody hate this code and hate this language
+    % helen has decided which files to use based on what files are in the
+    % directory, which as been hardwired in. to not use some files that,
+    % for example, have a different frequency content on a different day, I
+    % have to figure out a work around. For now, just extracting the day
+    % from the filename and not if it's not within the dates I know I'm
+    % using now, I'll skip. This is a terrible fix but I do not want to
+    % have to totally re-engineer how helen has decided to save and look up
+    % data
+
+    if ie <= length(spectra_filenames)
+        spectra_day = split(spectra_filenames(ie).name,'_');
+        spectra_day = str2num(char(spectra_day(2)));
+        if spectra_day > 201302280001
+            continue
+        end
+    end
+        
     clear cnn_stack cnm_stack
     TF_check = zeros(size(TF_size));
     if ie == length(spectra_filenames)+1
