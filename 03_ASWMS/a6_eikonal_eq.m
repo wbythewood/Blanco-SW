@@ -25,9 +25,11 @@ eventcs_path = [matFileDir,'CSmeasure/'];
 eikonl_output_path = [matFileDir,'eikonal/'];
 % figures directory
 fig_dir_base = parameters.figdir;
-figDirPhv = [parameters.figdir,'BackAz_no150/'];
-%figDirPhv = [parameters.figdir,'BackAz/'];
+figDirPhv = [parameters.figdir,'PhV/'];
+figDirPhvBaz = [parameters.figdir,'PhV-BackAz/'];
 badStaList = [parameters.configDir,'badsta.lst'];
+stationFile = parameters.PACStaFile;
+[nw,stations,~,~,~] = textread(stationFile,'%s %s %s %s %s');
 
 if ~exist(figDirPhv)
     mkdir(figDirPhv);
