@@ -16,20 +16,26 @@ is_overwrite = 1;
 
 % setup parameters
 setup_parameters
+label = 'ALL';
 
 workingdir = parameters.ASWMSDir;
 matFileDir = parameters.MatFilesDir;
-% input pathu
+% input path
 eventcs_path = [matFileDir,'CSmeasure/'];
 % output path
-eikonl_output_path = [matFileDir,'eikonal/'];
+%eikonl_output_path = [matFileDir,'eikonal/'];
+eikonl_output_path = [matFileDir,'eikonal_',label,'/'];
 % figures directory
 fig_dir_base = parameters.figdir;
-figDirPhv = [parameters.figdir,'PhV/'];
-figDirPhvBaz = [parameters.figdir,'PhV-BackAz/'];
+figDirPhv = [parameters.figdir,'PhV_',label,'/'];
+figDirPhvBaz = [parameters.figdir,'PhV-BackAz_',label,'/'];
 badStaList = [parameters.configDir,'badsta.lst'];
 stationFile = parameters.PACStaFile;
+stationFile = parameters.JDFStaFile;
+stationFile = parameters.StaFile;
 [nw,stations,~,~,~] = textread(stationFile,'%s %s %s %s %s');
+allStationFile = parameters.StaFile;
+[anw,astations,~,~,~] = textread(allStationFile,'%s %s %s %s %s');
 
 if ~exist(figDirPhv)
     mkdir(figDirPhv);
@@ -105,6 +111,13 @@ if exist(badStaList)
 	disp(badstnms)
 end
 
+% add all stations that are not in the subset we want
+for ista = 1:length(astations)
+    if ~ismember(astations(ista),stations)
+        badstnms = [badstnms,astations(ista)];
+    end
+end
+
 csmatfiles = dir([eventcs_path,'/*cs_',comp,'.mat']);
 for ie = 1:length(csmatfiles)
 %for ie = 30
@@ -115,7 +128,7 @@ for ie = 1:length(csmatfiles)
 	disp(eventcs.id)
 	evla = eventcs.evla;
 	evlo = eventcs.evlo;
-
+    
     % set up fig dir name
     figDir = [fig_dir_base,eventcs.id,'/'];
     if ~exist(figDir)
@@ -370,12 +383,12 @@ for ie = 1:length(csmatfiles)
         end
         % wbh draw map with stations and backaz
         subplot(Mphvel,N,length(periods)+1)
-
+        
         ax = worldmap(lalim,lolim);
         set(ax, 'Visible', 'off')
         plotm(pbLat,pbLon,'LineWidth',2,'Color','k') % plate boundaries
         %geoshow(eventcs.stlas,eventcs.stlos,'DisplayType','point','Marker','.','MarkerEdgeColor','b','MarkerSize',12)
-        amps = [];
+        amps = zeros(1,length(eventcs.stnms));
         for ista = 1:length(eventcs.stnms) % loop through stations
             if ismember(ista,badstaids) % don't plot the bad stations
                 continue
@@ -396,11 +409,11 @@ for ie = 1:length(csmatfiles)
         arrLon = mean(lolim);
         quiverm(arrLat,arrLon,arru,arrv,'r')
         azstr = ["az: "+num2str(round(az))+'\circ'];
-        textm(lalim(1)+0.5,lolim(1)+0.5,azstr,'FontSize',12)
-
+        textm(lalim(1)+0.5,lolim(1)+0.5,azstr,'FontSize',12) 
+        
         MwStr = sprintf('%.2f',eventphv(ip).Mw);
         DistStr = sprintf('%.0f',distdeg);
-
+        
         sgtitle("Phase Velocities for "+eventcs.id+' M'+MwStr+' Dist: '+DistStr+'\circ'); %wbh
         %ofn = [figDir,'PhaseVels_0.25.png'];   % wbh save in event dir
         ofn = [figDirPhv,'/',num2str(round(az)),'_',DistStr,'_M',MwStr,'_PhaseVels_0.25.png'];   % wbh save in BackAz dir

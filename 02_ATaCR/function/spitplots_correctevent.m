@@ -49,6 +49,10 @@ for is = 1:length(corrseis)
     else
         col = [1 0 0];
     end
+    % wbh don't try to plot if whole timeseries is NaN
+    if all(isnan(corrseis(is).timeseries))
+        continue
+    end
     if strcmp(corrseis(is).label(1),'Z')==1
         seiscmp = Z_filt;
     elseif strcmp(corrseis(is).label(1),'1')==1
@@ -61,6 +65,7 @@ for is = 1:length(corrseis)
     %subplot(length(corrseis),1,is)
     subplot(length(corrseis)+1,1,is+1)
 %     plot(taxis,seiscmp,'-','LineWidth',.5,'Color',[.5 .5 .5]); hold on
+    
     plot(taxis,filtfilt(b,a,corrseis(is).timeseries),'-','LineWidth',.5,'Color',col)
     xlim([min(taxis),max(taxis)]);
     title(sprintf('%s %s %s',netsta,eventid,corrseis(is).label));
@@ -97,6 +102,10 @@ for is = 1:length(corrseis)
         col = [0 0 0];
     else
         col = [1 0 0];
+    end
+        % wbh don't try to plot if whole timeseries is NaN
+    if all(isnan(corrseis(is).timeseries))
+        continue
     end
     subplot(length(corrseis),2,2*is)
     psd = disp2accel_psd(corrseis(is).timeseries,NFFT,dt);

@@ -45,8 +45,29 @@ for ista = 1:length(StationNames)
     if isempty(spectra_filenames)
         continue
     end
+    
+
+    
+
 
     for ie = 1:length(spectra_filenames)
+        
+        % wbh edit i bloody hate this code and hate this language
+        % helen has decided which files to use based on what files are in the
+        % directory, which as been hardwired in. to not use some files that,
+        % for example, have a different frequency content on a different day, I
+        % have to figure out a work around. For now, just extracting the day
+        % from the filename and not if it's not within the dates I know I'm
+        % using now, I'll skip. This is a terrible fix but I do not want to
+        % have to totally re-engineer how helen has decided to save and look up
+        % data
+        
+        spectra_day = split(spectra_filenames(ie).name,'_');
+        spectra_day = str2num(char(spectra_day(2)));
+        if spectra_day > 201302280001
+            continue
+        end
+        
         load(fullfile(inpath,spectra_filenames(ie).name));
         a = length(specprop.params.station);
         f = specprop.params.f;

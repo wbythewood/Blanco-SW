@@ -6,8 +6,8 @@ functionspath = [fullMAINpath(1:regexp(fullMAINpath,mfilename)-1),'functions'];
 addpath(functionspath);
 
 %IdString = 'TaTest_wide';
+%IdString = 'AGU_7D';
 IdString = 'New';
-IdString = 'AGU_7D';
 
 % Set up paths
 parameters.workingdir = '/Users/wbhawley/Research/Seismology/Blanco-SW/';
@@ -23,6 +23,12 @@ parameters.ASWMSDir = [parameters.workingdir,'03_ASWMS/'];
 parameters.MatFilesDir = [parameters.ASWMSDir,'matfiles_',IdString,'/'];
 %parameters.MatFilesDir = [parameters.ASWMSDir,'matfiles_New/'];
 parameters.MapsDir = '/Users/wbhawley/data/maps/';
+
+% filenames
+parameters.PACStaFile = [parameters.configDir,'stalist_PAC_nw.txt'];
+parameters.JDFStaFile = [parameters.configDir,'stalist_JDF_nw.txt'];
+parameters.StaFile = [parameters.configDir,'stalist_nw.txt'];
+parameters.BadStaFile = [parameters.configDir,'stalist_bad.txt'];
 
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
 %%%% Global settings
@@ -82,7 +88,7 @@ parameters.min_sta_num = 5; %10 %JBR
 % parameters for the cross-correlation measurement
 % (gsdfmain.m)
 parameters.minstadist = 5;
-parameters.maxstadist = 250; %200;   % station cross-correlation distance in km
+%parameters.maxstadist = 250; %200;   % station cross-correlation distance in km
 parameters.maxstadist = 600;   % station cross-correlation distance in km
 parameters.is_rm_resp = 0;
 parameters.periods = sort(parameters.periods);  % make sure periods are ascending
@@ -125,6 +131,12 @@ parameters.min_amp_tol = 0.1;  % station with amplitude smaller than this ratio 
 parameters.amp_var_tol = 4; %2; % how much times change of amplitude of single station to the mean value of nearby stations should be considered as bad measurement
 parameters.alpha_range = [1 1];
 parameters.alpha_search_grid = 0.1;
+parameters.min_stadist_wavelength = 0; %min wavelengths allowed between stations
+parameters.max_stadist_wavelength = 999; %  max wavelengths
+% azimuthal anisotropy details
+parameters.aziweight = 0; %global weight
+parameters.smweight0_azi = 1; % sm weight for azi
+parameters.flweight0_azi = 0; % fl weight for azi
 
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
 % parameter for stacking 

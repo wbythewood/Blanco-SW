@@ -47,6 +47,9 @@ for id = 1:length(startlist)
    %jday = otime - datenum(year(otime),1,1) + 1;
    % wbh edit bc I don't have the financial toolbox
    jday = otime - datenum(year(datetime(datestr(otime))),1,1) + 1;
+   jday = floor(jday);
+   hh = datestr(starttime,'HH');
+   
 
    for ista =1:length(download_stations)
        clear traces_day
@@ -71,7 +74,7 @@ for id = 1:length(startlist)
             for ch = {chp_vec ch1_vec ch2_vec chz_vec}
                 ich = ich + 1;
                 %sac_filename = [stnm,'.',num2str(year(otime)),'.',num2str(jday,'%03d'),'.00.00.00.',ch{:},'.sac'];
-                sac_filename = strcat(stnm,'.',num2str(year(datetime(datestr(otime)))),'.',num2str(jday,'%03d'),'.00.00.00.',ch{:},'.sac');
+                sac_filename = strcat(stnm,'.',num2str(year(datetime(datestr(otime)))),'.',num2str(jday,'%03d'),'.',num2str(hh),'.00.00.',ch{:},'.sac');
                 sac_fullPath = fullfile(sacdaydata,NetSta,sac_filename);
                 sac = rdsac(sac_fullPath{1});
                 traces_day(ich) = sac2mat( sac );

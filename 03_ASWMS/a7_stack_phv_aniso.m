@@ -7,11 +7,13 @@
 
 clear;
 
-phase_v_path = './eikonal/'
+%phase_v_path = './eikonal/'
 r = 0.05;
-isfigure = 0;
+isfigure = 1;
 
 setup_parameters
+
+phase_v_path = [parameters.MatFilesDir,'eikonal/'];
 
 comp = parameters.component;
 periods = parameters.periods;

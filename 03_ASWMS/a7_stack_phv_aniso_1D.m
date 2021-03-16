@@ -12,13 +12,29 @@
 
 clear;
 %plot native
- close 11
+close 11
 setup_parameters
+label = 'ALL';
+
 
 % phase_v_path = './eikonal/'
 workingdir = parameters.workingdir;
 matFileDir = parameters.MatFilesDir;
-phase_v_path = [matFileDir,'eikonal-flat/'];
+%phase_v_path = [matFileDir,'eikonal/'];
+phase_v_path = [matFileDir,'eikonal_',label,'/'];
+stack_outpath = [phase_v_path,',stack/'];
+stationFile = parameters.PACStaFile;
+[nw,stations,~,~,~] = textread(stationFile,'%s %s %s %s %s');
+% figures directory
+fig_dir_base = parameters.figdir;
+figDirPhv = [parameters.figdir,'PhV_',label,'/,1DAniso/'];
+
+if ~exist(stack_outpath)
+    mkdir(stack_outpath);
+end
+if ~exist(figDirPhv)
+    mkdir(figDirPhv);
+end
 
 dc_thresh = 5; % [%] remove velocity perturbations larger than this
 min_goodnum = 5; % minimum number of GSDF measurements
@@ -97,6 +113,10 @@ weights(isinf(weights)) = 0;
 
 % %%
 N=4; M = floor(length(periods)/N)+1;
+fig11 = figure(11);
+clf
+hold on
+ofn = [figDirPhv,'Ani-Azi_period.pdf'];
 for ip = 1:length(periods)
     isophv=nan(Nx,Ny);
     isophv_std=nan(Nx,Ny);
@@ -209,15 +229,15 @@ for ip = 1:length(periods)
                 aniso_azi_std(mi,mj)=parastd(2,3)-para.e;
             end         
             if is_one_phi && isfigure
-                figure(11)
-                clf
-                hold on
+                %figure(11)
+                %clf
+                %hold on
                 plot(azi,phV,'x');
                 allazi = -200:200;
                 plot(allazi,para.a*(1+para.b*cosd(allazi-para.c)+para.d*cosd(2*(allazi-para.e))),'r')
             elseif ~is_one_phi && isfigure
 				%plot native 
-                figure(11)
+                %figure(11)
                 subplot(M,N,ip);
  %                clf
                 hold on
@@ -253,15 +273,17 @@ for ip = 1:length(periods)
 	end          
 end % end of period loop
 
-filename = [workingdir,'eikonal_stack_aniso_',comp,'.mat'];
+saveas(fig11,ofn)
+filename = [stack_outpath,'eikonal_stack_aniso_',comp,'.mat'];
 save(filename,'avgphv_aniso');
 
 %%
 % %%
 %plot native
-figure(58);
+fig58 = figure(58);
 set(gcf,'position',[351   677   560   668]);
 clf
+ofn = [figDirPhv,'c-period.pdf'];
 clear avgv avgv_std aniso_str aniso_str_std aniso_azi aniso_azi_std
 for ip = 1:length(periods)
     avgv(ip) = nanmean(avgphv_aniso(ip).isophv(:));
@@ -302,5 +324,6 @@ ylim([0 360]);
 xlim([20 150]);
 ylabel('\phi');
 xlabel('Periods (s)');
+saveas(fig58,ofn)
 
 

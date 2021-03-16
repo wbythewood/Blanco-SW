@@ -5,9 +5,9 @@ c = colormap('jet');
 hangint = hangs(2)-hangs(1);
 
 days = dayofyear(str2num(dayid(1:4)),str2num(dayid(5:6)),str2num(dayid(7:8)),0,0);
-cc=interp1(1:64,c,((days)/(365))*63+1);
+%cc=interp1(1:64,c,((days)/(365))*63+1);
 % wbh Newer matlab versions now have colormaps 256 elements long, not 64
-%cc=interp1(1:256,c,((days)/(365))*255+1);
+cc=interp1(1:length(c),c,((days)/(365))*length(c));
 
 
 ph_points = zeros(1,2);
@@ -90,7 +90,7 @@ chz_matrix = 180/pi.*atan2(imag(chz_matrix),real(chz_matrix));
 chz_matrix = chz_matrix(idx_flo:idx_fhi,:,:);
 
 % choose a single random window...
-ph_matrix = chz_matrix(:,:,3);
+ph_matrix = chz_matrix(:,:,1);
 % or average across time windows... may not be sensible
 %ph_matrix = mean(chz_matrix,3);
 % choose a random single frequecy...
@@ -103,7 +103,7 @@ reduced_ph_matrix = mean(chz_matrix,3);
 reduced_ph_matrix2 = squeeze(mean(chz_matrix,1));
 % ...and choose a random value in the other
 reduced_ph_matrix = reduced_ph_matrix(8,:);
-reduced_ph_matrix2 = reduced_ph_matrix2(:,3).';
+reduced_ph_matrix2 = reduced_ph_matrix2(:,2).';
 
 % save dimensions of matrix...
 NumWindows = size(chz_matrix,3);

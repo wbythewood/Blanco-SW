@@ -6,3 +6,6 @@ figures/
 __pycache__/
 .ipynb*
 .DS_Store
+CodesOnly/
+Old_1/
+Test_TimeError/

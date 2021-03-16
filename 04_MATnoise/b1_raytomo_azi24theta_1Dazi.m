@@ -52,7 +52,6 @@ end
 
 %%
 
-
 % Load anisotropy data (from old inversion)
 if iscompare_aniso
     load(['./aniso_DATA/',xspdir,'/',aniso_data]);
