@@ -47,9 +47,9 @@ IsPrefilter = parameters.IsPrefilter;
 frange_prefilt = parameters.frange_prefilt;
 
 % % Setup parallel pool
-% Nworkers = 4; % number of workers in pool for parallel processing
+Nworkers = 4; % number of workers in pool for parallel processing
 delete(gcp('nocreate'));
-% parpool(Nworkers);
+parpool(Nworkers);
 
 % input path
 datadir = parameters.datapath;
@@ -496,7 +496,7 @@ for ista1=1:nsta
 
                 %print(f101,'-dpsc',[fig_winlength_path,sta1,'_',sta2,'.ps']);
                 ofn = [fig_winlength_path,sta1,'_',sta2,'.pdf'];
-                save(f101,ofn)
+                saveas(f101,ofn)
                 %pause;
             end
             if IsOutputFullstack
