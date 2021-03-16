@@ -21,6 +21,7 @@ comp = {parameters.strNAMEcomp};
 windir = parameters.winDirName; 
 frange = 1./parameters.PeriodRange; 
 Nwl = parameters.Wavelengths;
+figpath = parameters.figpath;
 
 average_vel = 3.8; % [km/s] For calculating wavelength for determining r_tol_min
 
@@ -38,6 +39,7 @@ iscompare_aniso = 0; % compare to old anisotropic measurements
 %%
 % Load color scale
 load seiscmap.mat
+load roma.mat
 % Load anisotropy data (from old inversion)
 if iscompare_aniso
     load(['./aniso_DATA/phv_dir/',aniso_data]);
@@ -64,7 +66,7 @@ dterrtol = parameters.dterrtol;
 raydensetol = parameters.raydensetol;
 raydensetol_azi = parameters.raydensetol_azi;
 r = parameters.r;
-phv_fig_path = [parameters.figpath,windir,'/',num2str(1/frange(1)),'_',num2str(1/frange21)),'s_phv_dir/fullStack/raytomo_azi2theta_2D/'];
+phv_fig_path = [parameters.figpath,windir,'/,PhV_dir/',num2str(1/frange(1)),'_',num2str(1/frange(2)),'s/raytomo_azi2theta_2D/'];
 
 xnode=lalim(1):gridsize:lalim(2);
 ynode=lolim(1):gridsize:lolim(2);
@@ -446,7 +448,7 @@ for ip=1:length(Tperiods)
     
     
     if 0
-        figure(1)
+        f1 = figure(1);
         clf
         ax = worldmap(lalim, lolim);
         set(ax, 'Visible', 'off')
@@ -457,6 +459,7 @@ for ip=1:length(Tperiods)
         caxis([avgv*(1-r) avgv*(1+r)])
         colorbar
         colormap(seiscmap)
+        ofn = [phv_fig_path,'.pdf'];
         
 %         pause;
     end
@@ -476,7 +479,7 @@ end
 
 Mp = 3; Np = 3;
 fig16 = figure(16);
-set(gcf,'position',[1    1   1244   704]);
+set(gcf,'position',[1    1   800   500]);
 clf
 vperc = [-r r];
 for ip=1:length(Tperiods)
@@ -491,7 +494,8 @@ for ip=1:length(Tperiods)
 %     drawlocal
     title([num2str(Tperiods(ip))],'fontsize',15)
     caxis([min(levels) max(levels)])
-    colorbar
+    cb = colorbar;
+    ylabel(cb,'A2');
      colormap(seiscmap)
 %    rbc = flip(redbluecmap);
 %     rbc = rbc([1 2 3 4 5 7 8 9 10 11],:);
@@ -522,6 +526,8 @@ for ip=1:length(Tperiods)
     hold on;
     plotm(sta.lat,sta.lon,'ok','markerfacecolor',[0 0 0]);
 end
+ofn = [phv_fig_path,'raytomo2dAzi.png'];
+saveas(fig16,ofn);
 % save2pdf([phv_fig_path,comp{1}(1),'_','r',num2str(r_tol_min),'_',num2str(r_tol_max),'_snr',num2str(snr_tol),'_err',num2str(err_tol),'_raytomo_2Dazimuthal.pdf'],fig16,1000);
 % stop
 %% Phase Velocity Maps (km/s)
@@ -576,8 +582,10 @@ for ip=1:length(Tperiods)
     contourfm(xi,yi,resid*100,levels);
     title([num2str(Tperiods(ip))],'fontsize',15)
     caxis([min(levels) max(levels)])
-    colorbar
+    cb = colorbar;
+    ylabel(cb,'dVs (%)');
      colormap(seiscmap)
+     colormap(roma)
 %    rbc = flip(redbluecmap);
 %     rbc = rbc([1 2 3 4 5 7 8 9 10 11],:);
 %    colormap(rbc);
@@ -586,6 +594,8 @@ for ip=1:length(Tperiods)
     plotm(sta.lat,sta.lon,'ok','markerfacecolor',[0 0 0]);
 %    [c,h] = contourm(age_grid.LAT,age_grid.LON,age_grid.AGE,'k','LevelStep',5);
 end
+ofn = [phv_fig_path,'phv_percent.png'];
+saveas(fig19,ofn);
 % save2pdf([phv_fig_path,comp{1}(1),'_','r',num2str(r_tol_min),'_',num2str(r_tol_max),'_snr',num2str(snr_tol),'_err',num2str(err_tol),'_raytomo_perc.pdf'],fig19,1000);
 
 % stop
@@ -602,10 +612,14 @@ subplot(Mp,Np,ip)
     surfacem(xi,yi,raytomo(ip).raydense);
 %     drawlocal
     title([num2str(Tperiods(ip))],'fontsize',15)
-    colorbar
+    cb = colorbar;
+    ylabel(cb,'Ray density');
     colormap(flip(hot));
     caxis([0 500])
+    caxis([0 max(raytomo(ip).raydense(:))])
 end
+ofn = [phv_fig_path,'ray_density.png'];
+saveas(fig18,ofn);
 %save2pdf([phv_fig_path,comp{1}(1),'_','r',num2str(r_tol_min),'_',num2str(r_tol_max),'_snr',num2str(snr_tol),'_err',num2str(err_tol),'_raydense.pdf'],fig18,1000);
 
 % % ERRORS ON XSP
@@ -766,6 +780,9 @@ xlim(xlimvals);
 set(gca,'linewidth',1.5,'xminortick','on','yminortick','on','fontsize',18);
 xlabel('Period (s)','fontsize',18);
 
+ofn = [phv_fig_path,'A_plots.png'];
+saveas(fig4,ofn);
+
 
 % % PLOT COSINE AND SINE
 % fig5 = figure(5);
@@ -833,6 +850,8 @@ if iscompare_aniso
     ylim([-2 2]);
 end
 
+ofn = [phv_fig_path,'IsoPhaseVelocity.png'];
+saveas(fig2,ofn);
 %save2pdf([phv_fig_path,comp{1}(1),'_','r',num2str(r_tol_min),'_',num2str(r_tol_max),'_snr',num2str(snr_tol),'_err',num2str(err_tol),'_compareisophv.pdf'],fig2,1000);
 
 %% Plot Azimuthal Data
@@ -888,4 +907,6 @@ for iper = 1:length(periods)
     
 end
 
+ofn = [phv_fig_path,'IndividualPairsAzi.png'];
+saveas(fig6,ofn);
 %save2pdf([phv_fig_path,comp{1}(1),'_','r',num2str(r_tol_min),'_',num2str(r_tol_max),'_snr',num2str(snr_tol),'_err',num2str(err_tol),'_sinplots_24theta.pdf'],fig6,1000);
