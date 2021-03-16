@@ -8,11 +8,11 @@
 clear; close all
 
 % CODE OPTIONS
-isfigure_spectrogram = 1; % generate spectrograms for each day
+isfigure_spectrogram = 0; % generate spectrograms for each day
 isfigure_powerspec = 1; % generate power spectra for each day
 isfigure_orient = 1;
 issavefigure = 1; % save output figures
-isoverwrite = 0; % overwrite spectra files
+isoverwrite = 1; % overwrite spectra files
 
 % DO NOT EDIT BELOW
 setup_parameter;
@@ -151,12 +151,17 @@ for ista = 1:length(StationNames)
             continue
         end
         % Spectra parameters for resampled data
+%         EventDataLength = 3600; % This is in the param file... but change it here for now
         npts = EventDataLength/dt;
         Ppower = nextpow2(npts);
         NFFT = 2^Ppower;
         npad0 = floor((NFFT-npts)/2);
         samprate = 1/dt;
         f = samprate/2*linspace(0,1,NFFT/2+1);
+%         if length(f) ~= 2049
+%             disp('error in frequency length')
+%             error
+%         end
         overn = floor(overlap*npts);
 
         if data_length/samprate<80000
