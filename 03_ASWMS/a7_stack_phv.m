@@ -10,10 +10,10 @@ workingdir = parameters.ASWMSDir;
 matFileDir = parameters.MatFilesDir;
 % phase_v_path = './eikonal/'
 %phase_v_path = [workingdir,'eikonal/'];
-phase_v_path = [matFileDir,'eikonal/'];
+phase_v_path = [matFileDir,'eikonal_ALL/'];
 %phase_v_path = [matFileDir,'eikonal-flat/'];
 fig_base_dir = parameters.figdir;
-figDirStack = [parameters.figdir,'Stack/'];
+figDirStack = [parameters.figdir,'PhV_ALL/,Stack/'];
 
 if ~exist(figDirStack)
     mkdir(figDirStack);
@@ -223,7 +223,8 @@ paz = gca;
 paz.ThetaZeroLocation = 'Top';
 paz.ThetaDir = 'clockwise';
 sgtitle("Phase velocities");
-set(gcf, 'PaperPosition', [0 0 15 15]);
+%set(gcf, 'PaperPosition', [0 0 15 15]);
+set(gcf, 'PaperPosition', [0 0 8 8]);
 saveas(gcf,ofn)
 drawnow;
 
