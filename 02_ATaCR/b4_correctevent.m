@@ -7,7 +7,7 @@ setup_parameter;
 isfigure_sta = 1;
 isfigure_spectra = 1;
 issavefigure = 1;
-isoverwrite =0;
+isoverwrite =1;
 
 T1 = 10; T2= 150; %filter period range for plotting seismic data
 
