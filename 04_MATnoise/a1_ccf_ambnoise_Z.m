@@ -1,5 +1,5 @@
 % Calculate ambient noise cross correlation record from multiple stationpairs 
-% for Vertical (Z) only using the methods from Bensen et al. (2007) GJI 
+% for Vertical (Z) only using the methods from Bensen et al. (2007) GJI
 % DOI:10.1111/j.1365-246X.2007.03374.x
 % !! Currently requires data to be downsampled to 1 Hz !!
 %
@@ -7,10 +7,10 @@
 % {datadirectory}/{station}/{station}.{yyyy}.{jday}.{hh}.{mm}.{SS}.{COMP}.sac
 %  e.g.: mydata/CC05/CC05.2018.112.00.00.00.BDH.sac
 %
-% JBR, Jan 2020: Implemented frequency-time normalization after 
+% JBR, Jan 2020: Implemented frequency-time normalization after
 % Shen et al. (2012) BSSA; DOI:10.1785/0120120023. This greatly improves signal
 % extraction compared to typical one-bit noralization and whitening of Bensen et
-% al. (2007) GJI. Faster FiltFiltM() can be replaced with MATLAB's slower 
+% al. (2007) GJI. Faster FiltFiltM() can be replaced with MATLAB's slower
 % built-in filtfilt().
 %
 % (NOTE: FUNCTIONIZE IN THE FUTURE)
@@ -26,7 +26,7 @@ strNAMEcomp = parameters.strNAMEcomp;
 IsFigure1 = 1;
 IsFigure2 = 0;
 
-% debugging... 
+% debugging...
 nDayMax = 1;
 
 % OUTPUT SETTINGS
@@ -37,16 +37,16 @@ IsOutputSinglestack = 0; % save single ccf before stacking
 IsOutputSeismograms = 0; % save raw seismograms before cross-correlating
 
 % GENERAL PROCESSING
-IsRemoveIR = parameters.IsRemoveIR; 
-units_RemoveIR = parameters.units_RemoveIR; 
-IsDetrend = parameters.IsDetrend; 
+IsRemoveIR = parameters.IsRemoveIR;
+units_RemoveIR = parameters.units_RemoveIR;
+IsDetrend = parameters.IsDetrend;
 IsTaper = parameters.IsTaper;
 
 IsSpecWhiten = parameters.IsSpecWhiten;
 IsOBN = parameters.IsOBN;
-IsFTN = parameters.IsFTN; 
-frange_FTN = parameters.frange_FTN; 
-IsPrefilter = parameters.IsPrefilter; 
+IsFTN = parameters.IsFTN;
+frange_FTN = parameters.frange_FTN;
+IsPrefilter = parameters.IsPrefilter;
 frange_prefilt = parameters.frange_prefilt;
 
 % % Setup parallel pool
@@ -195,7 +195,7 @@ for ista1=1:nsta
             file2cZ = dir([datadir,nw2,'_',sta2,'/',strrep(file1cZ,sta1,sta2)]); %wbh edit multiple nwk
             str = strsplit(file1cZ,'.');
             hdayid = [str{2},'.',str{3},'.',str{4},'.',str{5},'.',str{6}];
-            
+
             if isempty(file2cZ)
                 disp(['No data for ',sta2,' on day ',hdayid,'... skipping'])
                 continue
@@ -227,12 +227,12 @@ for ista1=1:nsta
             %------------------- TEST IF DATA EXIST------------------------
             [S1Zt,S1Zraw,S1,S1Ztstart] = load_sac(data1cZ);
             [S2Zt,S2Zraw,S2,S2Ztstart] = load_sac(data2cZ);
-            
+
             % Make sure all times are relative to same reference point
             starttime = S1Ztstart;
             S1Zt = S1Zt + seconds(S1Ztstart-starttime);
             S2Zt = S2Zt + seconds(S2Ztstart-starttime);
-            
+
             % Ensure that files have same start time to within 1 sample
             if abs(seconds(S1Ztstart-S2Ztstart)) > S1.DELTA
                 error('Station files do not have same start time');
@@ -279,10 +279,10 @@ for ista1=1:nsta
         minT1Z = min(S1Zt);
         minT2Z = min(S2Zt);
 
-        if length(S1Zraw) < 30000 
+        if length(S1Zraw) < 30000
             disp(['Sta1 ',sta1,' : ',num2str(length(S1Zraw)),' is too short!'])
             continue
-        elseif length(S2Zraw) < 30000 
+        elseif length(S2Zraw) < 30000
             disp(['Sta2 ',sta2,' : ',num2str(length(S2Zraw)),' is too short!'])
             continue
         end
@@ -322,7 +322,7 @@ for ista1=1:nsta
             stapairsinfo.lons = [lon1,lon2];
             stapairsinfo.dt = dt;
             stapairsinfo.r = dist;
-            
+
 %             % Frequency-time normalization
 %             if IsFTN
 %                 [ S1Zraw ] = FTN( S1Zraw, frange_FTN, dt );
@@ -332,7 +332,7 @@ for ista1=1:nsta
 %                 [ S1H2raw ] = FTN( S1H2raw, frange_FTN, dt );
 %                 [ S2H2raw ] = FTN( S2H2raw, frange_FTN, dt );
 %             end
-            
+
 
             % START WINDOWING
             hour_length = winlength;
@@ -346,7 +346,7 @@ for ista1=1:nsta
             if last_pt < length(S1Zraw)
                 nwin = nwin + 1;
             end
-			
+
 %             tic
             parfor iwin = 1:nwin
 %				clear tcut S1R S2R S1T S2T S1Z S2Z fftS1R fftS2R fftS1T fftS2T fftS1Z fftS2Z
@@ -387,7 +387,7 @@ for ista1=1:nsta
                 S1Z = cos_taper(S1Z);
                 S2Z = cos_taper(S2Z);
             end
-            
+
             % Apply prefilter
             if IsPrefilter
                 [b,a] = butter(2,frange_prefilt*2*dt);
@@ -459,7 +459,7 @@ for ista1=1:nsta
             end % end window
 %             toc
             coh_num = coh_num + coh_num_day;
-            
+
             if IsOutputDaystack
                 % Save day stack
                 daystr = datestr(starttime,'YYYYmmddHHMMSS');
@@ -481,7 +481,7 @@ for ista1=1:nsta
             end
             if ihday == nDayMax
                 continue
-            end    
+            end
         end % end hday
 
         if coh_num > 1

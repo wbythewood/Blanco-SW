@@ -7,7 +7,7 @@ setup_parameters;
 
 %======================= PARAMETERS =======================%
 comp = {parameters.strNAMEcomp};
-windir = parameters.winDirName; 
+windir = parameters.winDirName;
 
 frange = 1./parameters.PeriodRange;
 Nwl = parameters.Wavelengths;
@@ -24,7 +24,7 @@ err_tol = parameters.err_tol;
 load seiscmap.mat
 % figure output path
 phv_fig_path = ['./figs/',windir,'/fullStack/raytomo/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_phv_dir/'];
-if ~exist(phv_fig_path)    
+if ~exist(phv_fig_path)
     mkdir(phv_fig_path);
 end
 
@@ -72,11 +72,11 @@ xspfiles = dir([Xsp_path,'*_xsp.mat']);
 
 disp('Looking at Xsp Files')
 for ixsp = 1:length(xspfiles)
-    
+
     temp = load([Xsp_path,xspfiles(ixsp).name]);
     xspinfo = temp.xspinfo;
     %disp([xspinfo.sta1,' ',xspinfo.sta2,' ',num2str(length(xspinfo.tw))])
-    
+
     if ixsp ==1
         Tperiods = (2*pi)./temp.twloc;
         waxis = temp.waxis;
@@ -93,7 +93,7 @@ for ixsp = 1:length(xspfiles)
     if xspinfo.snr >= snr_tol && xspinfo.r >= r_tol_min && xspinfo.r <= r_tol_max && xspinfo.sumerr <= err_tol
         xspsum(ixsp).isgood = 1;
     end
-    
+
     if rem(ixsp,500)==0
         disp(['Looking at #',num2str(ixsp),' of ',num2str(length(xspfiles))])
     end
@@ -110,36 +110,36 @@ for ip=1:length(Tperiods)
         if xspsum(ixsp).isgood ==0;
             continue;
         end
-        
+
         raynum = raynum+1;
         rays(raynum,1) = xspsum(ixsp).lat1;
         rays(raynum,2) = xspsum(ixsp).lon1;
         rays(raynum,3) = xspsum(ixsp).lat2;
         rays(raynum,4) = xspsum(ixsp).lon2;
-        
+
         dist(raynum) = deg2km(distance(rays(raynum,1),rays(raynum,2),rays(raynum,3),rays(raynum,4)));
-        
+
 
         dt(raynum) = xspsum(ixsp).tw(ip);
         snrs(raynum) = xspsum(ixsp).snr;
-        
+
         % Midpoint of rays
         midlat(raynum) = (rays(raynum,1)+rays(raynum,3))./2;
         midlon(raynum) = (rays(raynum,2)+rays(raynum,4))./2;
-        
+
         % Phase velocity of ray
         phv(raynum) = dist(raynum)./dt(raynum); % km/s
-        
+
         % Azimuth of rays
         [~,azi(raynum)]=distance(xspsum(ixsp).lat1,xspsum(ixsp).lon1,xspsum(ixsp).lat2,xspsum(ixsp).lon2);
         if azi(raynum) > 180
             azi(raynum) = azi(raynum) - 360;
         end
-        
+
     end
     dat(ip).rays = rays;
     dat(ip).dist = dist;
-    dat(ip).dt = dt; 
+    dat(ip).dt = dt;
     dat(ip).midlat = midlat;
     dat(ip).midlon = midlon;
     dat(ip).phv = phv;
@@ -162,7 +162,7 @@ for ip=1:length(Tperiods)
 subplot(Mp,Np,ip)
     ax = worldmap(lalim, lolim);
     set(ax, 'Visible', 'off')
-    
+
 %     avgv = nanmean(dat(ip).phv_cor);
     avgv = nanmean(dat(ip).phv);
     %vels = linspace(avgv*(1-r),avgv*(1+r),size(rbc,1));
@@ -189,7 +189,7 @@ subplot(Mp,Np,ip)
     colormap(seiscmap)
 %    colormap(rbc);
     caxis([vels(1) vels(end)]);
-    
+
     plotm(sta.lat,sta.lon,'ok','markerfacecolor',[0 0 0]);
 %     [c,h] = contourm(age_grid.LAT,age_grid.LON,age_grid.AGE,'k','LevelStep',5);
     drawnow;
@@ -206,8 +206,8 @@ for ip=1:length(Tperiods)
     set(ax, 'Visible', 'off')
 %     surfacem(xi,yi,raytomo(ip).err);
 %     drawpng
-% scatterm(dat(ip).midlat,dat(ip).midlon,30,dat(ip).phv,'filled'); 
-scatterm(dat(ip).midlat,dat(ip).midlon,60,dat(ip).phv,'filled'); 
+% scatterm(dat(ip).midlat,dat(ip).midlon,30,dat(ip).phv,'filled');
+scatterm(dat(ip).midlat,dat(ip).midlon,60,dat(ip).phv,'filled');
 % plotm(sta.lat,sta.lon,'ok','markerfacecolor',[0 0 0]);
 
 hold on;

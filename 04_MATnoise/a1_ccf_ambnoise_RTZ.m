@@ -1,5 +1,5 @@
 % Calculate ambient noise cross correlation record from multiple stationpairs 
-% for (Z, R, T) using the methods from Bensen et al. (2007) GJI 
+% for (Z, R, T) using the methods from Bensen et al. (2007) GJI
 % DOI:10.1111/j.1365-246X.2007.03374.x
 % !! Currently requires data to be downsampled to 1 Hz !!
 %
@@ -7,10 +7,10 @@
 % {datadirectory}/{station}/{station}.{yyyy}.{jday}.{hh}.{mm}.{SS}.{COMP}.sac
 %  e.g.: mydata/CC05/CC05.2018.112.00.00.00.BDH.sac
 %
-% JBR, Jan 2020: Implemented frequency-time normalization after 
+% JBR, Jan 2020: Implemented frequency-time normalization after
 % Shen et al. (2012) BSSA; DOI:10.1785/0120120023. This greatly improves signal
 % extraction compared to typical one-bit noralization and whitening of Bensen et
-% al. (2007) GJI. Faster FiltFiltM() can be replaced with MATLAB's slower 
+% al. (2007) GJI. Faster FiltFiltM() can be replaced with MATLAB's slower
 % built-in filtfilt().
 %
 % (NOTE: FUNCTIONIZE IN THE FUTURE)
@@ -278,7 +278,7 @@ for ista1=1:nsta
             [S2H1t,S2H1raw,~,S2H1tstart] = load_sac(data2cH1);
             [S2H2t,S2H2raw,~,S2H2tstart] = load_sac(data2cH2);
             [S2Zt,S2Zraw,S2,S2Ztstart] = load_sac(data2cZ);
-            
+
             % Make sure all times are relative to same reference point
             starttime = S1Ztstart;
             S1H1t = S1H1t + seconds(S1H1tstart-starttime);
@@ -287,7 +287,7 @@ for ista1=1:nsta
             S2H1t = S2H1t + seconds(S2H1tstart-starttime);
             S2H2t = S2H2t + seconds(S2H2tstart-starttime);
             S2Zt = S2Zt + seconds(S2Ztstart-starttime);
-            
+
             % Ensure that files have same start time to within 1 sample
             if abs(seconds(S1H1tstart-S2H1tstart))>S1.DELTA || abs(seconds(S1H2tstart-S2H2tstart))>S1.DELTA || abs(seconds(S1Ztstart-S2Ztstart))>S1.DELTA
                 error('Station files do not have same start time');
@@ -385,7 +385,7 @@ for ista1=1:nsta
             stapairsinfo.lons = [lon1,lon2];
             stapairsinfo.dt = dt;
             stapairsinfo.r = dist;
-            
+
 %             % Frequency-time normalization
 %             if IsFTN
 %                 [ S1Zraw ] = FTN( S1Zraw, frange_FTN, dt );
@@ -395,7 +395,7 @@ for ista1=1:nsta
 %                 [ S1H2raw ] = FTN( S1H2raw, frange_FTN, dt );
 %                 [ S2H2raw ] = FTN( S2H2raw, frange_FTN, dt );
 %             end
-            
+
 
             % START WINDOWING
             hour_length = winlength;
@@ -411,7 +411,7 @@ for ista1=1:nsta
             if last_pt < length(S1H1raw)
                 nwin = nwin + 1;
             end
-			
+
 %             tic
             parfor iwin = 1:nwin
 %				clear tcut S1R S2R S1T S2T S1Z S2Z fftS1R fftS2R fftS1T fftS2T fftS1Z fftS2Z
@@ -478,7 +478,7 @@ for ista1=1:nsta
                 S2H2 = cos_taper(S2H2);
                 S2Z = cos_taper(S2Z);
             end
-            
+
             % Apply prefilter
             if IsPrefilter
                 [b,a] = butter(2,frange_prefilt*2*dt);
@@ -680,7 +680,7 @@ for ista1=1:nsta
             end % end window
 %             toc
             coh_num = coh_num + coh_num_day;
-            
+
             if IsOutputDaystack
                 % Save day stack
                 daystr = datestr(starttime,'YYYYmmddHHMMSS');

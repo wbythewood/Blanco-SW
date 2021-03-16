@@ -1,5 +1,5 @@
 % Plot the cross-spectra in the time domain for the individual station pairs. 
-% Filter is built using a Tukey taper with sharpness controlled by costap_wid. 
+% Filter is built using a Tukey taper with sharpness controlled by costap_wid.
 % The typical butterworth filter is not precise enough for the higest frequencies
 %
 % https://github.com/jbrussell
@@ -16,21 +16,21 @@ isploth20 = 0;
 isfigure_snr = 0;
 
 % parameters from param file
-comp = parameters.strNAMEcomp; 
-coperiod = parameters.PeriodRange; 
+comp = parameters.strNAMEcomp;
+coperiod = parameters.PeriodRange;
 windir = parameters.winDirName;
 windir_for_SNR = parameters.winDirName; % Data to use for calculating SNR threshold (for plotting purposes)
-trace_space = parameters.trace_space; 
+trace_space = parameters.trace_space;
 snr_thresh = parameters.snr_thresh;
-dep_tol = parameters.dep_tol; 
-max_grv = parameters.max_grv; 
-min_grv = parameters.min_grv; 
+dep_tol = parameters.dep_tol;
+max_grv = parameters.max_grv;
+min_grv = parameters.min_grv;
 xlims = parameters.xlims;
 ylims = parameters.ylims;
-IsButterworth = parameters.IsButterworth; 
+IsButterworth = parameters.IsButterworth;
 FiltStr = parameters.FiltStr;
 
-%%% --- Parameters to build up gaussian filters --- %%% 
+%%% --- Parameters to build up gaussian filters --- %%%
 % (effects the width of the filter in the frequency domain)
 costap_wid = parameters.costap_wid;
 h20_grv = parameters.h20_grv;
@@ -84,21 +84,21 @@ for ista1=1:nsta % loop over all stations
     nstapair = 0;
     for ista2 = 1: nsta % loop over station pairs
         sta2 = char(stalist(ista2,:));
-        
+
         % if same station, skip
         if(strcmp(sta1,sta2))
             continue
         end
-                
+
         filename = sprintf('%s/%s_%s_f.mat',sta1dir,sta1,sta2);
         filename_SNR = sprintf('%s/%s_%s_f.mat',sta1dir_SNR,sta1,sta2);
-        
+
         if ~exist(filename,'file') % check that ccf file exists
             disp(['not exist ',filename])
             continue;
         end
         nstapair = nstapair + 1;
-        
+
         % Want sta1 to be closest to the coast so waves at -lag travel
         % towards coast and waves at +lag travel away from coast.
         filename_sta1sta2 = filename;
@@ -111,7 +111,7 @@ for ista1=1:nsta % loop over all stations
         else
             filename = filename_sta1sta2;
         end
-        
+
         %----------- LOAD DATA -------------%
         data = load(filename);
         data_SNR = load(filename_SNR);
@@ -123,9 +123,9 @@ for ista1=1:nsta % loop over all stations
             ccf = ccf';
             ccf_SNR = ccf_SNR';
         end
-        
+
         %%
-        
+
         if IsFigure_GAUS
             T = length(ccf_filtered);
             faxis = [0:1/T:1/dt/2,-1/dt/2+1/T:1/T:-1/T];
@@ -147,11 +147,11 @@ for ista1=1:nsta % loop over all stations
         ccf_SNR_ifft = fftshift(ccf_SNR_ifft); % rearrange values as [-lag lag]
         ccf_SNR_ifft = detrend(ccf_SNR_ifft);
         ccf_SNR_ifft = cos_taper(ccf_SNR_ifft);
-        
+
         %----------- FILTER DATA (FREQUENCY DOMAIN) -------------%
         f1 = 1/coperiod(2);
         f2 = 1/coperiod(1);
-        
+
         if ~IsButterworth
             [ ccf_filtered ] = tukey_filt( fft(fftshift(ccf_ifft)),coperiod,dt,costap_wid );
             [ ccf_filtered_SNR ] = tukey_filt(fft(fftshift(ccf_SNR_ifft)),coperiod,dt,costap_wid );
@@ -163,7 +163,7 @@ for ista1=1:nsta % loop over all stations
             ccf_SNR_ifft = filtfilt(b,a,ccf_SNR_ifft);
             ccf_filtered = fft(fftshift(ccf_ifft));
             ccf_filtered_SNR = fft(fftshift(ccf_SNR_ifft));
-            
+
             if 0
                 figure(99); clf;
                 [h,f] = freqz(b,a,length(ccf_ifft),dt);
@@ -173,18 +173,18 @@ for ista1=1:nsta % loop over all stations
                 plot(f,angle(h)*180/pi);
             end
         end
-        
+
         ccf_filt{nstapair} = ccf_ifft;
-        
+
         %----------- NORMALIZE CCF FUNCTION -------------%
         ccf_filt{nstapair} = ccf_filt{nstapair}/max(abs(ccf_filt{nstapair}));
-        
+
         % Distance between sta1 and sta2
         sta1sta2_dist(nstapair) = deg2km(distance(data.stapairsinfo.lats(1),data.stapairsinfo.lons(1),data.stapairsinfo.lats(2),data.stapairsinfo.lons(2)));
         stalats(ista1) = data.stapairsinfo.lats(1);
         stalons(ista1) = data.stapairsinfo.lons(1);
-        
-        
+
+
         % Check if reverse station pair has already been plotted
         stapairinv = [sta2,'_',sta1];
         if exist('existpair','var')
@@ -192,24 +192,24 @@ for ista1=1:nsta % loop over all stations
                 continue
             end
         end
-        
+
         % Update some other useful variables
         dumsta2{nstapair} = sta2;
         npairall = npairall + 1; % number of total station pairs
         ccf_all{npairall} = ccf_filt{nstapair} ; % cell containing all ccf
         sta1sta2_dist_all(npairall) = sta1sta2_dist(nstapair); % vector containing distance between each station pair
         existpair(npairall) = {[sta1,'_',sta2]};
-        
+
         % SNR
         [snr(npairall), signal_ind] = calc_SNR(ccf_filtered,min_grv,max_grv,sta1sta2_dist(nstapair),isfigure_snr);
         [snr_compare(npairall), ~] = calc_SNR(ccf_filtered_SNR,min_grv,max_grv,sta1sta2_dist(nstapair),isfigure_snr);
         dep1(npairall) = DEPTHS(strcmp(sta1,STAS));
         dep2(npairall) = DEPTHS(strcmp(sta2,STAS));
-        
+
     end % ista2
-    
-    
-    
+
+
+
     if IsFigure
         %----------- PLOT CCFs IN DISTANCE-TIME -------------%
         f101 = figure(101); clf; hold on;
@@ -274,7 +274,7 @@ if isplotwin
     plot([min(sta1sta2_dist_all) max(sta1sta2_dist_all)]/max_grv,[min(sta1sta2_dist_all) max(sta1sta2_dist_all)],'color',[1 0 0],'linewidth',2);
     plot([min(sta1sta2_dist_all) max(sta1sta2_dist_all)]/-max_grv,[min(sta1sta2_dist_all) max(sta1sta2_dist_all)],'color',[1 0 0],'linewidth',2);
     plot([min(sta1sta2_dist_all) max(sta1sta2_dist_all)]/min_grv,[min(sta1sta2_dist_all) max(sta1sta2_dist_all)],'color',[1 0 0],'linewidth',2);
-    plot([min(sta1sta2_dist_all) max(sta1sta2_dist_all)]/-min_grv,[min(sta1sta2_dist_all) max(sta1sta2_dist_all)],'color',[1 0 0],'linewidth',2);    
+    plot([min(sta1sta2_dist_all) max(sta1sta2_dist_all)]/-min_grv,[min(sta1sta2_dist_all) max(sta1sta2_dist_all)],'color',[1 0 0],'linewidth',2);
 end
 
 if isploth20 && comp(1) == 'Z'

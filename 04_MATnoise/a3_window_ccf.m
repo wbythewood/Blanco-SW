@@ -12,12 +12,12 @@ IsFigure = 1;
 IsVelLines = 1;
 
 % from param file
-comps = {parameters.strNAMEcomp}; 
+comps = {parameters.strNAMEcomp};
 coperiod = parameters.PeriodRange;
 windir = parameters.winDirName;
 % Mode Branches
-max_grv = parameters.max_grv; 
-min_grv = parameters.min_grv; 
+max_grv = parameters.max_grv;
+min_grv = parameters.min_grv;
 % WATER
 H20grv = parameters.h20_grv;
 xlims = parameters.xlims;
@@ -84,14 +84,14 @@ for icomp = 1:length(comps) % loop over components
             %----------- Frequency ==> Time domain -------------%
             N = length(ccf);
             ccf_ifft_full = ifft(ccf,N);
-            
+
             % Distance between sta1 and sta2
             sta1sta2_dist{ista1}(nstapair) = deg2km(distance(data.stapairsinfo.lats(1),data.stapairsinfo.lons(1),data.stapairsinfo.lats(2),data.stapairsinfo.lons(2)));
-            
-            % Window CCF                      
+
+            % Window CCF
             time = [-floor(N/2):1:floor(N/2)];
             ccf_ifft_full = fftshift(ccf_ifft_full); % Rearrange for windowing
-            if sta1sta2_dist{ista1}(nstapair) >= 100  
+            if sta1sta2_dist{ista1}(nstapair) >= 100
                 t_pos = sta1sta2_dist{ista1}(nstapair)/min_grv;
             elseif sta1sta2_dist{ista1}(nstapair) < 100
                 t_pos = 100/min_grv;
@@ -102,23 +102,23 @@ for icomp = 1:length(comps) % loop over components
             ccf_ifft_full_pos(~Iset0_pos)= 0;
 
             ccf_ifft_full = ifftshift(ccf_ifft_full_pos); % Shift window back
-            
+
             ccf_win = fft(ccf_ifft_full);
-            
+
             %ccf_ifft = real(ifft(2*ccf([1:N/2+1]),N)); % inverse FFT to get time domain
             ccf_ifft = real(ifft(2*ccf_win([1:N/2+1]),N)); % inverse FFT to get time domain
-          
-            
+
+
             %rearrange and keep values corresponding to lags: -(len-1):+(len-1)
             ccf_ifft = [ccf_ifft(end-N+2:end) ; ccf_ifft(1:N)];
-            
+
             %----------- SAVE WINDOWED CCF -------------%
             coh_sum_win = ccf_win.*data.coh_num;
             coh_sum = data.coh_sum;
             coh_num = data.coh_num;
             stapairsinfo = data.stapairsinfo;
-            ccfcomp_fullstack_path = [ccf_path];                
-            save(sprintf('%s%s/%s_%s_f.mat',ccfcomp_fullstack_path,sta1,sta1,sta2),'coh_sum','coh_num','stapairsinfo','coh_sum_win','max_grv','min_grv'); 
+            ccfcomp_fullstack_path = [ccf_path];
+            save(sprintf('%s%s/%s_%s_f.mat',ccfcomp_fullstack_path,sta1,sta1,sta2),'coh_sum','coh_num','stapairsinfo','coh_sum_win','max_grv','min_grv');
 
             %----------- FILTER DATA -------------%
             f1 = 1/coperiod(2);
@@ -167,7 +167,7 @@ for icomp = 1:length(comps) % loop over components
     for istapair = 1: npairall
         % Normalize using the surface wave amplitude
         ccf_filt_norm = ccf_all{icomp}{istapair}/max(abs(ccf_all{icomp}{istapair}(:)));
-        
+
         % Plot the normalized traces
         ccf_waveform_all = ccf_filt_norm(indtime(1):indtime(end));
         h2(icomp) = plot(time(indtime(1):indtime(end)),ccf_waveform_all*amp+sta1sta2_dist_all(istapair),'-','color',clr(icomp,:)); hold on;
@@ -188,7 +188,7 @@ if IsVelLines
         plot([min(sta1sta2_dist_all) max(sta1sta2_dist_all)]/min_grv,[min(sta1sta2_dist_all) max(sta1sta2_dist_all)],'color',[255 128 0]/255,'linewidth',2);
         plot([min(sta1sta2_dist_all) max(sta1sta2_dist_all)]/-min_grv,[min(sta1sta2_dist_all) max(sta1sta2_dist_all)],'color',[255 128 0]/255,'linewidth',2);
     end
-        
+
     % H20
     plot([min(sta1sta2_dist_all) max(sta1sta2_dist_all)]/H20grv,[min(sta1sta2_dist_all) max(sta1sta2_dist_all)],'color',[.5 .5 1],'linewidth',2);
     plot([min(sta1sta2_dist_all) max(sta1sta2_dist_all)]/-H20grv,[min(sta1sta2_dist_all) max(sta1sta2_dist_all)],'color',[.5 .5 1],'linewidth',2);
