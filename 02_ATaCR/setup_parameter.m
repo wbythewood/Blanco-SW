@@ -9,34 +9,46 @@ javaaddpath('./IRIS-WS-2.0.18.jar');
 %Base Directory for Output
 BaseDir = '/Users/wbhawley/Research/Seismology/Blanco-SW/';
 DataDir = strcat(BaseDir,'data/');
+Label = 'ANT_12h_test2';
 
 % If Downloading using MATLAB code...
 % location of unpreprocessed matlab files
 NoiseDataDir = strcat(BaseDir,'data/noise_day/'); % output folder for data
 % location of the continuous matlab files for spectral properties
 NoisePreproDir = strcat(BaseDir,'data/noise_day_prepro/');
+NoisePreproDir = strcat(BaseDir,'data/noise_day_prepro_',Label,'/');
+NoisePreproDir = strcat(BaseDir,'data/noise_day_prepro_ANTtest/');
 % location of unpreprocessed event data
 EventDataDir = strcat(BaseDir,'data/event_data/');
 % location of processed event data
 EventPreproDir = strcat(BaseDir,'data/event_data_prepro/');
+EventPreproDir = strcat(BaseDir,'data/noise_day_prepro_',Label,'/');
 % location of pole zero directory
 PZDir = ''; % leave blank if no PZs
 %PZDir = strcat(BaseDir,'data/PZDir');
 
 % If already downloaded using SAC...
 % location of SAC noise files
-sacDayData = strcat(DataDir,'SAC_Noise/');
+%sacDayData = strcat(DataDir,'SAC_Noise/');
+% for ant t/c removal test
+sacDayData = strcat(DataDir,'SAC_Noise_',Label,'/');
 % location of SAC event files
-sacEventData = strcat(DataDir,'SAC_Events/');
+%sacEventData = strcat(DataDir,'SAC_Events/');
+% for ant t/c removal test
+sacEventData = strcat(DataDir,'SAC_Noise_',Label,'/');
 
 % output directory for spectra
-OUTdir = strcat(BaseDir,'data/NOISETC/');
+OUTdir = strcat(BaseDir,'data/NOISETC/',Label,'/');
 % directory for figure output
-FIGdir = strcat(BaseDir,'figures/');
+FIGdir = strcat(BaseDir,'figures/ATaCR/',Label,'/');
 
 % paths for the event and noise time lists
-evFile = strcat(BaseDir,'config/BlancoProblematicEvt.txt');
-dayFile = strcat(BaseDir,'config/BlancoProblematicDay.txt');
+%evFile = strcat(BaseDir,'config/BlancoProblematicEvt.txt');
+%dayFile = strcat(BaseDir,'config/BlancoProblematicDay.txt');
+% for removing from ambient noise... test 05 jan 
+% same file for "events" and noise... since no events
+evFile = strcat(BaseDir,'config/BlancoANT_Test.txt');
+dayFile = strcat(BaseDir,'config/BlancoANT_Test.txt');
 
 %--- Data to download ---%
 
@@ -45,10 +57,12 @@ dayFile = strcat(BaseDir,'config/BlancoProblematicDay.txt');
 %StationNames = {'*'};
 
 NetworkName = 'X9';
-StationNames = textread(strcat(BaseDir,'config/X9_stations.txt'),'%s');
+%StationNames = textread(strcat(BaseDir,'config/X9_stations.txt'),'%s');
+StationNames = textread(strcat(BaseDir,'config/X9_stations_ANTtest.txt'),'%s');
 
-%NetworkName = '7D';
+NetworkName = '7D';
 %StationNames = textread(strcat(BaseDir,'config/7D_stations.txt'),'%s');
+StationNames = textread(strcat(BaseDir,'config/7D_stations_ANTtest.txt'),'%s');
 
 % Response Removal
 % option of removing response from Z component only after corrections have
@@ -63,6 +77,7 @@ RespAfterFlag = 0;
 FilterBeforeFlag = 1;
 LoPassCorner = 0.005; %Hz
 LoPassCorner = 0.001; %Hz
+LoPassCorner = 1/30;
 
 % Channel Names and Corrections
 % in the a_ sections there can only be one vertical channel per station
@@ -111,6 +126,10 @@ Ndays = 4;
 % length of record (seconds) for data download
 NoiseDataLength = 86400;
 EventDataLength = 6000;
+% ANT no events... 
+EventDataLength = 86400;
+EventDataLength = 43200;
+%NoiseDataLength = EventDataLength;
 
 %--- SAC I/O ---%
 % which corrected seismogram to use:
@@ -134,12 +153,15 @@ T = 'Use EventDataLength'; %unclear why these weren't the same before...
 
 % fraction of window overlap for spectra calculation
 overlap = 0.3;
+%ant
+%overlap = 0.01;
 
 % Quality Control Parameters for Daily Windows
 pb = [0.004 .2]; % pass-band, in Hz
 tolerance = 1.5; % tolerance factor for QC
 a_val = 0.05;    % f-test for QC (1 - a_val = confidence)
 minwin = 10;     % minimum numbers of time window for segment to be accepted
+minwin = 1
 
 % Tilt orientation - only matters if using transfer functions with the 'H'
 % option, but package needs variables specified to run; leave as default if
