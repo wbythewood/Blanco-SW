@@ -25,7 +25,7 @@ eventcs_path = [matFileDir,'CSmeasure/'];
 eikonl_output_path = [matFileDir,'eikonal/'];
 % figures directory
 fig_dir_base = parameters.figdir;
-figDirPhv = [parameters.figdir,'BackAz_no150/'];
+figDirPhv = [parameters.figdir,'BackAz/'];
 %figDirPhv = [parameters.figdir,'BackAz/'];
 badStaList = [parameters.configDir,'badsta.lst'];
 
