@@ -26,7 +26,7 @@ nsta = parameters.nsta;
 winlength = parameters.winlength;
 figpath = parameters.figpath;
 dt = parameters.dt;
-fig_winlength_path = [figpath,windir,'/fullStack/'];
+fig_winlength_path = [figpath,windir,'/,fullStack/'];
 
 %------------ PATH INFORMATION -------------%
 % OLD CCF
@@ -193,8 +193,10 @@ xlabel('lag time (s)','fontsize',18,'fontweight','bold');
 ylabel('Distance (km)','fontsize',18,'fontweight','bold');
 title(['All non-repeated pairs, filtered at ',num2str(coperiod(1)), ' -',num2str(coperiod(2)),'(s)'],'fontsize',18,'fontweight','bold');
 set(gca,'fontsize',15);
+ofn = [figpath,'CCF_FullArray.pdf'];
 % legend(h2,{comps{1}(1) comps{2}(1) comps{3}(1)},'location','northeast','fontsize',12);
 
 %pause;
 
+saveas(f102,ofn)
 %print(f102,'-dpdf',[figpath,'all_ccf',comps{1}(1),comps{2}(1),'2.pdf']); % Save figure
