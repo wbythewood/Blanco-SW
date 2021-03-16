@@ -123,9 +123,9 @@ end
 
 % figure output path
 if iswin
-    XSP_fig_path = [figDir,windir,'/fullStack/Xsp/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(N_wl),'wl_phv_dir/TEI19/'];
+    XSP_fig_path = [figDir,windir,'/,fullStack/Xsp/',num2str(1/frange(1)),'_',num2str(1/frange(2)),'s_',num2str(N_wl),'wl_phv_dir/TEI19/'];
 else
-    XSP_fig_path = [figDir,windir,'/fullStack/Xsp/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(N_wl),'wl_phv_dir/TEI19_nowin/'];
+    XSP_fig_path = [figDir,windir,'/,fullStack/Xsp/',num2str(1/frange(1)),'_',num2str(1/frange(2)),'s_',num2str(N_wl),'wl_phv_dir/TEI19_nowin/'];
 end
 
 if ~exist(XSP_fig_path)

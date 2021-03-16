@@ -63,6 +63,7 @@ dterrtol = parameters.dterrtol;
 raydensetol = parameters.raydensetol;
 raydensetol_azi = parameters.raydensetol_azi;
 r = parameters.r;
+phv_fig_path = [parameters.figpath,windir,num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_phv_dir/fullStack/raytomo_azi2theta_2D/'];
 
 xnode=lalim(1):gridsize:lalim(2);
 ynode=lolim(1):gridsize:lolim(2);
@@ -78,7 +79,7 @@ Ny_azi = length(ynode_azi);
 
 % figure output path
 %phv_fig_path = ['./figs/',windir,'/fullStack/raytomo_azi2theta_2D/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',xspdir,'/',stafile,'/'];
-phv_fig_path = ['./figs/',windir,'/fullStack/raytomo_azi2theta_2D/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_phv_dir/',station_list,'/'];
+%phv_fig_path = ['./figs/',windir,'/fullStack/raytomo_azi2theta_2D/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_phv_dir/',station_list,'/'];
 if ~exist(phv_fig_path)    
     mkdir(phv_fig_path);
 end

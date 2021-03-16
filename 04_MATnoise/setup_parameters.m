@@ -7,10 +7,10 @@
 addpath('./functions/');
 addpath('./functions/calc_Rayleigh_disp/');
 
-IDString = 'WBH_test_check_T_length';
+IDString = 'Full_raw';
 
 %%% --- Paths to important files --- %%%
-parameters.workingdir = '/Users/wbhawley/Research/Seismology/Blanco-SW/';
+parameters.workingdir = '/Users/whawley/Research/github/Blanco-SW/';
 parameters.NoiseDir = [parameters.workingdir,'/04_MATnoise/'];
 parameters.dataDir = [parameters.workingdir,'data/'];
 parameters.configDir = [parameters.workingdir,'config/'];
@@ -60,7 +60,7 @@ parameters.IsFTN = 0; % Frequency-time normalization? (If 1, applied instead of 
 parameters.frange_FTN = [1/60 1/10]; % frequency range over which to construct FTN seismograms
 % (3) BASIC PREFILTER (Ekstrom 2011)
 parameters.IsPrefilter = 0; % apply butterworth bandpass filter before cross-correlation?
-parameters.frange_prefilt = [1/100 1/10]; % note in FREQ
+parameters.frange_prefilt = [1/50 1/3]; % note in FREQ (1/T)
 
 %%% --- Parameters for a2_plot_ccf_record --- %%%
 parameters.PeriodRange = [5 25]; % note in PERIOD
@@ -98,8 +98,8 @@ parameters.path_LRT_picks = './mat-LRTdisp/LRT_picks/';
 addpath('./tomo_functions');
 parameters.lalim = [41.5 45.5];%[42.5 45] ;
 parameters.lolim = [-131.5 -125.25];%[-131.5 -125.5];
-parameters.gridsize = 0.25;   % in degrees
-parameters.gridsize_azi = 0.25; %3; %1.5; % gridsize for 2D azimuthal anisotropy (degrees)
+parameters.gridsize = 0.5; %0.25;   % in degrees
+parameters.gridsize_azi = 0.5; %3; %1.5; % gridsize for 2D azimuthal anisotropy (degrees)
 
 % Smoothing parameters
 parameters.smweight0 = 100; % isotropic second derivative smoothing
@@ -115,7 +115,7 @@ parameters.polyfit_dt_err = 2; % (s) dt error greater than this, weighted 0
 parameters.tomo_snr_tol = 2.5; % minimum signal-to-noise
 parameters.r_tol_min = 50; % [km] minimum station separation
 parameters.r_tol_max = 600; % [km] maximum station separation
-parameters.err_tol = 0.5; % maximum misfit of bessel fit between observed and synthetic
+parameters.err_tol = 1.5; %0.5; % maximum misfit of bessel fit between observed and synthetic
 
 parameters.is_rtolmin_wavelength = 0; % determine distance tolerance by wavelength?
 parameters.wl_fac = 1.0; % wavelength of above

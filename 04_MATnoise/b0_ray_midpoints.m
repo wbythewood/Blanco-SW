@@ -10,6 +10,7 @@ comp = {parameters.strNAMEcomp};
 windir = parameters.winDirName; 
 
 frange = 1./parameters.PeriodRange;
+Nwl = parameters.Wavelengths;
 
 % QC parameters
 snr_tol = parameters.tomo_snr_tol;
@@ -66,7 +67,7 @@ if exist('badsta.lst')
 end
 
 % Initialize the xsp structure
-Xsp_path = ['Xsp/',windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_1wl_phv_dir/'];
+Xsp_path = ['Xsp/',windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(Nwl),'wl_phv_dir/'];
 xspfiles = dir([Xsp_path,'*_xsp.mat']);
 
 disp('Looking at Xsp Files')
