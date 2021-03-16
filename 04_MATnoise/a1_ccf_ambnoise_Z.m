@@ -26,6 +26,9 @@ strNAMEcomp = parameters.strNAMEcomp;
 IsFigure1 = 1;
 IsFigure2 = 0;
 
+% debugging... 
+nDayMax = 1;
+
 % OUTPUT SETTINGS
 IsOutputFullstack = 1; % Save full year ccf stacks
 IsOutputMonthstack = 1; % save month ccf stacks
@@ -426,8 +429,8 @@ for ista1=1:nsta
                     fftS2Z = fft(S2Z);
                     %Whiten
                     if IsSpecWhiten
-                        fftS1Z = spectrumwhiten_smooth(fftS1Z,0.001);
-                        fftS2Z = spectrumwhiten_smooth(fftS2Z,0.001);
+                        fftS1Z = spectrumwhiten(fftS1Z,0.001);
+                        fftS2Z = spectrumwhiten(fftS2Z,0.001);
                     end
                 end
 
@@ -476,6 +479,9 @@ for ista1=1:nsta
                     month_counter = 0; % start over
                 end
             end
+            if ihday == nDayMax
+                continue
+            end    
         end % end hday
 
         if coh_num > 1
@@ -496,7 +502,7 @@ for ista1=1:nsta
 
                 %print(f101,'-dpsc',[fig_winlength_path,sta1,'_',sta2,'.ps']);
                 ofn = [fig_winlength_path,sta1,'_',sta2,'.pdf'];
-                save(f101,ofn)
+                saveas(f101,ofn)
                 %pause;
             end
             if IsOutputFullstack

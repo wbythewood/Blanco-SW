@@ -161,7 +161,8 @@ f102 = figure(102);
 clf
 hold on;
 set(gca,'YDir','reverse');
-clr = [1,0,0,; 0,1,0; 0,0,1];
+%clr = [1,0,0,; 0,1,0; 0,0,1]; % for 3-component
+clr = [0,0,0]; % #for 1 component
 for icomp = 1:length(comps) % loop over components
     for istapair = 1: npairall
         % Normalize using the surface wave amplitude
@@ -179,11 +180,15 @@ end
 % Plot Velocities
 if IsVelLines
     % Branches
-    plot([min(sta1sta2_dist_all) max(sta1sta2_dist_all)]/max_grv,[min(sta1sta2_dist_all) max(sta1sta2_dist_all)],'color',[0 .9 0],'linewidth',2);
-    plot([min(sta1sta2_dist_all) max(sta1sta2_dist_all)]/-max_grv,[min(sta1sta2_dist_all) max(sta1sta2_dist_all)],'color',[0 .9 0],'linewidth',2);
-    plot([min(sta1sta2_dist_all) max(sta1sta2_dist_all)]/min_grv,[min(sta1sta2_dist_all) max(sta1sta2_dist_all)],'color',[255 128 0]/255,'linewidth',2);
-    plot([min(sta1sta2_dist_all) max(sta1sta2_dist_all)]/-min_grv,[min(sta1sta2_dist_all) max(sta1sta2_dist_all)],'color',[255 128 0]/255,'linewidth',2);
-    
+    if max_grv < 99999
+        plot([min(sta1sta2_dist_all) max(sta1sta2_dist_all)]/max_grv,[min(sta1sta2_dist_all) max(sta1sta2_dist_all)],'color',[0 .9 0],'linewidth',2);
+        plot([min(sta1sta2_dist_all) max(sta1sta2_dist_all)]/-max_grv,[min(sta1sta2_dist_all) max(sta1sta2_dist_all)],'color',[0 .9 0],'linewidth',2);
+    end
+    if min_grv > 0
+        plot([min(sta1sta2_dist_all) max(sta1sta2_dist_all)]/min_grv,[min(sta1sta2_dist_all) max(sta1sta2_dist_all)],'color',[255 128 0]/255,'linewidth',2);
+        plot([min(sta1sta2_dist_all) max(sta1sta2_dist_all)]/-min_grv,[min(sta1sta2_dist_all) max(sta1sta2_dist_all)],'color',[255 128 0]/255,'linewidth',2);
+    end
+        
     % H20
     plot([min(sta1sta2_dist_all) max(sta1sta2_dist_all)]/H20grv,[min(sta1sta2_dist_all) max(sta1sta2_dist_all)],'color',[.5 .5 1],'linewidth',2);
     plot([min(sta1sta2_dist_all) max(sta1sta2_dist_all)]/-H20grv,[min(sta1sta2_dist_all) max(sta1sta2_dist_all)],'color',[.5 .5 1],'linewidth',2);

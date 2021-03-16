@@ -472,7 +472,7 @@ end
 
 %% Azimuthal anisotropy (%)
 
-Mp = 6; Np = 4;
+Mp = 3; Np = 3;
 fig16 = figure(16);
 set(gcf,'position',[1    1   1244   704]);
 clf
