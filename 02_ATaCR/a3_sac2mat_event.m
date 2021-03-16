@@ -46,8 +46,12 @@ for id = 1:length(startlist)
        otime = datenum(eventid,'yyyymmddHHMMSS');
        eventid = eventid(1:12); % for naming purposes only, start time will still be saved to the second in traces file
    end
+   jday = otime - datenum(year(datetime(datestr(otime))),1,1) + 1;
+   jday = floor(jday);
    starttime = datestr(otime,'yyyy-mm-dd HH:MM:SS');
    endtime = datestr(otime+datalength/3600/24,'yyyy-mm-dd HH:MM:SS');
+   hh = datestr(starttime,'HH');
+
 
    for ista =1:length(download_stations)
        clear traces
@@ -60,7 +64,7 @@ for id = 1:length(startlist)
        sta_filename = fullfile(datacache,eventid,[eventid,'_',network,'_',stnm,'.mat']);
        if exist(sta_filename,'file')
            disp(['Exist: ',sta_filename,', Skip!']);
-           continue;
+           %continue;
        end
        disp(['SAC to MAT station: ',stnm,' From:',starttime,' To:',endtime]);
 		try
@@ -70,6 +74,12 @@ for id = 1:length(startlist)
                 %sac_filename = [eventid,'.',network,'.',stnm,'.',ch{:},'.sac'];
                 sac_filename = strcat(eventid,'.',network,'.',stnm,'.',ch{:},'.sac');
                 sac_fullPath = fullfile(saceventdata,eventid,sac_filename);
+                % for ant
+                %sac_filename = strcat(stnm,'.',eventid(1:4),'.',sprintf('%03d',jday),'.00.00.00.',ch{:},'.sac');
+                sac_filename = strcat(stnm,'.',num2str(year(datetime(datestr(otime)))),'.',num2str(jday,'%03d'),'.',num2str(hh),'.00.00.',ch{:},'.sac');
+
+                sac_sta_dir = strcat(network,'_',stnm);
+                sac_fullPath = fullfile(saceventdata,sac_sta_dir,sac_filename);
                 sac = rdsac(sac_fullPath{1});
                 traces(ich) = sac2mat( sac );
             end
