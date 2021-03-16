@@ -1,4 +1,4 @@
-% Read in the eventcs structures and apply eikonal tomography.
+ % Read in the eventcs structures and apply eikonal tomography.
 % Written by Ge Jin, jinwar@gmail.com
 % 2013.1.16
 %
@@ -17,25 +17,14 @@ setup_ErrorCode
 % cohere_tol = parameters.cohere_tol;
 
 % Smoothing parameters
-flweight_array = 0*ones(length(parameters.periods)); %100*ones(length(parameters.periods)); %parameters.flweight_array
-dterrtol = 2;    % largest variance of the inversion error allowed
-inverse_err_tol = 2; %2  % count be number of standard devition
 % Main QC parameters
-fiterr_tol = 1e-2; % wavelet fitting error, throw out measurements greater than this
-maxstadist = 600;
-minstadist = 50;
-cohere_tol = 0.80; % 0.65
-min_stadist_wavelength = 0.33; %0.5; % minimum station separation in wavelengths
-max_stadist_wavelength = 999;
 ref_phv = [3.9936 4.0041 4.0005 3.9999 3.9929 3.9832 3.9813 3.9841 3.9874 3.9996 4.0138 4.0519 4.0930 4.1677 4.2520]; % for calculating wavelength
-APM = 114; % absolute plate motion (GSRM 2.1; NNR) https://www.unavco.org/software/geodetic-utilities/plate-motion-calculator/plate-motion-calculator.html
-FSD = 75; 
+APM = 0; %114; % absolute plate motion (GSRM 2.1; NNR) https://www.unavco.org/software/geodetic-utilities/plate-motion-calculator/plate-motion-calculator.html
+FSD = 0; %75; 
 
 % Norm damping for azimuthal anisotropy
 % damp_azi = [1 1 1e10 1e10]; % [2c 2s 4c 4s] % Damping individual parameters
-aziweight = 1*0; % global weight
-smweight0_azi = 5 * 10;
-flweight0_azi = 0; %0.1 * 1;
+
 
 % debug setting
 isfigure = 1;
@@ -47,13 +36,33 @@ is_overwrite = 1;
 % % output path
 % eikonl_ani_output_path = './eikonal/';
 
-workingdir = parameters.workingdir;
-% input path
-eventcs_path = [workingdir,'CSmeasure/'];
-% output path
-eikonl_output_path = [workingdir,'eikonal/'];
-eikonl_ani_output_path = [workingdir];
+workingdir = parameters.ASWMSDir;
+matFileDir = parameters.MatFilesDir;
 
+% input path
+eventcs_path = [matFileDir,'CSmeasure/'];
+% output path
+eikonl_ani_output_path = [matFileDir,'eikonal_aniso/'];
+fig_dir_base = parameters.figdir;
+figDirPhv = [parameters.figdir,'PhV-Ani/'];
+figDirPhvBaz = [parameters.figdir,'PhV-BackAz/'];
+badStaList = [parameters.configDir,'badsta.lst'];
+
+if ~exist(eikonl_ani_output_path)
+    mkdir(eikonl_ani_output_path);
+end
+if ~exist(figDirPhv)
+    mkdir(figDirPhv);
+end
+if ~exist(figDirPhvBaz)
+    mkdir(figDirPhvBaz);
+end
+
+
+% plate boundaries
+mapsDir = [parameters.MapsDir,'PlateBoundaries_NnrMRVL/'];
+usgsFN = [parameters.MapsDir,'usgs_plates.txt.gmtdat'];
+[pbLat,pbLon] = importPlates(usgsFN);
 
 comp = parameters.component;
 lalim=parameters.lalim;
@@ -62,14 +71,24 @@ gridsize=parameters.gridsize;
 periods = parameters.periods;
 raydensetol=parameters.raydensetol;
 smweight_array = parameters.smweight_array;
-% flweight_array = parameters.flweight_array; % JBR
+flweight_array = parameters.flweight_array; % JBR
 Tdumpweight0 = parameters.Tdumpweight;
 Rdumpweight0 = parameters.Rdumpweight;
 fiterrtol = parameters.fiterrtol;
-% dterrtol = parameters.dterrtol;
+dterrtol = parameters.dterrtol;
 isRsmooth = parameters.isRsmooth;
-% inverse_err_tol = parameters.inverse_err_tol;
+inverse_err_tol = parameters.inverse_err_tol;
 min_amp_tol  = parameters.min_amp_tol;
+fiterr_tol = parameters.fiterrtol;
+maxstadist = parameters.maxstadist;
+minstadist = parameters.minstadist;
+cohere_tol = parameters.cohere_tol;
+min_stadist_wavelength = parameters.min_stadist_wavelength;
+max_stadist_wavelength = parameters.max_stadist_wavelength;
+% azi params
+aziweight = parameters.aziweight;
+smweight0_azi = parameters.smweight0_azi;
+flweight0_azi = parameters.flweight0_azi;
 
 % setup useful variables
 xnode=lalim(1):gridsize:lalim(2);
@@ -128,8 +147,8 @@ Areg_azi(1:Nxyazi,Nxy+1:Nxy+Nxyazi) = azipart;
 F_azi_damp = Areg_azi;
 
 %% read in bad station list, if existed
-if exist('badsta.lst')
-	badstnms = textread('badsta.lst','%s');
+if exist(badStaList)
+	badstnms = textread(badStaList,'%s');
 	disp('Found Bad stations:')
 	disp(badstnms)
 end
@@ -144,13 +163,19 @@ for ip = 1:length(periods)
 	flweight0 = flweight_array(ip); % JBR
  	raynum = 0;
 	for ie = 1:length(csmatfiles)
-	%for ie = 30
+	%for ie = 10
 		% read in data and set up useful variables
 		temp = load([eventcs_path,csmatfiles(ie).name]);
 		eventcs =  temp.eventcs;
 % 		disp(eventcs.id)
 		evla = eventcs.evla;
 		evlo = eventcs.evlo;
+        
+            % set up fig dir name
+        %figDir = [fig_dir_base,eventcs.id,'/'];
+        %if ~exist(figDir)
+        %    mkdir(figDir);
+        %end
 
 		matfilename = [eikonl_ani_output_path,'/eikonal_ani_',comp,'.mat'];
 		if exist(matfilename,'file') && ~is_overwrite
@@ -556,6 +581,7 @@ fclose(fid);
  
  N=3; M = floor(length(periods)/N) +1;
 figure(88)
+ofn = [figDirPhv,'gv_ani.pdf'];
 clf
 for ip = 1:length(periods)
     subplot(M,N,ip)
@@ -573,8 +599,8 @@ for ip = 1:length(periods)
     r = 0.1;
     caxis([avgv*(1-r) avgv*(1+r)])
     colorbar
-    load seiscmap
-    colormap(seiscmap)
+    load roma
+    colormap(roma)
 
 %             % Plot ray paths
 %             jj=0;
@@ -592,25 +618,32 @@ for ip = 1:length(periods)
 %             h = plotm([lat1 lat2]',[lon1 lon2]','-k','linewidth',0.5); hold on;
 
 end
+saveas(gcf,ofn) %wbh
 drawnow;
  
 %% Anisotropy maps
 figure(57)
+ofn = [figDirPhv,'aniso.pdf'];
 clf
 for ip = 1:length(periods)
 	subplot(M,N,ip);
 	ax = worldmap(lalim+[-gridsize_azi +gridsize_azi], lolim+[-gridsize_azi +gridsize_azi]);
+    
 	set(ax, 'Visible', 'off')
 % 	h1=surfacem(xi,yi,avgphv_aniso(ip).isophv);
 % 	h1=surfacem(xi,yi,avgphv_aniso(ip).aniso_strength);
     % Plot zero-to-peak anisotropy strength
     h1=pcolorm(xi-gridsize_azi/2,yi-gridsize_azi/2,eventphv_ani(ip).A2*100,'Linestyle','none');
-	colorbar
+	hc = colorbar; %wbh
+    ylabel(hc,'Amplitude') %wbh
 	colormap(parula)
+    title(['Period:', num2str(periods(ip))],'fontsize', 15)
+    % plate boundaries
+    plotm(pbLat,pbLon,'LineWidth',2,'Color','k') % plate boundaries
 	drawnow
 %     caxis([0 0.05]);
-	u=eventphv_ani(ip).A2.*cosd(eventphv_ani(ip).phi2)*50;
-	v=eventphv_ani(ip).A2.*sind(eventphv_ani(ip).phi2)*50;%./cosd(mean(lalim));
+	u=eventphv_ani(ip).A2.*cosd(eventphv_ani(ip).phi2)*4;%*50;
+	v=eventphv_ani(ip).A2.*sind(eventphv_ani(ip).phi2)*4;%*50;%./cosd(mean(lalim));
 	[m n]=size(xi);
 	for ix=1:m
 		for iy=1:n
@@ -619,6 +652,11 @@ for ip = 1:length(periods)
 					    [yi_azi(ix,iy)-v(ix,iy)/2 yi_azi(ix,iy)+v(ix,iy)/2],'r-');
 				set(h,'linewidth',2)
 % 			end
-		end
-	end
+        end
+    end
+    % plot stations
+    scatterm(eventcs.stlas,eventcs.stlos,10,'k','o','filled')
+
 end
+saveas(gcf,ofn) %wbh
+drawnow;
