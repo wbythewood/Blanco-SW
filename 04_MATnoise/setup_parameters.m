@@ -7,7 +7,10 @@
 addpath('./functions/');
 addpath('./functions/calc_Rayleigh_disp/');
 
-IDString = 'WBH_test_check_T_length';
+IDString = 'WBH_test2';
+IDString = 'WBH_test2_prefilt';
+IDString = 'WBH_test2_FTN';
+IDString = 'WBH_test2_OBN';
 
 %%% --- Paths to important files --- %%%
 parameters.workingdir = '/Users/wbhawley/Research/Seismology/Blanco-SW/';
@@ -15,7 +18,7 @@ parameters.NoiseDir = [parameters.workingdir,'/04_MATnoise/'];
 parameters.dataDir = [parameters.workingdir,'data/'];
 parameters.configDir = [parameters.workingdir,'config/'];
 % path to data that has NOT yet been corrected for t/c noise
-parameters.datapath = [parameters.dataDir,'Sac_Noise/'];
+parameters.datapath = [parameters.dataDir,'Sac_Noise_Test/'];
 % and path to data that HAS been corrected for t/c noise
 %parameters.datapath = [parameters.dataDir,'CORRSEIS_SAC/'];
 parameters.PZpath = [parameters.dataDir,'PZ/'];
@@ -54,13 +57,13 @@ parameters.IsDetrend = 1; % detrend the data
 parameters.IsTaper = 1; % Apply cosine taper to data chunks
 % (1) ONE-BIT NORMALIZATION & SPECTRAL WHITENING? (Bensen et al. 2007)
 parameters.IsSpecWhiten = 0; % Whiten spectrum
-parameters.IsOBN = 0; % One-bit normalization
+parameters.IsOBN = 1; % One-bit normalization
 % (2) TIME-FREQUENCY NORMALIZATION (Ekstrom et al. 2009; Shen et al. 2011)
 parameters.IsFTN = 0; % Frequency-time normalization? (If 1, applied instead of whitening and one-bit normalization)
-parameters.frange_FTN = [1/60 1/10]; % frequency range over which to construct FTN seismograms
+parameters.frange_FTN = [1/60 1/5]; % frequency range over which to construct FTN seismograms
 % (3) BASIC PREFILTER (Ekstrom 2011)
-parameters.IsPrefilter = 0; % apply butterworth bandpass filter before cross-correlation?
-parameters.frange_prefilt = [1/100 1/10]; % note in FREQ
+parameters.IsPrefilter = 1; % apply butterworth bandpass filter before cross-correlation?
+parameters.frange_prefilt = [1/100 1/5]; % note in FREQ
 
 %%% --- Parameters for a2_plot_ccf_record --- %%%
 parameters.PeriodRange = [5 25]; % note in PERIOD
@@ -98,8 +101,8 @@ parameters.path_LRT_picks = './mat-LRTdisp/LRT_picks/';
 addpath('./tomo_functions');
 parameters.lalim = [41.5 45.5];%[42.5 45] ;
 parameters.lolim = [-131.5 -125.25];%[-131.5 -125.5];
-parameters.gridsize = 0.25;   % in degrees
-parameters.gridsize_azi = 0.25; %3; %1.5; % gridsize for 2D azimuthal anisotropy (degrees)
+parameters.gridsize = 0.75; %0.25;   % in degrees
+parameters.gridsize_azi = 0.75; %0.25; %3; %1.5; % gridsize for 2D azimuthal anisotropy (degrees)
 
 % Smoothing parameters
 parameters.smweight0 = 100; % isotropic second derivative smoothing
@@ -112,8 +115,8 @@ parameters.fiterrtol = 2;   % error allowed in the wavelet fitting
 parameters.dterrtol = 4;    % largest variance of the inversion error allowed
 parameters.maxerrweight = 5; % Maximum error weight
 parameters.polyfit_dt_err = 2; % (s) dt error greater than this, weighted 0
-parameters.tomo_snr_tol = 2.5; % minimum signal-to-noise
-parameters.r_tol_min = 50; % [km] minimum station separation
+parameters.tomo_snr_tol = 1.5; %2.5; % minimum signal-to-noise
+parameters.r_tol_min = 20; % [km] minimum station separation
 parameters.r_tol_max = 600; % [km] maximum station separation
 parameters.err_tol = 0.5; % maximum misfit of bessel fit between observed and synthetic
 
