@@ -7,7 +7,7 @@
 addpath('./functions/');
 addpath('./functions/calc_Rayleigh_disp/');
 
-IDString = 'Full_raw';
+IDString = '10-30s_mingrv2';
 
 %%% --- Paths to important files --- %%%
 parameters.workingdir = '/Users/whawley/Research/github/Blanco-SW/';
@@ -20,7 +20,8 @@ parameters.datapath = [parameters.dataDir,'Sac_Noise_Test/'];
 %parameters.datapath = [parameters.dataDir,'CORRSEIS_SAC/'];
 parameters.PZpath = [parameters.dataDir,'PZ/'];
 parameters.StaListFile = [parameters.configDir,'stalist_nw.txt'];
-parameters.ccfpath = [parameters.NoiseDir,'CCF/',IDString,'/'];
+%parameters.ccfpath = [parameters.NoiseDir,'CCF/',IDString,'/'];
+parameters.ccfpath = [parameters.NoiseDir,'CCF/Full_raw/'];
 parameters.figpath = [parameters.workingdir,'figures/ANT/',IDString,'/'];  % wbh addition
 parameters.seis_path = [parameters.NoiseDir,'seismograms/'];
 parameters.orientation_path = [parameters.dataDir,'orientations.txt'];
@@ -63,12 +64,12 @@ parameters.IsPrefilter = 0; % apply butterworth bandpass filter before cross-cor
 parameters.frange_prefilt = [1/50 1/3]; % note in FREQ (1/T)
 
 %%% --- Parameters for a2_plot_ccf_record --- %%%
-parameters.PeriodRange = [5 25]; % note in PERIOD
+parameters.PeriodRange = [10 30]; % note in PERIOD
 parameters.trace_space = 0; % km
 parameters.snr_thresh = 2.5;
 parameters.dep_tol = [0 0]; % [sta1, sta2] OBS Depth tolerance;
 parameters.max_grv = inf; %5.5;
-parameters.min_grv = 1.4; %1.6
+parameters.min_grv = 2.0; %1.4; %1.6
 parameters.xlims = [-250 250];
 parameters.ylims = [0 450];
 parameters.h20_grv = 1.5;

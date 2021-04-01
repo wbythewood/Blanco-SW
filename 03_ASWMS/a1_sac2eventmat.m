@@ -7,7 +7,7 @@ clear;
 setup_parameters;
 
 comp = parameters.component;
-isoverwrite = 1;
+isoverwrite = 0;
 iscleanevs = 1;
 isplotsnr = 0;
 % dbpath = './sacdata/';

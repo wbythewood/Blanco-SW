@@ -27,7 +27,7 @@ figDir = parameters.figpath;
 frange = 1./parameters.PeriodRange; 
 N_wl = parameters.Wavelengths; 
 Npers = parameters.npers; % Number of periods
-xlims = [1/12 1/3]; % limits for plotting
+xlims = [1/35 1/8]; % limits for plotting
 t_vec_all = 1./flip(linspace(frange(1) , frange(2) ,Npers)); % periods at which to extract phase velocity
 
 damp = parameters.damp;
