@@ -13,7 +13,7 @@ stalist = parameters.stalist;
 nsta = parameters.nsta;
 winlength = parameters.winlength;
 figpath = parameters.figpath;
-fig_winlength_path = [figpath,windir,'/fullStack/'];
+fig_winlength_path = [figpath,windir,'/,fullStack/'];
 dt = parameters.dt;
 
 %------------ PATH INFORMATION -------------%

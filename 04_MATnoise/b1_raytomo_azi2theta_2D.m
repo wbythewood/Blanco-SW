@@ -37,6 +37,7 @@ iscompare_aniso = 0; % compare to old anisotropic measurements
 %%
 % Load color scale
 load seiscmap.mat
+load roma.mat
 % Load anisotropy data (from old inversion)
 if iscompare_aniso
     load(['./aniso_DATA/phv_dir/',aniso_data]);
