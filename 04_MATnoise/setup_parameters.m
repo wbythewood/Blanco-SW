@@ -7,7 +7,8 @@
 addpath('./functions/');
 addpath('./functions/calc_Rayleigh_disp/');
 
-IDString = '10-30s_mingrv2';
+%IDString = '5-25s_mingrv2';
+IDString = '10-30s_mingrv2_mode1';
 
 %%% --- Paths to important files --- %%%
 parameters.workingdir = '/Users/whawley/Research/github/Blanco-SW/';
@@ -64,6 +65,7 @@ parameters.IsPrefilter = 0; % apply butterworth bandpass filter before cross-cor
 parameters.frange_prefilt = [1/50 1/3]; % note in FREQ (1/T)
 
 %%% --- Parameters for a2_plot_ccf_record --- %%%
+%parameters.PeriodRange = [5 25]; % note in PERIOD
 parameters.PeriodRange = [10 30]; % note in PERIOD
 parameters.trace_space = 0; % km
 parameters.snr_thresh = 2.5;
@@ -88,8 +90,9 @@ parameters.npts = parameters.winlength*3600;
 parameters.Wavelengths = 0; % number of wavelengths to fit wbh 12/2020 appears to break if nonzero...
 parameters.npers = 8;    % number of periods
 parameters.damp = [1; 1; 1]; % [fit, smoothness, slope]
-parameters.is_normbessel = 0; % normalize bessel function by analytic envelope?
+parameters.is_normbessel = 0; % normalize bessel function by analytic envelope? should generally be zero
 parameters.iswin = 1; % Use the time-domain windowed ccfs?
+parameters.mode = 1; % which mode to use: fundamental = 0, first overtone = 1, etc.
 
 %%% --- Parameters for using Radon Transform picks --- %%%
 parameters.path_LRT_picks = './mat-LRTdisp/LRT_picks/';

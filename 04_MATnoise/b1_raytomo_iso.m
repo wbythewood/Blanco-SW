@@ -829,7 +829,7 @@ legend({'Starting','Raytomo Avg.'},'location','southeast','fontsize',12,'box','o
 xlim(xlimvals);
 if comp{1}(1) == 'Z'
     %ylim([3.4 4.3]);
-    ylim([1.4 4.3]);
+    ylim([2.5 5.0]);
 elseif comp{1}(1) == 'T'
     ylim([3.8 4.7]);
 end

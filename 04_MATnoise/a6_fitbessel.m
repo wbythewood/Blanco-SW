@@ -27,7 +27,8 @@ figDir = parameters.figpath;
 frange = 1./parameters.PeriodRange; 
 N_wl = parameters.Wavelengths; 
 Npers = parameters.npers; % Number of periods
-xlims = [1/35 1/8]; % limits for plotting
+%xlims = [1/35 1/8]; % limits for plotting
+xlims = [frange(2) frange(1)]; % limits for plotting
 t_vec_all = 1./flip(linspace(frange(1) , frange(2) ,Npers)); % periods at which to extract phase velocity
 
 damp = parameters.damp;
@@ -64,7 +65,8 @@ isfigure_snr = 1;
 
 % From MINEOS .q file (https://github.com/jbrussell/MINEOS_synthetics)
 qfile = ['./qfiles/Nomelt_taper_eta_crust_INVpconstr_xi1.06_GRL19_ORCAiso_INV.s0to200.q'];
-mode = 0;
+%mode = 0;
+mode = parameters.mode; %wbh put this in params file
 if exist('c','var') == 0 % check if phase velocities exist, if not read them in
     [~,~,c_all] = readMINEOS_qfile2(qfile,t_vec_all,mode);
 end

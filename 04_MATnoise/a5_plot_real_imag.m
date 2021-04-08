@@ -20,7 +20,7 @@ winlength = parameters.winlength;
 figpath = parameters.figpath;
 %fig_winlength_path = [figpath,'window',num2str(winlength),'hr/fullStack/'];
 % custom directory names
-    fig_winlength_path = [figpath,windir,'/fullStack/'];
+    fig_winlength_path = [figpath,windir,'/,fullStack/'];
 dt = parameters.dt;
 
 %------------ PATH INFORMATION -------------%
