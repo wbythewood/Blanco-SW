@@ -13,7 +13,7 @@ evla = event.evla;
 evlo = event.evlo;
 
 time_range = [0 6000];
-N_trace = 20;
+N_trace = 40;
 stlas = [stadata.stla];
 stlos = [stadata.stlo];
 [dists azi] = distance(evla,evlo,stlas,stlos);
