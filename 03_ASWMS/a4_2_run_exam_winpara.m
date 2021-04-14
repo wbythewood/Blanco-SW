@@ -2,14 +2,14 @@
 clear;
 %plot native
 
-% eventmat_files = dir('eventmat/*.mat');
 setup_parameters
-workingdir = parameters.dataDir;
-eventmat_files = dir([workingdir,'eventmat/*.mat']);
+eventmatpath = [parameters.MatFilesDir,'eventmat/'];
+eventmat_files = dir([eventmatpath,'*.mat']);
 
 for ie=1:length(eventmat_files)
 % 	load(fullfile('eventmat',eventmat_files(ie).name));
-    load(fullfile(workingdir,'eventmat',eventmat_files(ie).name));
+%    load(fullfile(workingdir,'eventmat',eventmat_files(ie).name));
+    load(fullfile(eventmatpath,eventmat_files(ie).name));
 	if isfield(event,'winpara')
 		if ~isfield(event,'isgood')
 			event.isgood = 1;
@@ -19,6 +19,7 @@ for ie=1:length(eventmat_files)
 		event = exam_winpara(event);
 	end
 % 	save(fullfile('eventmat',eventmat_files(ie).name),'event');
-    save(fullfile(workingdir,'eventmat',eventmat_files(ie).name),'event');
+%    save(fullfile(workingdir,'eventmat',eventmat_files(ie).name),'event');
+    save(fullfile(eventmatpath,eventmat_files(ie).name));
 end
 

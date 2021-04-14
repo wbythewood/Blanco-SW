@@ -7,22 +7,22 @@ addpath(functionspath);
 
 %IdString = 'TaTest_wide';
 %IdString = 'AGU_7D';
-IdString = 'New';
+IdString = 'MacTest';
 
 % Set up paths
-parameters.workingdir = '/Users/wbhawley/Research/Seismology/Blanco-SW/';
-parameters.figdir = [parameters.workingdir,'figures/',IdString,'/'];  % wbh addition
-parameters.configDir = [parameters.workingdir,'config/'];
-parameters.dataDir = [parameters.workingdir,'data/'];
-parameters.SacDbDir = [parameters.dataDir,'CORRSEIS_SAC/'];
+parameters.workingdir = '/Users/whawley/Research/Blanco-SW/';
+parameters.figdir = [parameters.workingdir,'figures/ASWMS/',IdString,'/'];  % wbh addition - separate dir for figures
+parameters.configDir = [parameters.workingdir,'config/']; %this is where the config files live
+parameters.dataDir = [parameters.workingdir,'data/']; %data here
+parameters.SacDbDir = [parameters.dataDir,'CORRSEIS_SAC/']; %the corrected sac files
 %parameters.SacDbDir = [parameters.dataDir,'SAC_Events_TA/'];
 %parameters.SacDbDir = [parameters.dataDir,'SAC_Events/'];
-parameters.MatDbDir = [parameters.dataDir,'eventmat/'];
-parameters.MatDbDir = [parameters.dataDir,'eventmat_',IdString,'/'];
-parameters.ASWMSDir = [parameters.workingdir,'03_ASWMS/'];
-parameters.MatFilesDir = [parameters.ASWMSDir,'matfiles_',IdString,'/'];
+%parameters.MatDbDir = [parameters.dataDir,'eventmat/']; 
+parameters.MatDbDir = [parameters.dataDir,'eventmat_',IdString,'/']; %the matlab version of the corrected sac files
+parameters.ASWMSDir = [parameters.workingdir,'03_ASWMS/']; %everything after converting sac 2 mat goes in ASWMS dir
+parameters.MatFilesDir = [parameters.ASWMSDir,'matfiles_',IdString,'/']; %modified mat files will go here
 %parameters.MatFilesDir = [parameters.ASWMSDir,'matfiles_New/'];
-parameters.MapsDir = '/Users/wbhawley/data/maps/';
+parameters.MapsDir = '/Users/whawley/data/maps/'; %where some of my general map files are
 
 % filenames
 parameters.PACStaFile = [parameters.configDir,'stalist_PAC_nw.txt'];
@@ -63,7 +63,7 @@ parameters.minSta = 5; % if fewer than this no of stations, evt skipped.
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
 % Parameters for own data selection criteria
 parameters.dbpath = parameters.SacDbDir;
-parameters.eventfile = [parameters.configDir,'BlancoEventTest_M6.5.txt'];
+parameters.eventfile = [parameters.configDir,'BlancoEventList_M6.5.txt'];
 %parameters.eventfile = [parameters.configDir,'BlancoProblematicEvt.txt'];
 %parameters.eventfile = [parameters.configDir,'BlancoEventTest_LP.txt'];
 parameters.minMw = 5.0;
