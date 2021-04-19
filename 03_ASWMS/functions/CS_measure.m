@@ -4,7 +4,7 @@ function CS = CS_measure(event,sta1,sta2,parameters)
 	setup_ErrorCode;
 	isdebug = 0;
     isfigure = 1;
-    outfigdir = [parameters.figdir,event.id,'/waveforms/'];
+    outfigdir = [parameters.figdir,'/Events/',event.id,'/CS_measure/'];
     
     if ~exist(outfigdir,'dir')
         mkdir(outfigdir)
@@ -103,7 +103,7 @@ function CS = CS_measure(event,sta1,sta2,parameters)
 	lag = lag + taxis1(1) - taxis2(1);
 
 	if isfigure
-        ofn = [outfigdir,'waveforms-',stnm1,'-',stnm2,'.png'];
+        ofn = [outfigdir,'Waveforms/waveforms-',stnm1,'-',stnm2,'.png'];
 		figure(43)
 		clf
         sgtitle(["Waveforms for "+stnm1+" and "+stnm2])
@@ -134,7 +134,7 @@ function CS = CS_measure(event,sta1,sta2,parameters)
 
 
 	if isfigure
-        ofn = [outfigdir,'xcorr-',stnm1,'-',stnm2,'.png'];
+        ofn = [outfigdir,'Xcorr/xcorr-',stnm1,'-',stnm2,'.png'];
 		figure(44)
 		clf
         sgtitle("Xcorr for "+stnm1+" and "+stnm2)
@@ -213,7 +213,7 @@ function CS = CS_measure(event,sta1,sta2,parameters)
 	end
 
 	if isfigure
-        ofn = [outfigdir,'xcorr_spec-',stnm1,'-',stnm2,'.png'];
+        ofn = [outfigdir,'SpecXcorr/xcorr_spec-',stnm1,'-',stnm2,'.png'];
 		figure(45)
 		clf
         sgtitle(["Spectral Xcorr for "+stnm1+" and "+stnm2])
@@ -236,7 +236,7 @@ function CS = CS_measure(event,sta1,sta2,parameters)
     end
     
     if isfigure
-        ofn = [outfigdir,'error-',stnm1,'-',stnm2,'.png'];
+        ofn = [outfigdir,'Error/error-',stnm1,'-',stnm2,'.png'];
         figure(46)
         clf;
         sgtitle("Fit error for "+stnm1+" and "+stnm2)

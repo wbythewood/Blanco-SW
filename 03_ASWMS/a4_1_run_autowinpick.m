@@ -16,7 +16,7 @@ outmatpath = [parameters.MatFilesDir,'eventmat/'];
 outwinpath = [parameters.MatFilesDir,'winpara/'];
 
 % wbh
-figdir = parameters.figdir;
+figdir = [parameters.figdir,'Events/'];
 % wbh end
 
 if ~exist(outwinpath,'dir')
@@ -67,7 +67,7 @@ for ie = 1:length(matfiles)
 	dists = [event.stadata(:).dist];
 
 	% automatically select the signal window by using ftan method
-	disp('Start to picking the window');
+	disp('Begin picking the window...');
 	tic
 		[winpara event] = auto_win_select(event);
 	toc

@@ -28,7 +28,6 @@ eventmatpath = [parameters.MatFilesDir,'eventmat/'];
 %eventmatpath = parameters.MatDbDir;
 CSoutputpath = [parameters.MatFilesDir,'CSmeasure/'];
 winparapath = [parameters.MatFilesDir,'winpara/'];
-figPath = parameters.figdir;
 
 if ~exist(CSoutputpath,'dir')
 	mkdir(CSoutputpath)
