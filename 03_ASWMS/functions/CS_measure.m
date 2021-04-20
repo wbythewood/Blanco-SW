@@ -8,6 +8,10 @@ function CS = CS_measure(event,sta1,sta2,parameters)
     
     if ~exist(outfigdir,'dir')
         mkdir(outfigdir)
+        mkdir([outfigdir,'Waveforms'])
+        mkdir([outfigdir,'Xcorr'])
+        mkdir([outfigdir,'SpecXcorr'])
+        mkdir([outfigdir,'Error'])
     end
 
 	refv = parameters.refv;
