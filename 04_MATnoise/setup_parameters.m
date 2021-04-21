@@ -7,8 +7,12 @@
 addpath('./functions/');
 addpath('./functions/calc_Rayleigh_disp/');
 
-%IDString = '5-25s_mingrv2';
-IDString = '10-30s_mingrv2_mode1';
+% for multiple cross spectra, use different strings
+IDString = '4-10s_mingrv2_mode1';
+%IDString = '10-30s_mingrv2_mode1';
+
+% follow this string for CCF files
+CCFString = 'prefilt_3-10s';
 
 %%% --- Set Up Paths --- %%%
 % big dir structure
@@ -32,14 +36,14 @@ parameters.orientation_path = [parameters.configDir,'orientations.txt'];
 % this one stores data locally... old way
 %parameters.MatDbDir = [parameters.NoiseDir,'/matfiles/',IDString,'/'];
 % this one will save to dropbox drive, accessible by multiple computers
-parameters.MatDbDir = [parameters.DropboxDir,'/matfiles/',IDString,'/'];
+parameters.MatDbDir = [parameters.DropboxDir,'/matfiles/'];
 %parameters.ccfpath = [parameters.NoiseDir,'CCF/',IDString,'/'];
-parameters.ccfpath = [parameters.MatDbDir,'CCF/'];
-parameters.xsppath = [parameters.MatDbDir,'XSP/'];
+parameters.ccfpath = [parameters.MatDbDir,'CCF/',CCFString,'/'];
+parameters.xsppath = [parameters.MatDbDir,'XSP/',IDString,'/'];
 parameters.seis_path = [parameters.MatDbDir,'seismograms/'];
 
 % figures
-parameters.figpath = [parameters.workingdir,'figures/ANT/',IDString,'/'];  % wbh addition
+parameters.figpath = [parameters.workingdir,'figures/ANT/CCF-',CCFString,'/XSP-',IDString,'/'];  % wbh addition
 
 % maps
 parameters.MapsDir = '/Users/whawley/data/maps/'; %where some of my general map files are
@@ -75,17 +79,17 @@ parameters.IsDetrend = 1; % detrend the data
 parameters.IsTaper = 1; % Apply cosine taper to data chunks
 % (1) ONE-BIT NORMALIZATION & SPECTRAL WHITENING? (Bensen et al. 2007)
 parameters.IsSpecWhiten = 0; % Whiten spectrum
-parameters.IsOBN = 1; % One-bit normalization
+parameters.IsOBN = 0; % One-bit normalization
 % (2) TIME-FREQUENCY NORMALIZATION (Ekstrom et al. 2009; Shen et al. 2011)
 parameters.IsFTN = 0; % Frequency-time normalization? (If 1, applied instead of whitening and one-bit normalization)
 parameters.frange_FTN = [1/60 1/5]; % frequency range over which to construct FTN seismograms
 % (3) BASIC PREFILTER (Ekstrom 2011)
-parameters.IsPrefilter = 0; % apply butterworth bandpass filter before cross-correlation?
-parameters.frange_prefilt = [1/50 1/3]; % note in FREQ (1/T)
+parameters.IsPrefilter = 1; % apply butterworth bandpass filter before cross-correlation?
+parameters.frange_prefilt = [1/10 1/3]; % note in FREQ (1/T)
 
 %%% --- Parameters for a2_plot_ccf_record --- %%%
 %parameters.PeriodRange = [5 25]; % note in PERIOD
-parameters.PeriodRange = [10 30]; % note in PERIOD
+parameters.PeriodRange = [4 10]; % note in PERIOD
 parameters.trace_space = 0; % km
 parameters.snr_thresh = 2.5;
 parameters.dep_tol = [0 0]; % [sta1, sta2] OBS Depth tolerance;
