@@ -13,6 +13,7 @@ IDString = '10-30s_mingrv2_mode1';
 %%% --- Set Up Paths --- %%%
 % big dir structure
 parameters.workingdir = '/Users/whawley/Research/Blanco-SW/';
+%parameters.workingdir = '/Users/whawley/Research/github/Blanco-SW/';
 parameters.DropboxDir = '/Users/whawley/Dropbox/Blanco-SW/MATnoise/';
 parameters.NoiseDir = [parameters.workingdir,'/04_MATnoise/'];
 

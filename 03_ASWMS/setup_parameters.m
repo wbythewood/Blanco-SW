@@ -12,6 +12,7 @@ IdString = 'MacTest';
 %%% --- Set Up Paths --- %%%
 % big dir structure
 parameters.workingdir = '/Users/whawley/Research/Blanco-SW/';
+%parameters.workingdir = '/Users/whawley/Research/github/Blanco-SW/';
 parameters.DropboxDir = '/Users/whawley/Dropbox/Blanco-SW/ASWMS/';
 parameters.ASWMSDir = [parameters.workingdir,'03_ASWMS/']; %everything after converting sac 2 mat goes in ASWMS dir
 
