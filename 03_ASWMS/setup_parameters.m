@@ -9,26 +9,40 @@ addpath(functionspath);
 %IdString = 'AGU_7D';
 IdString = 'MacTest';
 
-% Set up paths
+%%% --- Set Up Paths --- %%%
+% big dir structure
 parameters.workingdir = '/Users/whawley/Research/Blanco-SW/';
-parameters.figdir = [parameters.workingdir,'figures/ASWMS/',IdString,'/'];  % wbh addition - separate dir for figures
-parameters.configDir = [parameters.workingdir,'config/']; %this is where the config files live
+parameters.DropboxDir = '/Users/whawley/Dropbox/Blanco-SW/ASWMS/';
+parameters.ASWMSDir = [parameters.workingdir,'03_ASWMS/']; %everything after converting sac 2 mat goes in ASWMS dir
+
+% where the data are to be found
 parameters.dataDir = [parameters.workingdir,'data/']; %data here
+parameters.configDir = [parameters.workingdir,'config/']; %this is where the config files live
 parameters.SacDbDir = [parameters.dataDir,'CORRSEIS_SAC/']; %the corrected sac files
 %parameters.SacDbDir = [parameters.dataDir,'SAC_Events_TA/'];
 %parameters.SacDbDir = [parameters.dataDir,'SAC_Events/'];
-%parameters.MatDbDir = [parameters.dataDir,'eventmat/']; 
-parameters.MatDbDir = [parameters.dataDir,'eventmat_',IdString,'/']; %the matlab version of the corrected sac files
-parameters.ASWMSDir = [parameters.workingdir,'03_ASWMS/']; %everything after converting sac 2 mat goes in ASWMS dir
-parameters.MatFilesDir = [parameters.ASWMSDir,'matfiles_',IdString,'/']; %modified mat files will go here
-%parameters.MatFilesDir = [parameters.ASWMSDir,'matfiles_New/'];
-parameters.MapsDir = '/Users/whawley/data/maps/'; %where some of my general map files are
-
 % filenames
 parameters.PACStaFile = [parameters.configDir,'stalist_PAC_nw.txt'];
 parameters.JDFStaFile = [parameters.configDir,'stalist_JDF_nw.txt'];
 parameters.StaFile = [parameters.configDir,'stalist_nw.txt'];
 parameters.BadStaFile = [parameters.configDir,'stalist_bad.txt'];
+parameters.eventfile = [parameters.configDir,'BlancoEventList_M6.5.txt'];
+
+
+% where matlab versions of modified data will be stored
+% old with local storing of mat files
+%parameters.MatDbDir = [parameters.dataDir,'eventmat_',IdString,'/']; %the matlab version of the corrected sac files
+% new store mat files in dropbox
+parameters.MatDbDir = [parameters.DropboxDir,'/matfiles/',IDString,'/']; %the matlab version of the corrected sac files
+%parameters.MatFilesDir = [parameters.ASWMSDir,'matfiles_',IdString,'/']; %modified mat files will go here
+
+% fig directory
+parameters.figdir = [parameters.workingdir,'figures/ASWMS/',IdString,'/'];  % wbh addition - separate dir for figures
+
+% maps
+parameters.MapsDir = '/Users/whawley/data/maps/'; %where some of my general map files are
+
+
 
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
 %%%% Global settings
@@ -45,6 +59,7 @@ parameters.periods = [20 25 32 40 50 60 80 100 120 130 150];
 %parameters.periods = [20 25 32 40 50 60 80 100];  % SP in seconds
 %parameters.periods = [80 100 120 140 160]; %LP
 % parameters.periods = round(logspace(log10(20),log10(150),15));
+parameters.periods = sort(parameters.periods);  % make sure periods are ascending
 parameters.minSta = 5; % if fewer than this no of stations, evt skipped.
 
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
@@ -62,17 +77,13 @@ parameters.minSta = 5; % if fewer than this no of stations, evt skipped.
 
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
 % Parameters for own data selection criteria
-parameters.dbpath = parameters.SacDbDir;
-parameters.eventfile = [parameters.configDir,'BlancoEventList_M6.5.txt'];
-%parameters.eventfile = [parameters.configDir,'BlancoProblematicEvt.txt'];
-%parameters.eventfile = [parameters.configDir,'BlancoEventTest_LP.txt'];
+parameters.dbpath = "change to parameters.SacDbDir";
 parameters.minMw = 5.0;
 parameters.maxdepth = 500;
 parameters.snr_tol = 3;
 
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
 % parameters for the auto_win_select.m
-parameters.dbpath = parameters.SacDbDir;
 parameters.largest_epidist_range = 3000;
 parameters.cycle_before = 2;
 parameters.cycle_after = 3;
@@ -91,7 +102,6 @@ parameters.minstadist = 5;
 %parameters.maxstadist = 250; %200;   % station cross-correlation distance in km
 parameters.maxstadist = 600;   % station cross-correlation distance in km
 parameters.is_rm_resp = 0;
-parameters.periods = sort(parameters.periods);  % make sure periods are ascending
 parameters.refv = 4;   % to select the correct cycle
 %parameters.refv = 5;   % to select the correct cycle
 parameters.refphv = ones(size(parameters.periods))*4;
@@ -162,5 +172,3 @@ parameters.is_one_phi = 0;
 if length(parameters.periods)~=length(parameters.smweight_array) || length(parameters.periods)~=length(parameters.min_csgoodratio)
     error('Length of periods doesn''t match smweight_array and/or min_csgoodratio');
 end
-
-%system(['cp ./setup_parameters.m ',parameters.workingdir]);
