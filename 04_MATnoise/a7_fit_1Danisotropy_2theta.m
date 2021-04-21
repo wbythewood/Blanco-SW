@@ -49,10 +49,10 @@ DEPTHS = staz;
 %% Setup Paths
 
 % input path
-XSP_path = ['./Xsp/',windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',xspdir,'/'];
+XSP_path = [parameters.xsppath,windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',xspdir,'/'];
 
 % figure output path
-phv_fig_path = ['./figs/',windir,'/fullStack/Xsp_anisotropy/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',xspdir,'/'];
+phv_fig_path = [parameters.figpath,windir,'/fullStack/Xsp_anisotropy/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',xspdir,'/'];
 
 if ~exist(phv_fig_path)
     

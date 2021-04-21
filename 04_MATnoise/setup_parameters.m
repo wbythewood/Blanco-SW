@@ -11,8 +11,9 @@ addpath('./functions/calc_Rayleigh_disp/');
 IDString = '10-30s_mingrv2_mode1';
 
 %%% --- Paths to important files --- %%%
-parameters.workingdir = '/Users/whawley/Research/github/Blanco-SW/';
+parameters.workingdir = '/Users/whawley/Research/Blanco-SW/';
 parameters.NoiseDir = [parameters.workingdir,'/04_MATnoise/'];
+parameters.MatDbDir = [parameters.NoiseDir,'/matfiles/',IDString,'/'];
 parameters.dataDir = [parameters.workingdir,'data/'];
 parameters.configDir = [parameters.workingdir,'config/'];
 % path to data that has NOT yet been corrected for t/c noise
@@ -22,9 +23,10 @@ parameters.datapath = [parameters.dataDir,'Sac_Noise_Test/'];
 parameters.PZpath = [parameters.dataDir,'PZ/'];
 parameters.StaListFile = [parameters.configDir,'stalist_nw.txt'];
 %parameters.ccfpath = [parameters.NoiseDir,'CCF/',IDString,'/'];
-parameters.ccfpath = [parameters.NoiseDir,'CCF/Full_raw/'];
+parameters.ccfpath = [parameters.MatDbDir,'CCF/'];
+parameters.xsppath = [parameters.MatDbDir,'XSP/'];
 parameters.figpath = [parameters.workingdir,'figures/ANT/',IDString,'/'];  % wbh addition
-parameters.seis_path = [parameters.NoiseDir,'seismograms/'];
+parameters.seis_path = [parameters.MatDbDir,'seismograms/'];
 parameters.orientation_path = [parameters.dataDir,'orientations.txt'];
 %[stalist, stalat, stalon, staz] = textread(parameters.StaListFile,'%s %f %f %f\n');
 [nwlist, stalist, stalat, stalon, staz] = textread(parameters.StaListFile,'%s %s %f %f %f\n'); % wbh add nw parameter

@@ -105,20 +105,20 @@ end
 ccf_path = [parameters.ccfpath,windir,'/fullStack/ccf',comp{1},'/'];
 
 % output path
-XSP_path = ['./Xsp/',windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(N_wl),'wl_phv_dir/'];
+XSP_path = [parameters.xsppath,windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(N_wl),'wl_phv_dir/'];
 
 if ~exist(XSP_path)
-    if ~exist('./Xsp/')
-        mkdir('./Xsp/');
+    if ~exist(parameters.xsppath)
+        mkdir(parameters.xsppath);
     end
-    if ~exist(['./Xsp/',windir,'/'])
-        mkdir(['./Xsp/',windir,'/']);
+    if ~exist([parameters.xsppath,windir,'/'])
+        mkdir([parameters.xsppath,windir,'/']);
     end
-    if ~exist(['./Xsp/',windir,'/fullStack/'])
-        mkdir(['./Xsp/',windir,'/fullStack/']);
+    if ~exist([parameters.xsppath,windir,'/fullStack/'])
+        mkdir([parameters.xsppath,windir,'/fullStack/']);
     end
-    if ~exist(['./Xsp/',windir,'/fullStack/Xsp',comp{1},'/'])
-        mkdir(['./Xsp/',windir,'/fullStack/Xsp',comp{1},'/']);
+    if ~exist([parameters.xsppath,windir,'/fullStack/Xsp',comp{1},'/'])
+        mkdir([parameters.xsppath,windir,'/fullStack/Xsp',comp{1},'/']);
     end
     mkdir(XSP_path)
 end
