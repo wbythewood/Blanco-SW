@@ -21,7 +21,6 @@ comp = {parameters.strNAMEcomp};
 windir = parameters.winDirName; 
 frange = 1./parameters.PeriodRange; 
 Nwl = parameters.Wavelengths;
-figpath = parameters.figpath;
 
 average_vel = 3.8; % [km/s] For calculating wavelength for determining r_tol_min
 
@@ -38,8 +37,8 @@ iscompare_aniso = 0; % compare to old anisotropic measurements
 %==========================================================%
 %%
 % Load color scale
-load seiscmap.mat
-load roma.mat
+load ../seiscmap.mat
+load ../roma.mat
 % Load anisotropy data (from old inversion)
 if iscompare_aniso
     load(['./aniso_DATA/phv_dir/',aniso_data]);
@@ -66,7 +65,8 @@ dterrtol = parameters.dterrtol;
 raydensetol = parameters.raydensetol;
 raydensetol_azi = parameters.raydensetol_azi;
 r = parameters.r;
-phv_fig_path = [parameters.figpath,windir,'/,PhV_dir/',num2str(1/frange(1)),'_',num2str(1/frange(2)),'s/raytomo_azi2theta_2D/'];
+%phv_fig_path = [parameters.figpath,windir,'/,PhV_dir/',num2str(1/frange(1)),'_',num2str(1/frange(2)),'s/raytomo_azi2theta_2D/'];
+phv_fig_path = [parameters.figpath,windir,'/,PhV_dir/Iso/sm-',num2str(smweight0),'_grid-',num2str(gridsize),'_fiterr-',num2str(fiterrtol),'_dterr-',num2str(dterrtol),'/'];
 
 xnode=lalim(1):gridsize:lalim(2);
 ynode=lolim(1):gridsize:lolim(2);
@@ -119,7 +119,8 @@ J_azis(1:end,Nx*Ny+Nx_azi*Ny_azi+[1:Nx_azi*Ny_azi]) = J_azi;
 % Initialize the xsp structure
 % Xsp_path = './Xsp/';
 %Xsp_path = ['../Xsp/',windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',xspdir,'/'];
-Xsp_path = ['Xsp/',windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(Nwl),'wl_phv_dir/'];
+%Xsp_path = ['Xsp/',windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(Nwl),'wl_phv_dir/'];
+Xsp_path = [parameters.xsppath,windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(Nwl),'wl_phv_dir/'];
 xspfiles = dir([Xsp_path,'*_xsp.mat']);
 
 disp('Looking at Xsp Files')
@@ -910,3 +911,8 @@ end
 ofn = [phv_fig_path,'IndividualPairsAzi.png'];
 saveas(fig6,ofn);
 %save2pdf([phv_fig_path,comp{1}(1),'_','r',num2str(r_tol_min),'_',num2str(r_tol_max),'_snr',num2str(snr_tol),'_err',num2str(err_tol),'_sinplots_24theta.pdf'],fig6,1000);
+
+%also save all the parameters in the fig file so it can easily be figured
+%out later...
+ofn = [phv_fig_path,'parameters.mat'];
+save(ofn,'parameters')

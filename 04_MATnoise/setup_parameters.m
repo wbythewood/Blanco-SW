@@ -7,19 +7,27 @@
 addpath('./functions/');
 addpath('./functions/calc_Rayleigh_disp/');
 
+% Important parameters -- These will set file structure!
+% CCF Prefilt Periods
+CCFMinT = 3; % min period in seconds
+CCFMaxT = 50; % max period in seconds
+% XSP Periods
+XSPMinT = 10; % min period in seconds
+XSPMaxT = 30; % max period in seconds
+
 % for multiple cross spectra, use different strings
-IDString = '4-10s_mingrv2_mode1';
-%IDString = '10-30s_mingrv2_mode1';
+%IDString = '4-10s_mingrv2_mode1';
+IDString = [num2str(XSPMinT),'-',num2str(XSPMaxT),'s_mingrv2_mode1'];
 
 % follow this string for CCF files
-CCFString = 'prefilt_3-10s';
+CCFString = ['prefilt_',num2str(CCFMinT),'-',num2str(CCFMaxT),'s'];
 
 %%% --- Set Up Paths --- %%%
 % big dir structure
 parameters.workingdir = '/Users/whawley/Research/Blanco-SW/';
 %parameters.workingdir = '/Users/whawley/Research/github/Blanco-SW/';
 parameters.DropboxDir = '/Users/whawley/Dropbox/Blanco-SW/MATnoise/';
-parameters.NoiseDir = [parameters.workingdir,'/04_MATnoise/'];
+parameters.NoiseDir = [parameters.workingdir,'04_MATnoise/'];
 
 % where the data are to be found
 parameters.dataDir = [parameters.workingdir,'data/']; % where data are stored
@@ -34,12 +42,12 @@ parameters.orientation_path = [parameters.configDir,'orientations.txt'];
 
 % where matlab versions of modified data will be stored
 % this one stores data locally... old way
-%parameters.MatDbDir = [parameters.NoiseDir,'/matfiles/',IDString,'/'];
+parameters.MatDbDir = [parameters.NoiseDir,'/matfiles/'];
 % this one will save to dropbox drive, accessible by multiple computers
-parameters.MatDbDir = [parameters.DropboxDir,'/matfiles/'];
-%parameters.ccfpath = [parameters.NoiseDir,'CCF/',IDString,'/'];
-parameters.ccfpath = [parameters.MatDbDir,'CCF/',CCFString,'/'];
-parameters.xsppath = [parameters.MatDbDir,'XSP/',IDString,'/'];
+%parameters.MatDbDir = [parameters.DropboxDir,'/matfiles/'];
+parameters.ccfpath = [parameters.NoiseDir,'matfiles/',IDString,'CCF/']; %OLD
+%parameters.ccfpath = [parameters.MatDbDir,'CCF/',CCFString,'/']; %NEW
+parameters.xsppath = [parameters.MatDbDir,'XSP/CCF-',CCFString,'/',IDString,'/'];
 parameters.seis_path = [parameters.MatDbDir,'seismograms/'];
 
 % figures
@@ -85,11 +93,11 @@ parameters.IsFTN = 0; % Frequency-time normalization? (If 1, applied instead of 
 parameters.frange_FTN = [1/60 1/5]; % frequency range over which to construct FTN seismograms
 % (3) BASIC PREFILTER (Ekstrom 2011)
 parameters.IsPrefilter = 1; % apply butterworth bandpass filter before cross-correlation?
-parameters.frange_prefilt = [1/10 1/3]; % note in FREQ (1/T)
+parameters.frange_prefilt = [1/CCFMaxT 1/CCFMinT]; % note in FREQ (1/T)
 
 %%% --- Parameters for a2_plot_ccf_record --- %%%
-%parameters.PeriodRange = [5 25]; % note in PERIOD
-parameters.PeriodRange = [4 10]; % note in PERIOD
+parameters.PeriodRange = [XSPMinT XSPMaxT]; % note in PERIOD
+%parameters.PeriodRange = [4 10]; % note in PERIOD
 parameters.trace_space = 0; % km
 parameters.snr_thresh = 2.5;
 parameters.dep_tol = [0 0]; % [sta1, sta2] OBS Depth tolerance;
@@ -129,7 +137,7 @@ parameters.gridsize = 0.5; %0.25;   % in degrees
 parameters.gridsize_azi = 0.5; %3; %1.5; % gridsize for 2D azimuthal anisotropy (degrees)
 
 % Smoothing parameters
-parameters.smweight0 = 100; % isotropic second derivative smoothing
+parameters.smweight0 = 10; %100; % isotropic second derivative smoothing
 parameters.smweight0_azi = 1e3; %1000; % anisotropic second derivative smoothing
 parameters.flweight0_azi = 1000; %1000; % anisotropic first derivative flatness
 
