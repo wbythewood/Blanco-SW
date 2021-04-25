@@ -8,6 +8,7 @@
 % Nov 2012
 % JBR: Modified in 2018 to include azimuthal anisotropy
 % https://github.com/jbrussell
+
 % wbh modified to include only isotropic velocity
 clear; close all;
 
@@ -49,7 +50,6 @@ setup_parameters;
 lalim = parameters.lalim;
 lolim = parameters.lolim;
 gridsize = parameters.gridsize;
-gridsize_azi = parameters.gridsize_azi;
 station_list = parameters.StaListFile;
 
 % Load station info
@@ -59,11 +59,8 @@ fiterrtol = parameters.fiterrtol;
 maxerrweight = parameters.maxerrweight;
 polyfit_dt_err = parameters.polyfit_dt_err;
 smweight0 = parameters.smweight0;
-smweight0_azi = parameters.smweight0_azi;
-flweight0_azi = parameters.flweight0_azi;
 dterrtol = parameters.dterrtol;
 raydensetol = parameters.raydensetol;
-raydensetol_azi = parameters.raydensetol_azi;
 r = parameters.r;
 %phv_fig_path = [parameters.figpath,windir,'/,PhV_dir/',num2str(1/frange(1)),'_',num2str(1/frange(2)),'s/raytomo_azi2theta_2D/'];
 phv_fig_path = [parameters.figpath,windir,'/,PhV_dir/Iso/sm-',num2str(smweight0),'_grid-',num2str(gridsize),'_fiterr-',num2str(fiterrtol),'_dterr-',num2str(dterrtol),'/'];
@@ -73,12 +70,6 @@ ynode=lolim(1):gridsize:lolim(2);
 [xi yi] = ndgrid(xnode,ynode);
 Nx = length(xnode);
 Ny = length(ynode);
-
-xnode_azi=lalim(1):gridsize_azi:lalim(2);
-ynode_azi=lolim(1):gridsize_azi:lolim(2);
-[xi_azi yi_azi] = ndgrid(xnode_azi,ynode_azi);
-Nx_azi = length(xnode_azi);
-Ny_azi = length(ynode_azi);
 
 % figure output path
 %phv_fig_path = ['./figs/',windir,'/fullStack/raytomo_azi2theta_2D/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',xspdir,'/',stafile,'/'];
@@ -95,31 +86,20 @@ if exist('badsta.lst')
     disp(badstnms)
 end
 
+% plate boundaries
+mapsDir = [parameters.MapsDir,'PlateBoundaries_NnrMRVL/'];
+usgsFN = [parameters.MapsDir,'usgs_plates.txt.gmtdat'];
+[pbLat,pbLon] = importPlates(usgsFN);
+
 %% Set up initial smoothing kernels (second derivative)
 % Isotropic smoothing kernels
 F_iso = smooth_kernel_build(xnode, ynode, Nx*Ny);
-F = sparse(Nx*Ny*2,Nx*Ny+Nx_azi*Ny_azi*2);
-F(1:end,1:Nx*Ny) = F_iso;
-% Azimuthal smoothing kernels
-F_azi = smooth_kernel_build(xnode_azi, ynode_azi, Nx_azi*Ny_azi);
-F_azic = sparse(Nx_azi*Ny_azi*2,Nx*Ny+Nx_azi*Ny_azi*2);
-F_azic(1:end,Nx*Ny+[1:Nx_azi*Ny_azi]) = F_azi;
-F_azis = sparse(Nx_azi*Ny_azi*2,Nx*Ny+Nx_azi*Ny_azi*2);
-F_azis(1:end,Nx*Ny+Nx_azi*Ny_azi+[1:Nx_azi*Ny_azi]) = F_azi;
 
-%% Set up initial flattening kernels (first derivative)
-% Azimuthal flattening kernels
-J_azi = flat_kernel_build(xnode_azi, ynode_azi, Nx_azi*Ny_azi);
-J_azic = sparse(Nx_azi*Ny_azi*2,Nx*Ny+Nx_azi*Ny_azi*2);
-J_azic(1:end,Nx*Ny+[1:Nx_azi*Ny_azi]) = J_azi;
-J_azis = sparse(Nx_azi*Ny_azi*2,Nx*Ny+Nx_azi*Ny_azi*2);
-J_azis(1:end,Nx*Ny+Nx_azi*Ny_azi+[1:Nx_azi*Ny_azi]) = J_azi;
+F = F_iso;
 
 %%
 % Initialize the xsp structure
-% Xsp_path = './Xsp/';
-%Xsp_path = ['../Xsp/',windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',xspdir,'/'];
-%Xsp_path = ['Xsp/',windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(Nwl),'wl_phv_dir/'];
+
 Xsp_path = [parameters.xsppath,windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(Nwl),'wl_phv_dir/'];
 xspfiles = dir([Xsp_path,'*_xsp.mat']);
 
@@ -198,25 +178,6 @@ for ip=1:length(Tperiods)
         dep2 = sta.dep(strcmp(xspsum(raynum).sta2,sta.name));
         dep(raynum) = mean([dep1 dep2]);
         
-        %JRB - load azimuthal anisotropy
-        [~,azi(raynum)]=distance(xspsum(ixsp).lat1,xspsum(ixsp).lon1,xspsum(ixsp).lat2,xspsum(ixsp).lon2);
-        if azi(raynum) > 180
-            azi(raynum) = azi(raynum) - 360;
-        end
-        if iscompare_aniso
-            A2 = aniso.A2(ip);
-            A4 = aniso.A4(ip);
-            phi2 = aniso.phi2(ip);
-            phi4 = aniso.phi4(ip);
-            c_iso = aniso.c_iso(ip);       
-        end
-%         if comp{1}(1) == 'Z'
-%             phv_cor = dist(raynum)./dt(raynum) - A2*c_iso*cosd(2*(azi - phi2));
-%         elseif comp{1}(1) == 'T'
-%             phv_cor = dist(raynum)./dt(raynum) - A2*c_iso*cosd(2*(azi-phi2)) - A4*c_iso*cosd(4*(azi-phi4)); 
-%         end
-%         dt(raynum) = dist(raynum)./phv_cor;
-        
         err = smooth((abs(xspsum(ixsp).err)./mean(abs(xspsum(ixsp).xsp))).^2,round(length(waxis)/length(twloc)));
         fiterr(raynum) = interp1(waxis(:),err(:),twloc(ip)); 
         % Fix the fact that last period always breaks (JBR 9/29/17)
@@ -232,9 +193,6 @@ for ip=1:length(Tperiods)
         errays(raynum,4) = xspsum(ixsp).lon2; 
         errays(raynum,5) = fiterr(raynum);
         
-        % JBR - Build azimuthal part of data kernel
-%         mat_azi(raynum,:) = dist(raynum) * [cosd(2*azi(raynum)), sind(2*azi(raynum)), cosd(4*azi(raynum)), sind(4*azi(raynum)) ];
-   
     end
     if size(dt,1) ~=raynum
         dt = dt';
@@ -245,10 +203,9 @@ for ip=1:length(Tperiods)
     tic
     mat_iso=ray_kernel_build(rays,xnode,ynode);   
     toc
-    [mat_azi, mat_azi_hits] = ray_kernel_build_azi(rays,xnode_azi,ynode_azi);
     
     % JBR - Combine isotropic and anisotropic
-    mat = [mat_iso, mat_azi];
+    mat = mat_iso;
     
     % Calculate the weighting matrix
     W = sparse(length(dt),length(dt));
@@ -273,33 +230,13 @@ for ip=1:length(Tperiods)
     NR=norm(F,1);
     NA=norm(W*mat,1);
     smweight = smweight0*NA/NR;
-    
-    NR=norm(F_azic,1);
-    NA=norm(W*mat,1);
-    smweight_azi = smweight0_azi*NA/NR;
-    
-    NR=norm(J_azic,1);
-    NA=norm(W*mat,1);
-    flweight_azi = flweight0_azi*NA/NR;
-    
-    disp('start inverse');
-%     A=[W*mat; smweight*F; aziweight*F_azi_damp; aziweight*F_azi_smooth];
-%     rhs=[W*dt; zeros(size(F,1),1); zeros(size(F_azi_damp,1),1); zeros(size(F_azi_smooth,1),1)];
-%     A=[W*mat;smweight*F;aziweight*F_azi_damp];
-%     rhs=[W*dt;zeros(size(F,1),1);zeros(size(F_azi_damp,1),1)];
-% %     A=[W*mat; smweight*F; aziweight*F_azi_smooth];
-% %     rhs=[W*dt; zeros(size(F,1),1); zeros(size(F_azi_smooth,1),1)];
-%     A=[W*mat; smweight*F; aziweight*F_azi_damp];
-%     rhs=[W*dt; zeros(size(F,1),1); zeros(size(F_azi_damp,1),1)];
-%     A=[W*mat; smweight*F; smweight_azi*F_azic; smweight_azi*F_azis];
-%     rhs=[W*dt; zeros(size(F,1),1); zeros(size(F_azic,1),1); zeros(size(F_azis,1),1)];
-    A=[W*mat; smweight*F; smweight_azi*F_azic; smweight_azi*F_azis; flweight_azi*J_azic; flweight_azi*J_azis];
-    rhs=[W*dt; zeros(size(F,1),1); zeros(size(F_azic,1),1); zeros(size(F_azis,1),1); zeros(size(J_azic,1),1); zeros(size(J_azis,1),1)];
 
-    phaseg=(A'*A)\(A'*rhs);
-    %        toc
-    %        disp('Done');
-    
+    disp('start inversion...');
+
+    A=[W*mat; smweight*F];
+    rhs=[W*dt; zeros(size(F,1),1)];
+
+    phaseg=(A'*A)\(A'*rhs);   
     
     % Iteratively down weight the measurement with high error
     niter=1;
@@ -331,46 +268,19 @@ for ip=1:length(Tperiods)
         NA=norm(W*mat,1);
         smweight = smweight0*NA/NR;
         
-        NR=norm(F_azic,1);
-        NA=norm(W*mat,1);
-        smweight_azi = smweight0_azi*NA/NR;
-        
-        NR=norm(J_azic,1);
-        NA=norm(W*mat,1);
-        flweight_azi = flweight0_azi*NA/NR;
-        
         % Invert
-%         A=[W*mat;smweight*F];
-%         rhs=[W*dt;zeros(size(F,1),1)];        
-%         A=[W*mat;smweight*F;aziweight*F_azi];
-%         rhs=[W*dt;zeros(size(F,1),1);zeros(size(F_azi,1),1)];
-%         A=[W*mat; smweight*F; aziweight*F_azi_damp; aziweight*F_azi_smooth];
-%         rhs=[W*dt; zeros(size(F,1),1); zeros(size(F_azi_damp,1),1); zeros(size(F_azi_smooth,1),1)];
-%         A=[W*mat;smweight*F;aziweight*F_azi_damp];
-%         rhs=[W*dt;zeros(size(F,1),1);zeros(size(F_azi_damp,1),1)];
-% %         A=[W*mat; smweight*F; aziweight*F_azi_smooth];
-% %         rhs=[W*dt; zeros(size(F,1),1); zeros(size(F_azi_smooth,1),1)];
-%         A=[W*mat; smweight*F; aziweight*F_azi_damp];
-%         rhs=[W*dt; zeros(size(F,1),1); zeros(size(F_azi_damp,1),1)];
-%         A=[W*mat; smweight*F; smweight_azi*F_azic; smweight_azi*F_azis];
-%         rhs=[W*dt; zeros(size(F,1),1); zeros(size(F_azic,1),1); zeros(size(F_azis,1),1)];
-        A=[W*mat; smweight*F; smweight_azi*F_azic; smweight_azi*F_azis; flweight_azi*J_azic; flweight_azi*J_azis];
-        rhs=[W*dt; zeros(size(F,1),1); zeros(size(F_azic,1),1); zeros(size(F_azis,1),1); zeros(size(J_azic,1),1); zeros(size(J_azis,1),1)];
+
+        A=[W*mat; smweight*F];
+        rhs=[W*dt; zeros(size(F,1),1)];
 
         phaseg=(A'*A)\(A'*rhs);
 
         
     end
     
-    % Anisotropic terms from model vector
-    phaseg_azic = phaseg(Nx*Ny+1 : Nx*Ny+Nx_azi*Ny_azi);
-    phaseg_azis = phaseg(Nx*Ny+Nx_azi*Ny_azi+1 : Nx*Ny+Nx_azi*Ny_azi*2);
-    
     % Isotropic phase velocity
     phv_iso = dist'./(mat_iso*phaseg(1:Nx*Ny));
-    
-    %        disp(' Get rid of uncertainty area');
-    
+        
     Igood = find(diag(W)~=0);
     mat_good = mat(Igood,:);
     for i=1:Nx
@@ -383,29 +293,12 @@ for ip=1:length(Tperiods)
             end
         end
     end
-    for i=1:Nx_azi
-        for j=1:Ny_azi 
-            n=Ny_azi*(i-1)+j;
-            raydense_azi(i,j) = sum(mat_azi_hits(:,n));
-            if raydense_azi(i,j) < raydensetol_azi
-                phaseg_azic(n)=NaN;
-                phaseg_azis(n)=NaN;
-            end
-        end
-    end
     
     % Convert into phase velocity
     for i=1:Nx
         for j=1:Ny
             n=Ny*(i-1)+j;
             GV(i,j)= 1./phaseg(n);
-        end
-    end
-    for i=1:Nx_azi
-        for j=1:Ny_azi
-            n=Ny_azi*(i-1)+j;
-            Ac(i,j) = -phaseg_azic(n);
-            As(i,j) = -phaseg_azis(n);
         end
     end
     
@@ -415,10 +308,6 @@ for ip=1:length(Tperiods)
     phv_avstd = nanstd(GV(:));
     slow_av = 1/phv_av;
 %     slow_av = 1/mean(phv_iso);
-    Ac2 = Ac./slow_av;
-    As2 = As./slow_av;
-    A2 = sqrt(Ac2.^2+As2.^2);
-    phi2 = 1/2*atan2d(As2,Ac2);
 
     raytomo(ip).GV = GV;
     raytomo(ip).mat = mat;
@@ -430,22 +319,12 @@ for ip=1:length(Tperiods)
     raytomo(ip).fiterr = fiterr;
     raytomo(ip).dt = dt;
     raytomo(ip).smweight0 = smweight0;
-    raytomo(ip).smweight0_azi = smweight0_azi;
-    raytomo(ip).flweight0_azi = flweight0_azi;
     %JBR    
     raytomo(ip).phv_iso = phv_iso;    
     raytomo(ip).phv_av = phv_av;
     raytomo(ip).phv_avstd = phv_avstd;
-    raytomo(ip).Ac2 = Ac2;
-    raytomo(ip).As2 = As2;
-%     raytomo(ip).Ac4 = Ac4;
-%     raytomo(ip).As4 = As4;
-    raytomo(ip).A2 = A2;
-%     raytomo(ip).A4 = A4;
-    raytomo(ip).phi2 = phi2;
-%     raytomo(ip).phi4 = phi4;
     raytomo(ip).phv = phv;
-    raytomo(ip).azi = azi;
+
     
     
     if 0
@@ -475,99 +354,39 @@ if isoutput
     save(savefile,'raytomo','xnode','ynode');
     save('coor.mat','xi','yi','xnode','ynode','gridsize','lalim','lolim');
 end
-
-%% Azimuthal anisotropy (%)
+for iper = 1:length(Tperiods)
+    phv_av_rt(iper) = raytomo(iper).phv_av;
+    phv_avstd_rt(iper) = raytomo(iper).phv_avstd;
+end
+%% Phase Velocity Maps (km/s)
 
 Mp = 3; Np = 3;
-fig16 = figure(16);
-set(gcf,'position',[1    1   800   500]);
+fig17 = figure(17);
+set(gcf,'position',[1    1   1244   704]);
 clf
-vperc = [-r r];
 for ip=1:length(Tperiods)
     subplot(Mp,Np,ip)
     ax = worldmap(lalim, lolim);
     set(ax, 'Visible', 'off')
     set(gcf,'color',[0.9 0.9 0.9])
-    A2 = raytomo(ip).A2;
-%     surfacem(xi,yi,resid);
-    levels = linspace(0,0.03,10)*100;
-    surfacem(xi_azi,yi_azi,A2*100,'Linestyle','none');
-%     drawlocal
+    avgv = nanmean(raytomo(ip).GV(:));
+    levels = linspace(avgv*(1-r), avgv*(1+r),10);
+    contourfm(xi,yi,raytomo(ip).GV,levels);
+    plotm(pbLat,pbLon,'LineWidth',2,'Color','k') % plate boundaries
     title([num2str(Tperiods(ip))],'fontsize',15)
-    caxis([min(levels) max(levels)])
+    caxis([avgv*(1-r) avgv*(1+r)])
     cb = colorbar;
-    ylabel(cb,'A2');
-     colormap(seiscmap)
-%    rbc = flip(redbluecmap);
-%     rbc = rbc([1 2 3 4 5 7 8 9 10 11],:);
-%     colormap(rbc);
-%    colormap('parula');
+    ylabel(cb,'Vs (km/s)');
+    colormap(roma)
     
-    u=raytomo(ip).A2 .* cosd(raytomo(ip).phi2)*20;
-	v=raytomo(ip).A2 .* sind(raytomo(ip).phi2)*20./cosd(mean(lalim));
-	[m n]=size(xi_azi);
-    hold on;
-    xpts = [];
-    ypts = [];
-	for ix=1:m
-		for iy=1:n
-% 			if avgphv_aniso(ip).aniso_azi_std(ix,iy) < 40 && avgphv_aniso(ip).aniso_strength(ix,iy)>0.02
-%                 [xi_azi(ix,iy)-u(ix,iy)/2 xi_azi(ix,iy)+u(ix,iy)/2]
-%                 [yi_azi(ix,iy)-v(ix,iy)/2 yi_azi(ix,iy)+v(ix,iy)/2]
-% % 			geoshow([xi_azi(ix,iy)-u(ix,iy)/2 xi_azi(ix,iy)+u(ix,iy)/2]+gridsize_azi/2,...
-% % 					[yi_azi(ix,iy)-v(ix,iy)/2 yi_azi(ix,iy)+v(ix,iy)/2]+gridsize_azi/2,'Color','k','linewidth',2);
-%             plotm([yi_azi(ix,iy)-v(ix,iy)/2 yi_azi(ix,iy)+v(ix,iy)/2],...
-% 					[xi_azi(ix,iy)-u(ix,iy)/2 xi_azi(ix,iy)+u(ix,iy)/2],'k-','linewidth',2);
-% 			end
-            xpts = [xpts, [xi_azi(ix,iy)-u(ix,iy)/2 xi_azi(ix,iy)+u(ix,iy)/2]+gridsize_azi/2, nan];
-            ypts = [ypts, [yi_azi(ix,iy)-v(ix,iy)/2 yi_azi(ix,iy)+v(ix,iy)/2]+gridsize_azi/2, nan];
-        end
-	end
-    plotm(xpts,ypts,'Color','k','linewidth',2);
     hold on;
     plotm(sta.lat,sta.lon,'ok','markerfacecolor',[0 0 0]);
 end
-ofn = [phv_fig_path,'raytomo2dAzi.png'];
-saveas(fig16,ofn);
-% save2pdf([phv_fig_path,comp{1}(1),'_','r',num2str(r_tol_min),'_',num2str(r_tol_max),'_snr',num2str(snr_tol),'_err',num2str(err_tol),'_raytomo_2Dazimuthal.pdf'],fig16,1000);
-% stop
-%% Phase Velocity Maps (km/s)
-% % Load seafloor age
-% load('age_grid.mat');
-% 
-% Mp = 3; Np = 4;
-% fig17 = figure(17);
-% set(gcf,'position',[1    1   1244   704]);
-% clf
-% for ip=1:length(Tperiods)
-%     subplot(Mp,Np,ip)
-%     ax = worldmap(lalim, lolim);
-%     set(ax, 'Visible', 'off')
-%     set(gcf,'color',[0.9 0.9 0.9])
-% %     surfacem(xi,yi,raytomo(ip).GV);
-%     avgv = nanmean(raytomo(ip).GV(:));
-%     levels = linspace(avgv*(1-r), avgv*(1+r),10);
-%     contourfm(xi,yi,raytomo(ip).GV,levels);
-% %     drawlocal
-%     title([num2str(Tperiods(ip))],'fontsize',15)
-%     caxis([avgv*(1-r) avgv*(1+r)])
-%     colorbar
-% %     colormap(seiscmap)
-%     rbc = flip(redbluecmap);
-% %     rbc = rbc([1 2 3 4 5 7 8 9 10 11],:);
-%     colormap(rbc);
-%     
-%     hold on;
-%     plotm(sta.lat,sta.lon,'ok','markerfacecolor',[0 0 0]);
-%     [c,h] = contourm(age_grid.LAT,age_grid.LON,age_grid.AGE,'k','LevelStep',5);
-% end
-% save2pdf([phv_fig_path,comp{1}(1),'_','r',num2str(r_tol_min),'_',num2str(r_tol_max),'_snr',num2str(snr_tol),'_err',num2str(err_tol),'_raytomo.pdf'],fig17,1000);
+ofn = [phv_fig_path,'phv_km-s.png'];
+saveas(fig17,ofn);
 
 %% Phase Velocity Maps (%)
-% Load seafloor age
-%load('age_grid.mat');
 
-Mp = 3; Np = 3;
 fig19 = figure(19);
 set(gcf,'position',[1    1   1244   704]);
 clf
@@ -581,27 +400,20 @@ for ip=1:length(Tperiods)
     resid = (raytomo(ip).GV-avgv)./avgv;
     levels = linspace(vperc(1),vperc(2),10)*100;
     contourfm(xi,yi,resid*100,levels);
+    plotm(pbLat,pbLon,'LineWidth',2,'Color','k') % plate boundaries
     title([num2str(Tperiods(ip))],'fontsize',15)
     caxis([min(levels) max(levels)])
     cb = colorbar;
     ylabel(cb,'dVs (%)');
-     colormap(seiscmap)
-     colormap(roma)
-%    rbc = flip(redbluecmap);
-%     rbc = rbc([1 2 3 4 5 7 8 9 10 11],:);
-%    colormap(rbc);
+    colormap(roma)
     
     hold on;
     plotm(sta.lat,sta.lon,'ok','markerfacecolor',[0 0 0]);
-%    [c,h] = contourm(age_grid.LAT,age_grid.LON,age_grid.AGE,'k','LevelStep',5);
 end
 ofn = [phv_fig_path,'phv_percent.png'];
 saveas(fig19,ofn);
-% save2pdf([phv_fig_path,comp{1}(1),'_','r',num2str(r_tol_min),'_',num2str(r_tol_max),'_snr',num2str(snr_tol),'_err',num2str(err_tol),'_raytomo_perc.pdf'],fig19,1000);
 
-% stop
-%%
-% RAY DENSITY
+%% RAY DENSITY
 fig18 = figure(18);
 set(gcf,'position',[1    1   1244   704]);
 clf
@@ -612,6 +424,7 @@ subplot(Mp,Np,ip)
     set(ax, 'Visible', 'off')
     surfacem(xi,yi,raytomo(ip).raydense);
 %     drawlocal
+    plotm(pbLat,pbLon,'LineWidth',2,'Color','k') % plate boundaries
     title([num2str(Tperiods(ip))],'fontsize',15)
     cb = colorbar;
     ylabel(cb,'Ray density');
@@ -621,186 +434,31 @@ subplot(Mp,Np,ip)
 end
 ofn = [phv_fig_path,'ray_density.png'];
 saveas(fig18,ofn);
-%save2pdf([phv_fig_path,comp{1}(1),'_','r',num2str(r_tol_min),'_',num2str(r_tol_max),'_snr',num2str(snr_tol),'_err',num2str(err_tol),'_raydense.pdf'],fig18,1000);
 
-% % ERRORS ON XSP
-% fig19 = figure(19)
-% set(gcf,'position',[1    1   1244   704]);
-% clf
-% 
-% for ip=1:length(Tperiods)
-%     subplot(Mp,Np,ip)
-%     ax = worldmap(lalim, lolim);
-%     set(ax, 'Visible', 'off')
-%     clear rays
-%     rays = raytomo(ip).rays;
-% %     surfacem(xi,yi,raytomo(ip).err);
-% %     drawpng
-% scatterm((rays(:,1)+rays(:,3))./2,(rays(:,2)+rays(:,4))./2,30,raytomo(ip).fiterr,'filled')
-% % drawlocal
-% title([num2str(Tperiods(ip))],'fontsize',15)
-% colorbar
-% caxis([ 0 5])
-% 
-% 
-% end
+%% ERRORS ON XSP
+fig16 = figure(16);
+set(gcf,'position',[1    1   1244   704]);
+clf
 
-%% PLOT AZIMUTHAL MODEL
+for ip=1:length(Tperiods)
+    subplot(Mp,Np,ip)
+    ax = worldmap(lalim, lolim);
+    set(ax, 'Visible', 'off')
+    clear rays
+    rays = raytomo(ip).rays;
+%    surfacem(xi,yi,raytomo(ip).err);
+%    drawpng
+    scatterm((rays(:,1)+rays(:,3))./2,(rays(:,2)+rays(:,4))./2,30,raytomo(ip).fiterr,'filled')
+%    drawlocal
+    plotm(pbLat,pbLon,'LineWidth',2,'Color','k') % plate boundaries
+    title([num2str(Tperiods(ip))],'fontsize',15)
+    colorbar
+    caxis([ 0 5])
 
-fig4 = figure(4); clf;
-% set(gcf,'position',[4         325        1239         380],'color','w');
-set(gcf,'position',[6   220   490   485]);
-periods = Tperiods;
-% Old Values
-if iscompare_aniso
-    wRMS_2A = aniso.wRMS_2A;
-    wRMS_4A = aniso.wRMS_4A;
-    err_phi2 = aniso.err_phi2;
-    err_phi4 = aniso.err_phi4;
-    A2_2 = aniso.A2;
-    A4_2 = aniso.A4;
-    phi2_2 = aniso.phi2;
-    phi4_2 = aniso.phi4;
 end
-for iper = 1:length(periods)
-    % New values
-    A2_rt(iper) = nanmean(raytomo(iper).A2(:));
-%     A4_rt(iper) = raytomo(iper).A4;
-    phi2_rt(iper) = nanmean(raytomo(iper).phi2(:));
-%     phi4_rt(iper) = raytomo(iper).phi4;
-    phv_av_rt(iper) = raytomo(iper).phv_av;
-    phv_avstd_rt(iper) = raytomo(iper).phv_avstd;
-end
-% A2_rt = sqrt(Ac2.^2 + As2.^2)./phv_av_rt;
-% A4_rt = sqrt(Ac4.^2 + As4.^2)./phv_av_rt;
-% phi2_rt = 1/2*atand(As2./Ac2);
-% phi4_rt = 1/4*atand(As4./Ac4);
+ofn = [phv_fig_path,'XSP-err.png'];
+saveas(fig16,ofn);
 
-
-% peak-to-peak
-subplot(2,1,1); hold on;
-if iscompare_aniso
-    h3(2) = errorbar(periods,A4_2*2*100,wRMS_4A*100,'--ob','linewidth',2);
-    h3(1) = errorbar(periods,A2_2*2*100,wRMS_2A*100,'--o','color',[0 0.7 0],'linewidth',2);
-end
-% h3(2) = plot(periods,A4_rt*2*100,'-ob','linewidth',2);
-h3(1) = plot(periods,A2_rt*2*100,'-o','color',[0 0.7 0],'linewidth',2);
-xlimvals = [1./frange]; %wbh make sure xlimvals is increasing
-if xlimvals(1) > xlimvals(2)
-    xlimvals = flip(xlimvals);
-end
-xlim(xlimvals);
-ylim([0 10]);
-set(gca,'linewidth',1.5,'xminortick','on','yminortick','on','fontsize',18);
-xlabel('Period (s)','fontsize',18);
-ylabel('Peak-to-peak amp (%)','fontsize',18);
-legend(h3,{'2\theta','4\theta'},'location','northwest');
-
-% Azimuth
-subplot(2,1,2); hold on;
-for iper = 1:length(periods)
-    % OLD AZIMUTHAL PARAMTERS
-    if iscompare_aniso
-        phi2_vec(1) = phi2_2(iper);
-        phi2_vec(2) = phi2_2(iper)+180;
-        phi2_vec(3) = phi2_2(iper)-180;
-        if comp{1}(1) == 'Z'
-            [dif, I] = min(abs(phi2_vec-fastdir));
-            phi2_2(iper) = phi2_vec(I);
-            if phi2_2(iper) < fastdir && dif > 10
-                phi2_2(iper) = phi2_2(iper)+180;
-            end
-        elseif comp{1}(1) == 'T'
-            [dif, I] = min(abs(phi2_vec-fastdir+90));
-            phi2_2(iper) = phi2_vec(I);
-            if phi2_2(iper) < fastdir && dif
-                phi2_2(iper) = phi2_2(iper)+180;
-            end
-        end
-
-
-        phi4_vec(1) = phi4_2(iper);
-        phi4_vec(2) = phi4_2(iper)+90;
-        phi4_vec(3) = phi4_2(iper)+180;
-        phi4_vec(4) = phi4_2(iper)+270;
-        phi4_vec(5) = phi4_2(iper)-90;
-        phi4_vec(6) = phi4_2(iper)-180;
-        phi4_vec(7) = phi4_2(iper)-270;
-        [~, I] = min(abs(phi4_vec-fastdir+45));
-        phi4_2(iper) = phi4_vec(I);
-        if phi4_2(iper) < fastdir
-            phi4_2(iper) = phi4_2(iper)+90;
-        end
-    end
-    
-    % NEW AZIMUTHAL PARAMTERS
-    phi2_vec(1) = phi2_rt(iper);
-    phi2_vec(2) = phi2_rt(iper)+180;
-    phi2_vec(3) = phi2_rt(iper)-180;
-    if comp{1}(1) == 'Z'
-        [dif, I] = min(abs(phi2_vec-fastdir));
-        phi2_rt(iper) = phi2_vec(I);
-        if phi2_rt(iper) < fastdir && dif > 10
-            phi2_rt(iper) = phi2_rt(iper)+180;
-        end
-    elseif comp{1}(1) == 'T'
-        [dif, I] = min(abs(phi2_vec-fastdir+90));
-        phi2_rt(iper) = phi2_vec(I);
-        if phi2_rt(iper) < fastdir
-            phi2_rt(iper) = phi2_rt(iper)+180;
-        end
-    end
-    phi2_rt(phi2_rt>160) = phi2_rt(phi2_rt>160)-180;
-
-
-%     phi4_vec(1) = phi4_rt(iper);
-%     phi4_vec(2) = phi4_rt(iper)+90;
-%     phi4_vec(3) = phi4_rt(iper)+180;
-%     phi4_vec(4) = phi4_rt(iper)+270;
-%     phi4_vec(5) = phi4_rt(iper)-90;
-%     phi4_vec(6) = phi4_rt(iper)-180;
-%     phi4_vec(7) = phi4_rt(iper)-270;
-%     [~, I] = min(abs(phi4_vec-fastdir+45));
-%     phi4_rt(iper) = phi4_vec(I);
-%     if phi4_rt(iper) < fastdir
-%         phi4_rt(iper) = phi4_rt(iper)+90;
-%     end
-end
-%plot(periods,ones(size(periods))*fastdir,'--k','linewidth',2);
-%plot(periods,ones(size(periods))*fastdir-90,'--','color',[0.5 0.5 0.5],'linewidth',2);
-%plot(periods,ones(size(periods))*fastdir+90,'--','color',[0.5 0.5 0.5],'linewidth',2);
-if iscompare_aniso
-    errorbar(periods,phi4_2,err_phi4,'--ob','linewidth',2);
-    errorbar(periods,phi2_2,err_phi2,'--o','color',[0 0.7 0],'linewidth',2);
-end
-% plot(periods,phi4_rt,'-ob','linewidth',2);
-plot(periods,phi2_rt,'-o','color',[0 0.7 0],'linewidth',2);
-ylabel('Fast Direction (%)','fontsize',18);
-ylim([fastdir-130 fastdir+130]);
-xlim(xlimvals);
-set(gca,'linewidth',1.5,'xminortick','on','yminortick','on','fontsize',18);
-xlabel('Period (s)','fontsize',18);
-
-ofn = [phv_fig_path,'A_plots.png'];
-saveas(fig4,ofn);
-
-
-% % PLOT COSINE AND SINE
-% fig5 = figure(5);
-% clf
-% plot(periods,Ac2./phv_av_rt*100,'-k','linewidth',2); hold on;
-% plot(periods,As2./phv_av_rt*100,'-r','linewidth',2);
-% plot(periods,Ac4./phv_av_rt*100,'--k','linewidth',2);
-% plot(periods,As4./phv_av_rt*100,'--r','linewidth',2);
-% ylabel('A (%)','fontsize',18);
-% title('Azimuthal Coefficients','fontsize',18);
-% xlim(flip(1./frange));
-% set(gca,'linewidth',1.5,'xminortick','on','yminortick','on','fontsize',18);
-% xlabel('Period (s)','fontsize',18);
-% legend({'A_{c2}','A_{s2}','A_{c4}','A_{s4}'},'fontsize',13,'box','off');
-
-% save2pdf([phv_fig_path,comp{1}(1),'_','r',num2str(r_tol_min),'_',num2str(r_tol_max),'_snr',num2str(snr_tol),'_err',num2str(err_tol),'_A_phi_plots.pdf'],fig4,1000);
-%stop
 %% Plot phase velocities
 for ip = 1:length(Tperiods)
     avgv(ip) = nanmean(raytomo(ip).GV(:));
@@ -808,13 +466,9 @@ for ip = 1:length(Tperiods)
 end
 
 fig2 = figure(2);clf;
-set(gcf,'position',[320     2   508   703]);
+set(gcf,'position',[227 385 967 324]);
 
-subplot(2,1,1);
 hold on; box on;
-if iscompare_aniso
-    errorbar(Tperiods,aniso.c_iso,aniso.err_c_iso*2,'-k','linewidth',2);
-end
 try 
     plot(Tperiods,xspinfo.c_start,'ok','linewidth',2);
 catch
@@ -827,90 +481,21 @@ xlabel('Period (s)','fontsize',16);
 ylabel('Phase Velocity (km/s)','fontsize',16);
 set(gca,'fontsize',16,'linewidth',1.5);
 legend({'Starting','Raytomo Avg.'},'location','southeast','fontsize',12,'box','off');
+xlimvals = [1./frange]; %wbh make sure xlimvals is increasing
+if xlimvals(1) > xlimvals(2)
+    xlimvals = flip(xlimvals);
+end
 xlim(xlimvals);
 if comp{1}(1) == 'Z'
     %ylim([3.4 4.3]);
-    ylim([2.5 5.0]);
+    ylim([3.0 5.0]);
 elseif comp{1}(1) == 'T'
     ylim([3.8 4.7]);
 end
 
-if iscompare_aniso
-    subplot(2,1,2);
-    box on; hold on;
-    resids = (phv_av_rt-aniso.c_iso)./aniso.c_iso*100;
-    resids2 = (mean([vertcat(raytomo(:).phv)],2)'-aniso.c_iso)./aniso.c_iso*100;
-    patch([aniso.periods fliplr(aniso.periods)],[aniso.err_c_iso./aniso.c_iso*2*100 fliplr(-aniso.err_c_iso./aniso.c_iso*2*100)],[0.8 0.8 0.8],'linestyle','none');
-    errorbar(Tperiods,resids,phv_avstd_rt./phv_av_rt*100*2,'-r','linewidth',2);
-    % errorbar(Tperiods,resids2,std([vertcat(raytomo(:).phv)],0,2)./mean([vertcat(raytomo(:).phv)],2)*2*100,'-b','linewidth',2)
-    title('Residual (%)');
-    xlabel('Period (s)','fontsize',16);
-    ylabel('\delta c/c','fontsize',16);
-    set(gca,'fontsize',16,'linewidth',1.5);
-    xlim([3.5 10.5]);
-    ylim([-2 2]);
-end
-
 ofn = [phv_fig_path,'IsoPhaseVelocity.png'];
 saveas(fig2,ofn);
-%save2pdf([phv_fig_path,comp{1}(1),'_','r',num2str(r_tol_min),'_',num2str(r_tol_max),'_snr',num2str(snr_tol),'_err',num2str(err_tol),'_compareisophv.pdf'],fig2,1000);
-
-%% Plot Azimuthal Data
-fig6 = figure(6); clf;
-% set(gcf,'position',[10         248        1203         457]);
-set(gcf,'position',[10          11        1203         695]);
-for iper = 1:length(periods)
-    azi = raytomo(iper).azi;
-%     dphv = (raytomo(iper).phv - phv_av_rt(iper))./phv_av_rt(iper);
-     dphv = (raytomo(iper).phv' - raytomo(iper).phv_iso) ./ raytomo(iper).phv_iso;
-    subplot(Mp,4,iper); hold on;
-%     if comp{1}(1) == 'Z' || comp{1}(1) == 'R'
-%         c = 2; % 2 theta
-%         e_patty = 78;
-%     elseif comp{1}(1) == 'T'
-%         c = 4; % 4 theta
-%         e_patty = 78-45;
-%     end
-    x = [-180:180];
-    % PHV FIT = a*(1+d*cosd(c*(x-e)))
-    if iscompare_aniso
-        h2(1) = plot(x,A2_2(iper)*cosd(2*(x-phi2_2(iper)))*100+A4_2(iper)*cosd(4*(x-phi4_2(iper)))*100,'--','color',[0.5 0.5 0.5],'linewidth',3);
-    end
-%    h2(2) = plot(x,A2_rt(iper)*cosd(2*(x-phi2_rt(iper)))*100+A4_rt(iper)*cosd(4*(x-phi4_rt(iper)))*100,'-','color',[0.5 0.5 0.5],'linewidth',3);
-%     h2(1) = plot(x,d4*cosd(4*(x-e4))*100,'-b','linewidth',3);
-%     h2(2) = plot(x,d2*cosd(2*(x-e2))*100,'-','color',[0 0.7 0],'linewidth',3);
-%     plot(azi,dphv*100,'xr','linewidth',1); hold on;
-%     scatter(azi,dphv*100,30,dep,'filled'); hold on;
-    scatter(azi,dphv*100,30,dist,'filled'); hold on;
-    
-    if iper == 4
-        ax = get(gca);
-        pos = ax.Position;
-        cb = colorbar;
-        ylabel(cb,'dist (km)');
-        set(gca,'Position',pos);
-    end
-    if iper == 1
-%         legend(h2,{'2\theta + 4\theta'},'location','northwest');
-    end
-    title([num2str(periods(iper),'%0.1f'),' s'],'fontsize',30);
-    if iper == length(periods)
-        xlabel('Azimuth (degrees)','fontsize',15);
-    end
-    if iper == 1
-        ylabel('\delta{c}/c (%)','fontsize',15);
-    end
-    set(gca,'fontsize',18);
-    xlim([-180 180]);
-    ylim([-10 10]);
-    %ylim([3.8 4.8]);
-    %box on;
-    
-end
-
-ofn = [phv_fig_path,'IndividualPairsAzi.png'];
-saveas(fig6,ofn);
-%save2pdf([phv_fig_path,comp{1}(1),'_','r',num2str(r_tol_min),'_',num2str(r_tol_max),'_snr',num2str(snr_tol),'_err',num2str(err_tol),'_sinplots_24theta.pdf'],fig6,1000);
+%% Save parameters
 
 %also save all the parameters in the fig file so it can easily be figured
 %out later...
