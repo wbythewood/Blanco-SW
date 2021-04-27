@@ -18,16 +18,15 @@ global weight
 setup_parameters;
 
 %======================= PARAMETERS =======================%
-is_resume = 0; % Resume from last processed file or overwrite
+is_resume = 0; % Resume from last processed file (1) or overwrite (0)
 isoutput = 1; % Save *.mat file with results?
 
 comp = {parameters.strNAMEcomp};
-windir = parameters.winDirName;
+windir = parameters.winDirName; 
 figDir = parameters.figpath;
 frange = 1./parameters.PeriodRange; 
-N_wl = parameters.Wavelengths; 
+N_wl = parameters.Wavelengths; % for min. number of wavelengths allowed
 Npers = parameters.npers; % Number of periods
-%xlims = [1/35 1/8]; % limits for plotting
 xlims = [frange(2) frange(1)]; % limits for plotting
 t_vec_all = 1./flip(linspace(frange(1) , frange(2) ,Npers)); % periods at which to extract phase velocity
 
@@ -42,9 +41,9 @@ iswin = parameters.iswin;
 npts_smooth = 1; % 1 = no smoothing
 
 
-nearstadist = 0;
+minstadist = parameters.minStaDist;
 IsFigure = 1;
-isfigure2 = 0;
+isfigure2 = 1;
 isfigure_snr = 1;
 
 %% Make the initial phase velocity dispersion model
@@ -91,10 +90,10 @@ end
         sta1=char(stalist(1,:));
         sta2=char(stalist(2,:));
         sta1dir=[ccf_path,sta1]; % dir to have all cross terms about this central station
-        filename = sprintf('%s/%s_%s_f.mat',sta1dir,sta1,sta2);
+        %filename = sprintf('%s/%s_%s_f.mat',sta1dir,sta1,sta2);
+        filename = sprintf('%s/%s_%s_f.mats',sta1dir,sta1,sta2);
         if ~exist(filename,'file')
             disp(['not exist ',filename])
-%             continue;
         end
         data1 = load(filename);
         npts = length(data1.coh_sum_win);
@@ -178,7 +177,7 @@ for ista1=1:nsta
         groupv_max = data1.max_grv;
         groupv_min = data1.min_grv;
         
-        if r1 < nearstadist
+        if r1 < minstadist
             continue;
         end
         

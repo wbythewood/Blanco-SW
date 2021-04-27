@@ -34,8 +34,8 @@ parameters.eventfile = [parameters.configDir,'BlancoEventList_M6.5.txt'];
 % old with local storing of mat files
 %parameters.MatDbDir = [parameters.dataDir,'eventmat_',IdString,'/']; %the matlab version of the corrected sac files
 % new store mat files in dropbox
-parameters.MatDbDir = [parameters.DropboxDir,'/matfiles/',IDString,'/']; %the matlab version of the corrected sac files
-%parameters.MatFilesDir = [parameters.ASWMSDir,'matfiles_',IdString,'/']; %modified mat files will go here
+parameters.MatDbDir = [parameters.DropboxDir,'/matfiles/',IdString,'/']; %the matlab version of the corrected sac files
+parameters.MatFilesDir = [parameters.ASWMSDir,'matfiles_',IdString,'/']; %modified mat files will go here
 
 % fig directory
 parameters.figdir = [parameters.workingdir,'figures/ASWMS/',IdString,'/'];  % wbh addition - separate dir for figures
