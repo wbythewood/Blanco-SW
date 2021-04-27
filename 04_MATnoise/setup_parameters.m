@@ -10,7 +10,7 @@ addpath('./functions/calc_Rayleigh_disp/');
 % Important parameters -- These will set file structure!
 % CCF Prefilt Periods
 CCFMinT = 3; % min period in seconds
-CCFMaxT = 50; % max period in seconds
+CCFMaxT = 10; % max period in seconds
 % XSP Periods
 XSPMinT = 10; % min period in seconds
 XSPMaxT = 30; % max period in seconds
@@ -22,18 +22,26 @@ IDString = [num2str(XSPMinT),'-',num2str(XSPMaxT),'s_mingrv2_mode1'];
 % follow this string for CCF files
 CCFString = ['prefilt_',num2str(CCFMinT),'-',num2str(CCFMaxT),'s'];
 
+% color palettes
+load ../seiscmap
+load ../roma
+load ../lajolla
+
 %%% --- Set Up Paths --- %%%
 % big dir structure
 parameters.workingdir = '/Users/whawley/Research/Blanco-SW/';
 %parameters.workingdir = '/Users/whawley/Research/github/Blanco-SW/';
-parameters.DropboxDir = '/Users/whawley/Dropbox/Blanco-SW/MATnoise/';
-parameters.NoiseDir = [parameters.workingdir,'04_MATnoise/'];
+parameters.DropboxDir = '/Users/whawley/Dropbox/Blanco-SW/';
+
+%parameters.NoiseDir = [parameters.workingdir,'04_MATnoise/'];
+parameters.NoiseDir = [parameters.DropboxDir,'04_MATnoise/'];
 
 % where the data are to be found
 parameters.dataDir = [parameters.workingdir,'data/']; % where data are stored
 parameters.configDir = [parameters.workingdir,'config/']; %config files
 % path to data that has NOT yet been corrected for t/c noise
 parameters.datapath = [parameters.dataDir,'Sac_Noise_Test/'];
+%parameters.datapath = [parameters.dataDir,'Sac_Noise/'];
 % and path to data that HAS been corrected for t/c noise
 %parameters.datapath = [parameters.dataDir,'CORRSEIS_SAC/'];
 parameters.PZpath = [parameters.dataDir,'PZ/'];
@@ -45,8 +53,9 @@ parameters.orientation_path = [parameters.configDir,'orientations.txt'];
 parameters.MatDbDir = [parameters.NoiseDir,'/matfiles/'];
 % this one will save to dropbox drive, accessible by multiple computers
 %parameters.MatDbDir = [parameters.DropboxDir,'/matfiles/'];
-parameters.ccfpath = [parameters.NoiseDir,'matfiles/',IDString,'CCF/']; %OLD
-%parameters.ccfpath = [parameters.MatDbDir,'CCF/',CCFString,'/']; %NEW
+
+%parameters.ccfpath = [parameters.NoiseDir,'matfiles/',IDString,'/CCF/']; %OLD
+parameters.ccfpath = [parameters.MatDbDir,'CCF/',CCFString,'/']; %NEW
 parameters.xsppath = [parameters.MatDbDir,'XSP/CCF-',CCFString,'/',IDString,'/'];
 parameters.seis_path = [parameters.MatDbDir,'seismograms/'];
 
@@ -119,6 +128,7 @@ end
 %%% --- Parameters for a6_fitbessel --- %%%
 parameters.npts = parameters.winlength*3600;
 parameters.Wavelengths = 0; % number of wavelengths to fit wbh 12/2020 appears to break if nonzero...
+parameters.minStaDist = 0; %minimum distance between stations in km
 parameters.npers = 8;    % number of periods
 parameters.damp = [1; 1; 1]; % [fit, smoothness, slope]
 parameters.is_normbessel = 0; % normalize bessel function by analytic envelope? should generally be zero
@@ -133,7 +143,7 @@ parameters.path_LRT_picks = './mat-LRTdisp/LRT_picks/';
 addpath('./tomo_functions');
 parameters.lalim = [41.5 45.5];%[42.5 45] ;
 parameters.lolim = [-131.5 -125.25];%[-131.5 -125.5];
-parameters.gridsize = 0.5; %0.25;   % in degrees
+parameters.gridsize = 0.25; %0.25;   % in degrees
 parameters.gridsize_azi = 0.5; %3; %1.5; % gridsize for 2D azimuthal anisotropy (degrees)
 
 % Smoothing parameters
@@ -143,8 +153,8 @@ parameters.flweight0_azi = 1000; %1000; % anisotropic first derivative flatness
 
 parameters.raydensetol=deg2km(parameters.gridsize)*0.25; %deg2km(parameters.gridsize); %deg2km(parameters.gridsize)*2;
 parameters.raydensetol_azi=deg2km(parameters.gridsize_azi)*0.25; %deg2km(parameters.gridsize)*2;
-parameters.fiterrtol = 2;   % error allowed in the wavelet fitting
-parameters.dterrtol = 4;    % largest variance of the inversion error allowed
+parameters.fiterrtol = 1; %2;   % error allowed in the wavelet fitting
+parameters.dterrtol = 4; %4;    % largest variance of the inversion error allowed
 parameters.maxerrweight = 5; % Maximum error weight
 parameters.polyfit_dt_err = 2; % (s) dt error greater than this, weighted 0
 parameters.tomo_snr_tol = 1.5; %2.5; % minimum signal-to-noise
