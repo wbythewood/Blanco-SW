@@ -9,9 +9,9 @@ addpath('./functions/calc_Rayleigh_disp/');
 
 % Important parameters -- These will set file structure!
 % CCF Prefilt Periods
-CCFMinT = 3; % min period in seconds
-CCFMaxT = 10; % max period in seconds
-% XSP Periods
+CCFMinT = 10; % min period in seconds
+CCFMaxT = 50; % max period in seconds
+% XSP Periods (also for a2 - filtering after CCF calculation)
 XSPMinT = 10; % min period in seconds
 XSPMaxT = 30; % max period in seconds
 
@@ -29,16 +29,17 @@ load ../lajolla
 
 %%% --- Set Up Paths --- %%%
 % big dir structure
-parameters.workingdir = '/Users/whawley/Research/Blanco-SW/';
-%parameters.workingdir = '/Users/whawley/Research/github/Blanco-SW/';
+parameters.ProjDir = '/Users/whawley/Research/Blanco-SW/'; % laptop
+%parameters.ProjDir = '/Users/whawley/Research/github/Blanco-SW/'; %desktop
+
 parameters.DropboxDir = '/Users/whawley/Dropbox/Blanco-SW/';
 
-%parameters.NoiseDir = [parameters.workingdir,'04_MATnoise/'];
+%parameters.NoiseDir = [parameters.ProjDir,'04_MATnoise/'];
 parameters.NoiseDir = [parameters.DropboxDir,'04_MATnoise/'];
 
 % where the data are to be found
-parameters.dataDir = [parameters.workingdir,'data/']; % where data are stored
-parameters.configDir = [parameters.workingdir,'config/']; %config files
+parameters.dataDir = [parameters.ProjDir,'data/']; % where data are stored
+parameters.configDir = [parameters.ProjDir,'config/']; %config files
 % path to data that has NOT yet been corrected for t/c noise
 parameters.datapath = [parameters.dataDir,'Sac_Noise_Test/'];
 %parameters.datapath = [parameters.dataDir,'Sac_Noise/'];
@@ -60,7 +61,9 @@ parameters.xsppath = [parameters.MatDbDir,'XSP/CCF-',CCFString,'/',IDString,'/']
 parameters.seis_path = [parameters.MatDbDir,'seismograms/'];
 
 % figures
-parameters.figpath = [parameters.workingdir,'figures/ANT/CCF-',CCFString,'/XSP-',IDString,'/'];  % wbh addition
+%parameters.figpath = [parameters.ProjDir,'figures/ANT/CCF-',CCFString,'/XSP-',IDString,'/'];  % wbh addition
+parameters.CCFfigpath = [parameters.DropboxDir,'figures/ANT/CCF-',CCFString,'/'];  % wbh addition
+parameters.XSPfigpath = [parameters.DropboxDir,'figures/ANT/CCF-',CCFString,'/XSP-',IDString,'/'];  % wbh addition
 
 % maps
 parameters.MapsDir = '/Users/whawley/data/maps/'; %where some of my general map files are

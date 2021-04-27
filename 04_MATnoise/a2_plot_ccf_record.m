@@ -41,15 +41,14 @@ stalist = parameters.stalist;
 nsta = parameters.nsta;
 nsta = length(stalist);
 winlength = parameters.winlength;
-figpath = parameters.figpath;
+figpath = parameters.CCFfigpath;
 %fig_winlength_path = [figpath,'window',num2str(winlength),'hr/fullStack/'];
 % custom directory names
     fig_winlength_path = [figpath,windir,'/,fullStack/'];
 
 %------------ PATH INFORMATION -------------%
 ccf_path = parameters.ccfpath;
-%ccf_winlength_path = [ccf_path,'window',num2str(winlength),'hr/'];
-    ccf_winlength_path = [ccf_path,windir,'/'];
+ccf_winlength_path = [ccf_path,windir,'/'];
 ccf_singlestack_path = [ccf_winlength_path,'single/'];
 ccf_daystack_path = [ccf_winlength_path,'dayStack/'];
 ccf_monthstack_path = [ccf_winlength_path,'monthStack/'];

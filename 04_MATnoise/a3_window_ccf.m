@@ -24,7 +24,7 @@ xlims = parameters.xlims;
 stalist = parameters.stalist;
 nsta = parameters.nsta;
 winlength = parameters.winlength;
-figpath = parameters.figpath;
+figpath = parameters.CCFfigpath;
 dt = parameters.dt;
 fig_winlength_path = [figpath,windir,'/,fullStack/'];
 
