@@ -25,9 +25,6 @@ usgsFN = [parameters.MapsDir,'usgs_plates.txt.gmtdat'];
 [pbLat,pbLon] = importPlates(usgsFN);
 
 r = 0.05; % color scale is +/- this value
-%load seiscmap
-load roma
-load lajolla
 
 comp = parameters.component;
 periods = parameters.periods;
@@ -209,9 +206,7 @@ for ip = 1:length(periods)
     plotm(pbLat,pbLon,'LineWidth',0.5,'Color','k') % plate boundaries
 	caxis([avgv*(1-r) avgv*(1+r)])
 	colorbar
-	%load seiscmap
-	%colormap(seiscmap)
-    colormap(roma)
+    colormap(roma) %should be loaded in setup file
     h = colorbar;
     ylabel(h,'Vs (km/s)')
 end

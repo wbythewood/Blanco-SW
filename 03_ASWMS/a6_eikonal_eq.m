@@ -363,8 +363,7 @@ for ie = 1:length(csmatfiles)
 			r = 0.1;
 			caxis([avgv*(1-r) avgv*(1+r)])
 			colorbar
-			load seiscmap
-			colormap(seiscmap)
+			colormap(roma) % should load this in setup_param file
             h = colorbar; %wbh
             ylabel(h,'Vs (km/s)') %wbh
         end

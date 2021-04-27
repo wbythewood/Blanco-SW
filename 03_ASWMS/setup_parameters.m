@@ -43,7 +43,10 @@ parameters.figdir = [parameters.workingdir,'figures/ASWMS/',IdString,'/'];  % wb
 % maps
 parameters.MapsDir = '/Users/whawley/data/maps/'; %where some of my general map files are
 
-
+%color files
+load ../seiscmap
+load ../roma
+load ../lajolla
 
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
 %%%% Global settings
