@@ -181,7 +181,7 @@ end
 h1 = semilogx((1./faxis(ind)),ccf_psd_log_allMean(ind),'-k','linewidth',3);
 axis tight;
 xlim([2 100]);
-ylim([-140 -80]); 
+ylim([-140 -60]); 
 xlabel('Period (s)','fontsize',18);
 ylabel('Power','fontsize',18);
 title(['All stations ',comp(1)],'fontsize',18,'fontweight','bold');
