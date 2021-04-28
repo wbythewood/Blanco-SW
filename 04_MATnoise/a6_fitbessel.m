@@ -23,7 +23,7 @@ isoutput = 1; % Save *.mat file with results?
 
 comp = {parameters.strNAMEcomp};
 windir = parameters.winDirName; 
-figDir = parameters.figpath;
+figDir = parameters.XSPfigpath;
 frange = 1./parameters.PeriodRange; 
 N_wl = parameters.Wavelengths; % for min. number of wavelengths allowed
 Npers = parameters.npers; % Number of periods
@@ -43,7 +43,7 @@ npts_smooth = 1; % 1 = no smoothing
 
 minstadist = parameters.minStaDist;
 IsFigure = 1;
-isfigure2 = 1;
+isfigure2 = 0;
 isfigure_snr = 1;
 
 %% Make the initial phase velocity dispersion model
@@ -77,7 +77,7 @@ c_all_std = zeros(size(c_all));
 if comp{1}(1) == 'R'
     ylims = [3.2 4.5];
 elseif comp{1}(1) == 'Z' || comp{1}(1) == 'P'
-    ylims = [1.5 4.5];
+    ylims = [2.5 5.5];
 elseif comp{1}(1) == 'T'
     ylims = [3.5 4.8];
 end
@@ -91,7 +91,7 @@ end
         sta2=char(stalist(2,:));
         sta1dir=[ccf_path,sta1]; % dir to have all cross terms about this central station
         %filename = sprintf('%s/%s_%s_f.mat',sta1dir,sta1,sta2);
-        filename = sprintf('%s/%s_%s_f.mats',sta1dir,sta1,sta2);
+        filename = sprintf('%s/%s_%s_f.mat',sta1dir,sta1,sta2);
         if ~exist(filename,'file')
             disp(['not exist ',filename])
         end
@@ -124,9 +124,9 @@ end
 
 % figure output path
 if iswin
-    XSP_fig_path = [figDir,windir,'/,fullStack/Xsp/',num2str(1/frange(1)),'_',num2str(1/frange(2)),'s_',num2str(N_wl),'wl_phv_dir/TEI19/'];
+    XSP_fig_path = [figDir,windir,'/fullStack/',num2str(N_wl),'wl_phv_dir/TEI19/'];
 else
-    XSP_fig_path = [figDir,windir,'/,fullStack/Xsp/',num2str(1/frange(1)),'_',num2str(1/frange(2)),'s_',num2str(N_wl),'wl_phv_dir/TEI19_nowin/'];
+    XSP_fig_path = [figDir,windir,'/fullStack/',num2str(N_wl),'wl_phv_dir/TEI19_nowin/'];
 end
 
 if ~exist(XSP_fig_path)
@@ -235,8 +235,8 @@ for ista1=1:nsta
             ind = find(temp_faxis>0);
             subplot(2,1,1)
             %plot(temp_faxis(ind),smooth(real(xcorf1(ind)),100));
-            plot(flip(temp_faxis(ind),smooth(real(xcorf1(ind)),50)));
-            xlim([frange(1) frange(2)])
+            plot(flip(temp_faxis(ind)),smooth(real(xcorf1(ind)),50));
+            xlim([frange(2) frange(1)])
             hold on
             subplot(2,1,2)
             %plot(temp_faxis(ind),smooth(real(data1.coh_sum(ind)/data1.coh_num),100),'-r')
