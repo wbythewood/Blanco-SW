@@ -57,7 +57,7 @@ parpool(Nworkers);
 % input path
 datadir = parameters.datapath;
 PZpath = parameters.PZpath;
-figpath = parameters.figpath;
+figpath = parameters.CCFfigpath;
 seis_path = parameters.seis_path;
 orientation_path = parameters.orientation_path;
 dt = parameters.dt;
@@ -108,7 +108,7 @@ for ipath = 1:length(PATHS)
 end
 
 % Build File Structure: figures
-fig_winlength_path = [figpath,winDirName,'/'];
+fig_winlength_path = [figpath,winDirName,'/CCFs/'];
 if ~exist(figpath)
     mkdir(figpath);
 end
@@ -117,7 +117,7 @@ if ~exist(fig_winlength_path)
 end
 
 % Build File Structure: windowed seismograms
-seis_winlength_path = [seis_path,winDirName,'/'];
+seis_winlength_path = [seis_path,winDirName,'/CCFs/'];
 if ~exist(seis_path)
     mkdir(seis_path);
 end

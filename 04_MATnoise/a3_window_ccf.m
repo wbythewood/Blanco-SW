@@ -26,7 +26,7 @@ nsta = parameters.nsta;
 winlength = parameters.winlength;
 figpath = parameters.CCFfigpath;
 dt = parameters.dt;
-fig_winlength_path = [figpath,windir,'/,fullStack/'];
+fig_winlength_path = [figpath,windir,'/fullStack/'];
 
 %------------ PATH INFORMATION -------------%
 % OLD CCF
