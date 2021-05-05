@@ -20,6 +20,7 @@ setup_parameters;
 %======================= PARAMETERS =======================%
 is_resume = 0; % Resume from last processed file (1) or overwrite (0)
 isoutput = 1; % Save *.mat file with results?
+npts_smooth = 1; % 1 = no smoothing
 
 comp = {parameters.strNAMEcomp};
 windir = parameters.winDirName; 
@@ -33,13 +34,6 @@ t_vec_all = 1./flip(linspace(frange(1) , frange(2) ,Npers)); % periods at which 
 damp = parameters.damp;
 is_normbessel = parameters.is_normbessel;
 iswin = parameters.iswin;
-
-% % Manually input phase velocity
-% c = []';
-
-
-npts_smooth = 1; % 1 = no smoothing
-
 
 minstadist = parameters.minStaDist;
 IsFigure = 1;
@@ -64,7 +58,6 @@ isfigure_snr = 1;
 
 % From MINEOS .q file (https://github.com/jbrussell/MINEOS_synthetics)
 qfile = ['./qfiles/Nomelt_taper_eta_crust_INVpconstr_xi1.06_GRL19_ORCAiso_INV.s0to200.q'];
-%mode = 0;
 mode = parameters.mode; %wbh put this in params file
 if exist('c','var') == 0 % check if phase velocities exist, if not read them in
     [~,~,c_all] = readMINEOS_qfile2(qfile,t_vec_all,mode);
@@ -90,7 +83,6 @@ end
         sta1=char(stalist(1,:));
         sta2=char(stalist(2,:));
         sta1dir=[ccf_path,sta1]; % dir to have all cross terms about this central station
-        %filename = sprintf('%s/%s_%s_f.mat',sta1dir,sta1,sta2);
         filename = sprintf('%s/%s_%s_f.mat',sta1dir,sta1,sta2);
         if ~exist(filename,'file')
             disp(['not exist ',filename])
@@ -132,9 +124,6 @@ end
 if ~exist(XSP_fig_path)
     mkdir(XSP_fig_path);
 end
-
-
-
 
 warning off; %#ok<WNOFF>
 
