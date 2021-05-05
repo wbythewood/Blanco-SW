@@ -16,6 +16,10 @@ clear; close all;
 % Save results?
 isoutput = 1;
 savefile = ['test'];
+
+%Zero Crossing Options
+% 0 is only bessel, 1 is ZC as first pass, then bessel fit
+isZC = 1;
 %======================= PARAMETERS =======================%
 setup_parameters;
 comp = {parameters.strNAMEcomp};
@@ -63,7 +67,11 @@ dterrtol = parameters.dterrtol;
 raydensetol = parameters.raydensetol;
 r = parameters.r;
 %phv_fig_path = [parameters.figpath,windir,'/,PhV_dir/',num2str(1/frange(1)),'_',num2str(1/frange(2)),'s/raytomo_azi2theta_2D/'];
-phv_fig_path = [parameters.figpath,windir,'/,PhV_dir/Iso/sm-',num2str(smweight0),'_grid-',num2str(gridsize),'_fiterr-',num2str(fiterrtol),'_dterr-',num2str(dterrtol),'/'];
+if isZC == 0
+    phv_fig_path = [parameters.XSPfigpath,windir,'/PhV_dir/Iso/sm-',num2str(smweight0),'_grid-',num2str(gridsize),'_fiterr-',num2str(fiterrtol),'_dterr-',num2str(dterrtol),'/'];
+elseif isZC == 1
+    phv_fig_path = [parameters.XSPfigpath,windir,'/PhV_dir/Iso/sm-',num2str(smweight0),'_grid-',num2str(gridsize),'_fiterr-',num2str(fiterrtol),'_dterr-',num2str(dterrtol),'_ZC-Bessel/'];
+end
 
 xnode=lalim(1):gridsize:lalim(2);
 ynode=lolim(1):gridsize:lolim(2);
@@ -99,8 +107,11 @@ F = F_iso;
 
 %%
 % Initialize the xsp structure
-
-Xsp_path = [parameters.xsppath,windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(Nwl),'wl_phv_dir/'];
+if isZC == 0
+    Xsp_path = [parameters.xsppath,windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(Nwl),'wl_phv_dir/'];
+elseif isZC == 1
+    Xsp_path = [parameters.xsppath,windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(Nwl),'wl_phv_dir_ZC-Bessel/'];
+end
 xspfiles = dir([Xsp_path,'*_xsp.mat']);
 
 disp('Looking at Xsp Files')
@@ -108,10 +119,13 @@ for ixsp = 1:length(xspfiles)
     
     temp = load([Xsp_path,xspfiles(ixsp).name]);
     xspinfo = temp.xspinfo;
+    %wbh why is waxis only retreived when ixsp is 1? if it changes from
+    %file to file, there is an error later... try to retrieve it each time
+    waxis = temp.waxis;
     
     if ixsp ==1
         Tperiods = (2*pi)./temp.twloc;
-        waxis = temp.waxis;
+        %waxis = temp.waxis;
         twloc = temp.twloc;
         xspinfo.isgood = zeros(size(Tperiods));
         xspsum = xspinfo;
@@ -171,7 +185,11 @@ for ip=1:length(Tperiods)
         
         % dist(raynum) = deg2km(distance(rays(raynum,1),rays(raynum,2),rays(raynum,3),rays(raynum,4)));
         dist(raynum) = distance(rays(raynum,1),rays(raynum,2),rays(raynum,3),rays(raynum,4),referenceEllipsoid('GRS80'))/1000;
-        dt(raynum) = xspsum(ixsp).tw(ip);
+        if isZC == 0
+            dt(raynum) = xspsum(ixsp).tw(ip);
+        elseif isZC == 1
+            dt(raynum) = xspsum(ixsp).tw_bfit(ip);
+        end
         phv(raynum) = dist(raynum)./dt(raynum);
         
         dep1 = sta.dep(strcmp(xspsum(raynum).sta1,sta.name));
