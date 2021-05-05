@@ -18,36 +18,41 @@ global weight
 setup_parameters;
 
 %======================= PARAMETERS =======================%
-
-% RAYLEIGH FUND MODE
-comp = {'ZZ'}; %'RR'; 'ZZ'; 'TT'
-windir = 'window3hr_raw_Zcorr_tiltonly';
-xspdir = 'ZZ_0S_LRT_zc'; % output directory of phase velocities
-N_wl = 1; % Number of wavelengths required
-Ninterp = 25; % [] or Number of points to interpolate to;
+is_resume = 0; % Resume from last processed file or overwrite
+isoutput = 1; % Save *.mat file with results?
+npts_smooth = 1; % 1 = no smoothing
 % Use picks from Linear Radon Transform? (./mat-LRTdisp/)
-is_LRT_picks = 1; % Use picks from Radon Transform to determine starting dispersion model and frequencies
-LRT_method = 'CGG_weight';
-mode_br = 0; % desired mode branch [0=fund.]
-xlims = [1/100 1/9]; % limits for plotting
-frange_LRT = [1/100 1/10]; % Frequency range of LRT panel for reading in picks
-frange_fit = [1/40 1/10]; % Frequency range to fit over! Can be more restrictive than where picks were made
-damp = [1; 1; 1]; % [fit, smoothness, slope]
-is_normbessel = 0; % normalize bessel function by analytic envelope?
+is_LRT_picks = 0; % Use picks from Radon Transform to determine starting dispersion model and frequencies
+
+comp = {parameters.strNAMEcomp};
+windir = parameters.winDirName; 
+figDir = parameters.XSPfigpath;
+frange = 1./parameters.PeriodRange; 
+N_wl = parameters.Wavelengths; % for min. number of wavelengths allowed
+xlims = [frange(2) frange(1)]; % limits for plotting
+
+damp = parameters.damp; 
+is_normbessel = parameters.is_normbessel; 
+iswin = parameters.iswin; % Use the time-domain windowed ccfs?
+
+%xspdir = 'ZZ_0S_LRT_zc'; % output directory of phase velocities
+%Ninterp = 25; % [] or Number of points to interpolate to;
+%LRT_method = 'CGG_weight';
+mode_br = parameters.mode; 
+frange_LRT = frange; %[1/100 1/10]; % Frequency range of LRT panel for reading in picks
+frange_fit = frange; % Frequency range to fit over! Can be more restrictive than where picks were made
+
 
 if ~is_LRT_picks
-    frange_fit = [1/40 1/10]; % frequency range over which to fit bessel function
+    frange_fit = frange; % frequency range over which to fit bessel function
 %     xlims = [1/70 1/9];
-    Npers = 18; % Number of periods
+    Npers = parameters.npers; % Number of periods
     t_vec_all = 1./flip(linspace(frange_fit(1) , frange_fit(2) ,Npers)); % periods at which to extract phase velocity
 end
 
-is_resume = 0; % Resume from last processed file or overwrite
-iswin = 1; % Use the time-domain windowed ccfs?
-npts_smooth = 1; % 1 = no smoothing
 
-isoutput = 1; % Save *.mat file with results?
-nearstadist = 0;
+
+minstadist = parameters.minStaDist;
 IsFigure = 1;
 isfigure2 = 0;
 isfigure_snr = 1;
@@ -114,9 +119,7 @@ end
 if comp{1}(1) == 'R'
     ylims = [3.2 4.5];
 elseif comp{1}(1) == 'Z' || comp{1}(1) == 'P'
-%     ylims = [1.5 5.0];
-%     ylims = [2 4.5];
-    ylims = [1.5 4.5];
+    ylims = [2.5 5.5];
 elseif comp{1}(1) == 'T'
     ylims = [3.5 4.8];
 end
@@ -132,7 +135,6 @@ end
         filename = sprintf('%s/%s_%s_f.mat',sta1dir,sta1,sta2);
         if ~exist(filename,'file')
             disp(['not exist ',filename])
-%             continue;
         end
         data1 = load(filename);
         npts = length(data1.coh_sum_win);
@@ -143,37 +145,34 @@ end
 ccf_path = [parameters.ccfpath,windir,'/fullStack/ccf',comp{1},'/'];
 
 % output path
-XSP_path = ['./Xsp/',windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange_fit(2)),'_',num2str(1/frange_fit(1)),'s_',num2str(N_wl),'wl_',xspdir,'/'];
+XSP_path = [parameters.xsppath,windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(N_wl),'wl_phv_dir_ZC-Bessel/'];
 
 if ~exist(XSP_path)
-    if ~exist('./Xsp/')
-        mkdir('./Xsp/');
+    if ~exist(parameters.xsppath)
+        mkdir(parameters.xsppath);
     end
-    if ~exist(['./Xsp/',windir,'/'])
-        mkdir(['./Xsp/',windir,'/']);
+    if ~exist([parameters.xsppath,windir,'/'])
+        mkdir([parameters.xsppath,windir,'/']);
     end
-    if ~exist(['./Xsp/',windir,'/fullStack/'])
-        mkdir(['./Xsp/',windir,'/fullStack/']);
+    if ~exist([parameters.xsppath,windir,'/fullStack/'])
+        mkdir([parameters.xsppath,windir,'/fullStack/']);
     end
-    if ~exist(['./Xsp/',windir,'/fullStack/Xsp',comp{1},'/'])
-        mkdir(['./Xsp/',windir,'/fullStack/Xsp',comp{1},'/']);
+    if ~exist([parameters.xsppath,windir,'/fullStack/Xsp',comp{1},'/'])
+        mkdir([parameters.xsppath,windir,'/fullStack/Xsp',comp{1},'/']);
     end
     mkdir(XSP_path)
 end
 
 % figure output path
 if iswin
-    XSP_fig_path = ['./figs/',windir,'/fullStack/Xsp/',num2str(1/frange_fit(2)),'_',num2str(1/frange_fit(1)),'s_',num2str(N_wl),'wl_',xspdir,'/TEI19/'];
+    XSP_fig_path = [figDir,windir,'/fullStack/',num2str(N_wl),'wl_phv_dir/ZC_B/'];
 else
-    XSP_fig_path = ['./figs/',windir,'/fullStack/Xsp/',num2str(1/frange_fit(2)),'_',num2str(1/frange_fit(1)),'s_',num2str(N_wl),'wl_',xspdir,'/TEI19_nowin/'];
+    XSP_fig_path = [figDir,windir,'/fullStack/',num2str(N_wl),'wl_phv_dir/ZC_B_nowin/'];
 end
 
 if ~exist(XSP_fig_path)
     mkdir(XSP_fig_path);
 end
-
-
-
 
 warning off; %#ok<WNOFF>
 
@@ -216,7 +215,7 @@ for ista1=1:nsta
         groupv_max = data1.max_grv;
         groupv_min = data1.min_grv;
         
-        if r1 < nearstadist
+        if r1 < minstadist
             continue;
         end
         
@@ -316,6 +315,7 @@ for ista1=1:nsta
         %%% - Invert for the bessel function 2x - %%%
         options = optimoptions(@lsqnonlin,'TolFun',1e-12,'MaxIter',1500,'MaxFunEvals',1500);
         weight  = 1./waxis;
+        
         tw2 = lsqnonlin(@(x) besselerr(x,[xsp1],damp,is_normbessel),[tw1_zc],[tw1_zc]*0.8,[tw1_zc]*1.2,options);
 %         tw2 = lsqnonlin(@(x) besselerr(x,[xsp1]),[tw1],[],[],options);
         
@@ -477,9 +477,11 @@ for ista1=1:nsta
             %print('-dpsc2',psfile);
             drawnow
             if isoutput
-                save2pdf(psfile,f3,250);
+                %save2pdf(psfile,f3,250);
+                saveas(f3,psfile);
                 psfile2 = [XSP_fig_path,'Xsp_',comp{1}(1),'_',sta1,'_',sta2,'_zerocross.pdf'];
-                save2pdf(psfile2,59,250);
+                %save2pdf(psfile2,59,250);
+                saveas(59,psfile2);
             end
 
             
