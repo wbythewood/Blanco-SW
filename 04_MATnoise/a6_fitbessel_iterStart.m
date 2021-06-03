@@ -40,6 +40,7 @@ IsFigure = 1;
 isfigure2 = 0;
 isfigure_snr = 1;
 
+test_funccount_running = 0;
 %% Make the initial phase velocity dispersion model
 
 % % calc_Rayleigh_disp
@@ -69,6 +70,8 @@ c_all = [4.5441    4.4953    4.4609    4.4360    4.4174    4.4033    4.3924    4
 c_all = [4.2    4.2    4.2    4.2    4.2    4.2    4.2    4.2]; % try 4.2 across the board
 c_all = [4.2    4.19    4.18    4.17    4.16    4.15    4.14    4.13]; % try decreasing
 %c_all = [4.1    4.09    4.08    4.07    4.06    4.05    4.04    4.03]; % try decreasing
+c_all = [3.1    3.09    3.08    3.07    3.06    3.05    3.04    3.03]; % try decreasing
+c_all = [3.2    3.8    4.0    4.05    3.95    3.9    3.85    3.92]; % approximately J27-J20
 %%%
 c_start = c_all;
 c_all_std = zeros(size(c_all));
@@ -106,7 +109,7 @@ ccf_path = [parameters.ccfpath,windir,'/fullStack/ccf',comp{1},'/'];
 % output path
 %XSP_path = [parameters.xsppath,windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(N_wl),'wl_phv_dir/'];
 %%% simple starting model
-XSP_path = [parameters.xsppath,windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(N_wl),'wl_phv_dir_4.2Decreasing/'];
+XSP_path = [parameters.xsppath,windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(N_wl),'wl_phv_dir_Iterate20/'];
 %%%
 
 if ~exist(XSP_path)
@@ -128,7 +131,7 @@ end
 % figure output path
 if iswin
     %XSP_fig_path = [figDir,windir,'/fullStack/',num2str(N_wl),'wl_phv_dir/TEI19/'];
-    XSP_fig_path = [figDir,windir,'/fullStack/',num2str(N_wl),'wl_phv_dir/TEI19_4.2Decreasing/'];
+    XSP_fig_path = [figDir,windir,'/fullStack/',num2str(N_wl),'wl_phv_dir/TEI19_Iterate20/'];
 else
     XSP_fig_path = [figDir,windir,'/fullStack/',num2str(N_wl),'wl_phv_dir/TEI19_nowin/'];
 end
@@ -254,20 +257,110 @@ for ista1=1:nsta
         xsp1 = smooth(xsp1,npts_smooth);
 
         tw1 = ones(1,tN)*r1./c;
-        
-        %%% - Invert for the bessel function 2x - %%%
-        options = optimoptions(@lsqnonlin,'TolFun',1e-12,'MaxIter',1500,'MaxFunEvals',1500);
         weight  = 1./waxis;
+%% WBH Old version        
+%         %%% - Invert for the bessel function 2x - %%%
+%         options = optimoptions(@lsqnonlin,'TolFun',1e-12,'MaxIter',1500,'MaxFunEvals',1500);
+%         
+%         %tw2 = lsqnonlin(@(x) besselerr(x,[xsp1],damp,is_normbessel),[tw1],[tw1]*0.8,[tw1]*1.2,options);
+%         [tw2,resnorm2,resid2,exitflag2,output2,lambda2,j2] = lsqnonlin(@(x) besselerr(x,[xsp1],damp,is_normbessel),[tw1],[tw1]*0.8,[tw1]*1.2,options);
+% %         tw2 = lsqnonlin(@(x) besselerr(x,[xsp1]),[tw1],[],[],options);
+%         
+%         weight(:) = 1;
+%         [tw,resnorm3,res,exitflag3,output3,lambda3,J] = lsqnonlin(@(x) besselerr(x,[xsp1],damp,is_normbessel),[tw2],[tw2]*0.8,[tw2]*1.2,options);
+%         disp([tN,length(tw2),length(tw)])
+% %         tw = lsqnonlin(@(x) besselerr(x,[xsp1]),[tw2],[tw2]*0.8,[tw2]*1.2,options);
+% %         tw = lsqnonlin(@(x) besselerr(x,[xsp1]),[tw2],[],[],options);
+
+%% WBH new version to iterate over starting models.
+%         options = optimoptions(@lsqnonlin,'TolFun',1e-12,'MaxIter',1500,'MaxFunEvals',1500);
+%         c_i = c; %velocity model of iterations... 
+%         [tw_final,resnorm_final,resid_final,exitflag_final,output_final,lambda_final,j_final] = lsqnonlin(@(x) besselerr(x,[xsp1],damp,is_normbessel),[tw1],[tw1]*0.8,[tw1]*1.2,options);
+%         test_funcCount = 0;
+%         % check to see if it stopped bc it hit max fun evals
+%         %if output_final.funcCount > options.MaxFunctionEvaluations
+%             % we're going to do this until c_i is above some velocity
+%             while c_i(1) < 5.0
+%                 c_i = c_i + 0.1; % add 0.1 km/s to each phase velocity
+%                 tw_new = ones(1,tN)*r1./c_i; %calculate new tw
+%                 %do inversion again with new starting model
+%                 [tw_i,resnorm_i,resid_i,exitflag_i,output_i,lambda_i,j_i] = lsqnonlin(@(x) besselerr(x,[xsp1],damp,is_normbessel),[tw_new],[tw_new]*0.8,[tw_new]*1.2,options);
+%                 % keep these values if they're better than the above
+%                 if resnorm_i < resnorm_final
+%                     tw_final = tw_i;
+%                     resnorm_final = resnorm_i;
+%                     resid_final = resid_i;
+%                     exitflag_final = exitflag_i;
+%                     output_final = output_i;
+%                     lambda_final = lambda_i;
+%                     j_final = j_i;
+%                 end
+%                 % let's test to see if the fun count works for breaking the
+%                 % loop
+%                 if output_i.funcCount < options.MaxFunctionEvaluations
+%                     if test_funcCount == 0
+%                         %this is the first time
+%                         resid_test = resid_final;
+%                         test_funcCount = 1;
+%                     elseif test_funcCount == 1
+%                         %this ought to be every other time...
+%                         if resid_test > resid_final
+%                             %this would be a problem; a lower resid after
+%                             %we would have broken out of the loop
+%                             %pause
+%                             %don't pause but...
+%                             test_funccount_running = test_funccount_running + 1;
+%                         end
+%                     end
+%                     
+%                         
+%                 end
+%             end
+%         %end
+%% WBH Instead choose a good starting model and add random noise for some set number of iterations
+
+        options = optimoptions(@lsqnonlin,'TolFun',1e-12,'MaxIter',1500,'MaxFunEvals',1500);
+        c_i = c; %velocity model of iterations... 
+        [tw_final,resnorm_final,resid_final,exitflag_final,output_final,lambda_final,j_final] = lsqnonlin(@(x) besselerr(x,[xsp1],damp,is_normbessel),[tw1],[tw1]*0.8,[tw1]*1.2,options);
+        Niter = 20;
+        ii = 0;
+        tw_starting = tw1;
+        dvMagnitude = 0.2; %magnitude of the random perturbation in km/s
+        while ii < Niter
+            ii = ii + 1;
+            % generate random numbers
+            dvRand = rand(size(c));
+            %center on zero, note now between -0.5 and 0.5
+            dvRand = dvRand - 0.5;
+            % apply the right magnitude range
+            dvRand = dvRand * 2 * dvMagnitude;
+            % and add to c
+            c_ii = c_i + dvRand;
+            % calculate new tw
+            tw_new = ones(1,tN)*r1./c_ii; 
+            %do inversion again with new starting model
+            [tw_i,resnorm_i,resid_i,exitflag_i,output_i,lambda_i,j_i] = lsqnonlin(@(x) besselerr(x,[xsp1],damp,is_normbessel),[tw_new],[tw_new]*0.8,[tw_new]*1.2,options);
+            % check to see if this is a better fit...
+            if resnorm_i < resnorm_final
+                % if it is, store all the new info and re-do
+                tw_final = tw_i;
+                tw_starting = tw_new;
+                resnorm_final = resnorm_i;
+                resid_final = resid_i;
+                exitflag_final = exitflag_i;
+                output_final = output_i;
+                lambda_final = lambda_i;
+                j_final = j_i;
+                % also store the new velocity model
+                c_i = c_ii;
+            end
+        end
         
-        %tw2 = lsqnonlin(@(x) besselerr(x,[xsp1],damp,is_normbessel),[tw1],[tw1]*0.8,[tw1]*1.2,options);
-        [tw2,resnorm2,resid2,exitflag2,output2,lambda2,j2] = lsqnonlin(@(x) besselerr(x,[xsp1],damp,is_normbessel),[tw1],[tw1]*0.8,[tw1]*1.2,options);
-%         tw2 = lsqnonlin(@(x) besselerr(x,[xsp1]),[tw1],[],[],options);
-        
-        weight(:) = 1;
-        [tw,~,res,~,~,~,J] = lsqnonlin(@(x) besselerr(x,[xsp1],damp,is_normbessel),[tw2],[tw2]*0.8,[tw2]*1.2,options);
-        disp([tN,length(tw2),length(tw)])
-%         tw = lsqnonlin(@(x) besselerr(x,[xsp1]),[tw2],[tw2]*0.8,[tw2]*1.2,options);
-%         tw = lsqnonlin(@(x) besselerr(x,[xsp1]),[tw2],[],[],options);
+%% end of bessel fit
+        %apply final values
+        tw = tw_final;
+        res = resid_final;
+        J = j_final;
         
         % ESTIMATE ERROR BARS ON MODEL! :: JBR - 2/2020
         % Calculate data variance from residual following Menke QMDA book eq. (4.31)
@@ -371,7 +464,8 @@ for ista1=1:nsta
                 
             hold on
             subplot(3,1,3);
-            errorbar(twloc/2/pi,r1./tw1,c_std,'o-','color',[0.5 0.5 0.5],'linewidth',2);hold on;
+            %errorbar(twloc/2/pi,r1./tw1,c_std,'o-','color',[0.5 0.5 0.5],'linewidth',2);hold on;
+            errorbar(twloc/2/pi,r1./tw_starting,c_std,'o-','color',[0.5 0.5 0.5],'linewidth',2);hold on;
             errorbar(twloc/2/pi,r1./tw,sigma_m_c*2,'o-','color',[1 0 0 ],'linewidth',2);
 %             errorbar(twloc/2/pi,r1./tw,xspinfo.err,'ro-','linewidth',2);
             title([sta1,'-',sta2],'fontsize',16)
