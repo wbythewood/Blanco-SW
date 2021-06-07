@@ -1,6 +1,5 @@
 data/
 dataNoise/
-config/
 figures/
 *pyc
 __pycache__/
