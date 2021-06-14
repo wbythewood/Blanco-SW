@@ -78,7 +78,7 @@ if 1
 %     plot(w0/2/pi,r./tw0,'-or');
     plot(twloc/2/pi,r./tw0_int_mat,'-o','color',[0.7 0.7 0.7]);
     plot(twloc/2/pi,r./tw0_int,'-or','linewidth',2);
-    ylim([1.5 4.2]);
+    ylim([1.5 5.1]);
     set(gca,'linewidth',1.5,'fontsize',16);
     xlabel('Frequency (Hz)');
 end

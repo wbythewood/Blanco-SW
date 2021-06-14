@@ -79,17 +79,18 @@ err = [F1z(:)*damp(1); sm(:)*0.2*100*damp(2); dx(:)*10*1*damp(3)];
 if Isfigure>0
     figure(Isfigure)
     clf
-    subplot(2,1,1)
+    %subplot(2,1,1)
+    subplot(3,1,1)
     hold on
     plot(waxis/2/pi,F1,'b','linewidth',2);
     plot(waxis/2/pi,be,'r','linewidth',2);
 %     ylim([-0.02 0.02]);
-%	title(real part of stacked ccf) 
-% 	title( num2str(sum(err.^2)./length(err)./sum(F1.^2)*length(F1)));
-%    subplot(3,1,2)
-%   plot(waxis/2/pi,(F1z(:)/mean(abs(F1.*weight(:)))).^2,'k')
-%        subplot(3,1,3)
-%    plot(x1)
-    pause;
+	title('real part of stacked ccf') 
+ 	title( num2str(sum(err.^2)./length(err)./sum(F1.^2)*length(F1)));
+    subplot(3,1,2)
+    plot(waxis/2/pi,(F1z(:)/mean(abs(F1.*weight(:)))).^2,'k')
+    subplot(3,1,3)
+    plot(x1)
+    %pause;
 end
 end
