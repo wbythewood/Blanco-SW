@@ -13,11 +13,7 @@ CCFMinT = 10; % min period in seconds
 CCFMaxT = 50; % max period in seconds
 % XSP Periods (also for a2 - filtering after CCF calculation)
 XSPMinT = 10; %15; % min period in seconds
-<<<<<<< HEAD
 XSPMaxT = 25; % max period in seconds
-=======
-XSPMaxT = 30; %30; % max period in seconds
->>>>>>> 3769d19be409aa01443a522d7fe472f3417160c2
 
 % for multiple cross spectra, use different strings
 %IDString = '4-10s_mingrv2_mode1';
