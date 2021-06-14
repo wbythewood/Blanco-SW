@@ -12,12 +12,13 @@ addpath('./functions/calc_Rayleigh_disp/');
 CCFMinT = 10; % min period in seconds
 CCFMaxT = 50; % max period in seconds
 % XSP Periods (also for a2 - filtering after CCF calculation)
-XSPMinT = 10; % min period in seconds
-XSPMaxT = 30; % max period in seconds
+XSPMinT = 10; %15; % min period in seconds
+XSPMaxT = 25; % max period in seconds
 
 % for multiple cross spectra, use different strings
 %IDString = '4-10s_mingrv2_mode1';
 IDString = [num2str(XSPMinT),'-',num2str(XSPMaxT),'s_mingrv2_mode1'];
+StaSelectionString = 'NewGorda';
 
 % follow this string for CCF files
 CCFString = ['prefilt_',num2str(CCFMinT),'-',num2str(CCFMaxT),'s'];
@@ -56,14 +57,18 @@ parameters.MatDbDir = [parameters.NoiseDir,'/matfiles/'];
 %parameters.MatDbDir = [parameters.DropboxDir,'/matfiles/'];
 
 %parameters.ccfpath = [parameters.NoiseDir,'matfiles/',IDString,'/CCF/']; %OLD
-parameters.ccfpath = [parameters.MatDbDir,'CCF/',CCFString,'/']; %NEW
-parameters.xsppath = [parameters.MatDbDir,'XSP/CCF-',CCFString,'/',IDString,'/'];
+%parameters.ccfpath = [parameters.MatDbDir,'CCF/',CCFString,'/']; %NEW
+parameters.ccfpath = [parameters.MatDbDir,'CCF/',StaSelectionString,'/',CCFString,'/']; %NEW
+%parameters.xsppath = [parameters.MatDbDir,'XSP/CCF-',CCFString,'/',IDString,'/'];
+parameters.xsppath = [parameters.MatDbDir,'XSP/CCF_',StaSelectionString,'-',CCFString,'/',IDString,'/'];
 parameters.seis_path = [parameters.MatDbDir,'seismograms/'];
 
 % figures
 %parameters.figpath = [parameters.ProjDir,'figures/ANT/CCF-',CCFString,'/XSP-',IDString,'/'];  % wbh addition
-parameters.CCFfigpath = [parameters.DropboxDir,'figures/ANT/CCF-',CCFString,'/'];  % wbh addition
-parameters.XSPfigpath = [parameters.DropboxDir,'figures/ANT/CCF-',CCFString,'/XSP-',IDString,'/'];  % wbh addition
+%parameters.CCFfigpath = [parameters.DropboxDir,'figures/ANT/CCF-',CCFString,'/'];  % wbh addition
+parameters.CCFfigpath = [parameters.DropboxDir,'figures/ANT/CCF_',StaSelectionString,'-',CCFString,'/'];  % wbh addition
+%parameters.XSPfigpath = [parameters.DropboxDir,'figures/ANT/CCF-',CCFString,'/XSP-',IDString,'/'];  % wbh addition
+parameters.XSPfigpath = [parameters.DropboxDir,'figures/ANT/CCF_',StaSelectionString,'-',CCFString,'/XSP-',IDString,'/'];  % wbh addition
 
 % maps
 parameters.MapsDir = '/Users/whawley/data/maps/'; %where some of my general map files are
@@ -144,13 +149,13 @@ parameters.path_LRT_picks = './mat-LRTdisp/LRT_picks/';
 
 %%% --- Parameters for b_ Tomography --- %%%
 addpath('./tomo_functions');
-parameters.lalim = [41.5 45.5];%[42.5 45] ;
-parameters.lolim = [-131.5 -125.25];%[-131.5 -125.5];
-parameters.gridsize = 0.25; %0.25;   % in degrees
+parameters.lalim = [40.0 45.5]; %[41.5 45.5];%[42.5 45] ;
+parameters.lolim = [-131.5 -124.5]; %[-131.5 -125.25];%[-131.5 -125.5];
+parameters.gridsize = 0.3; %0.25;   % in degrees
 parameters.gridsize_azi = 0.5; %3; %1.5; % gridsize for 2D azimuthal anisotropy (degrees)
 
 % Smoothing parameters
-parameters.smweight0 = 10; %100; % isotropic second derivative smoothing
+parameters.smweight0 = 3; %100; % isotropic second derivative smoothing
 parameters.smweight0_azi = 1e3; %1000; % anisotropic second derivative smoothing
 parameters.flweight0_azi = 1000; %1000; % anisotropic first derivative flatness
 
@@ -163,7 +168,7 @@ parameters.polyfit_dt_err = 2; % (s) dt error greater than this, weighted 0
 parameters.tomo_snr_tol = 1.5; %2.5; % minimum signal-to-noise
 parameters.r_tol_min = 20; % [km] minimum station separation
 parameters.r_tol_max = 600; % [km] maximum station separation
-parameters.err_tol = 1.5; %0.5; % maximum misfit of bessel fit between observed and synthetic
+parameters.err_tol = 4; % maximum misfit of bessel fit between observed and synthetic
 
 parameters.is_rtolmin_wavelength = 0; % determine distance tolerance by wavelength?
 parameters.wl_fac = 1.0; % wavelength of above
