@@ -11,8 +11,8 @@
 clear
 close all;
 
-global tN
-global waxis
+global tN     % number of periods in the inversion
+global waxis  %
 global twloc
 global weight
 setup_parameters;
@@ -104,13 +104,28 @@ if is_LRT_picks
     c_start = c_all;
 else
     % Read from MINEOS .q file (https://github.com/jbrussell/MINEOS_synthetics)
-    qfile = ['./qfiles/Nomelt_taper_eta_crust_INVpconstr_xi1.06_GRL19_ORCAiso_INV.s0to200.q'];
+    %qfile = ['./qfiles/Nomelt_taper_eta_crust_INVpconstr_xi1.06_GRL19_ORCAiso_INV.s0to200.q'];
+    %%%
+    qfile = ['./qfiles/Nomelt_taper_eta_crust_INVpconstr_xi1.06_GRL19_ORCAiso_INV.t0to200.q'];
+    %%%
     if exist('c','var') == 0 % check if phase velocities exist, if not read them in
         [~,~,c_all] = readMINEOS_qfile2(qfile,t_vec_all,mode_br);
     end
     c_start = c_all;
     c_all_std = zeros(size(c_all));
 end
+
+%%% try to manually use different starting phv estimates
+%c_all = [4.5442    4.4953    4.4609    4.4360    4.4174    4.4033    4.3924    4.3837]; %from mineos 's'
+%c_all = [4.0    4.0    4.0    4.0    4.0    4.0    4.0    4.0]; % try 4 across the board
+%c_all = [5.0    5.0    5.0    5.0    5.0    5.0    5.0    5.0]; % try 5 across the board
+%c_all = [4.5    4.5    4.5    4.5    4.5    4.5    4.5    4.5]; % try 4.5 across the board
+%c_all = [4.4    4.4    4.4    4.4    4.4    4.4    4.4    4.4]; % try 4.4 across the board
+%c_all = [4.0    4.1    4.2    4.2    4.3    4.4    4.4    4.5]; % try 4 to 4.5
+c_all = [3.0    3.0    3.0    3.0    3.0    3.0    3.0    3.0]; % try crazy low-3 across the board
+%c_all = [4.1    4.1    4.1    4.1    4.1    4.1    4.1    4.1]; % try 4.1
+c_start = c_all;
+c_all_std = zeros(size(c_all));
 
 %%
 %==========================================================%
@@ -145,7 +160,11 @@ end
 ccf_path = [parameters.ccfpath,windir,'/fullStack/ccf',comp{1},'/'];
 
 % output path
-XSP_path = [parameters.xsppath,windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(N_wl),'wl_phv_dir_ZC-Bessel/'];
+%XSP_path = [parameters.xsppath,windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(N_wl),'wl_phv_dir_ZC-Bessel/'];
+%%%
+%XSP_path = [parameters.xsppath,windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(N_wl),'wl_phv_dir_ZC-Bessel_zctest4.0/'];
+XSP_path = [parameters.xsppath,windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(N_wl),'wl_phv_dir_ZC-Bessel_zctest/'];
+%%%
 
 if ~exist(XSP_path)
     if ~exist(parameters.xsppath)
@@ -165,7 +184,11 @@ end
 
 % figure output path
 if iswin
-    XSP_fig_path = [figDir,windir,'/fullStack/',num2str(N_wl),'wl_phv_dir/ZC_B/'];
+    %XSP_fig_path = [figDir,windir,'/fullStack/',num2str(N_wl),'wl_phv_dir/ZC_B/'];
+    %%%
+    %XSP_fig_path = [figDir,windir,'/fullStack/',num2str(N_wl),'wl_phv_dir/ZC_B_zctest4.0/'];
+    XSP_fig_path = [figDir,windir,'/fullStack/',num2str(N_wl),'wl_phv_dir/ZC_B_zctest/'];
+    %%%
 else
     XSP_fig_path = [figDir,windir,'/fullStack/',num2str(N_wl),'wl_phv_dir/ZC_B_nowin/'];
 end
@@ -183,11 +206,24 @@ nsta=parameters.nsta; % number of target stations to calculate for
 for ista1=1:nsta
     
     sta1=char(stalist(ista1,:));
+    
+    %%% wbh test to see what zc issue is
+    if ~strcmp(sta1,'BB030')
+        continue
+    end
+    %%%
+
     sta1dir=[ccf_path,sta1]; % dir to have all cross terms about this central station
     
     %%% --- Loop through station 2 --- %%%
     for ista2 = 1: nsta % length(v_sta)
         sta2 = char(stalist(ista2,:));
+        
+        %%% wbh test zc issue
+        if ~strcmp(sta2,'BB390')
+            continue
+        end
+        %%%
         
         % if same station, skip
         if(strcmp(sta1,sta2))
@@ -302,18 +338,25 @@ for ista1=1:nsta
             continue
         end
         % Remove NaN values for lsqnonlin
+        % wbh so here is where these become different lengths... in the
+        % bessel version, all these remain the same across station pairs.
+        % That's not the case with the ZC method. 
         tw1_zc = tw0_zc(I_zc);
         t_vec = t_vec(I_zc);
         c_std = c_std(I_zc);
+        %tN_all = tN; %save this with nans
         tN = length(t_vec);
+        twloc_all = twloc; %save this with nans
         twloc=1./t_vec;
         twloc = twloc*2*pi;
+        waxis_all = waxis;
         waxis = (1/max(t_vec):1/wholesec:1/min(t_vec))*2*pi;
         xsp1 = interp1(faxis*2*pi,xcorf1,waxis);
         xsp1 = smooth(xsp1,npts_smooth);
         
         %%% - Invert for the bessel function 2x - %%%
-        options = optimoptions(@lsqnonlin,'TolFun',1e-12,'MaxIter',1500,'MaxFunEvals',1500);
+        %options = optimoptions(@lsqnonlin,'TolFun',1e-12,'MaxIter',1500,'MaxFunEvals',1500);
+        options = optimoptions(@lsqnonlin,'TolFun',1e-12,'MaxIter',1500,'MaxFunEvals',1500); %what happens if I increase eval limit?
         weight  = 1./waxis;
         
         tw2 = lsqnonlin(@(x) besselerr(x,[xsp1],damp,is_normbessel),[tw1_zc],[tw1_zc]*0.8,[tw1_zc]*1.2,options);
@@ -357,6 +400,7 @@ for ista1=1:nsta
         xspinfo.xsp_norm = xsp1./abs(hilbert(xsp1));
         xspinfo.coherenum = data1.coh_num;
         err = besselerr(tw_bfit,xsp1,damp,is_normbessel);
+        %err_all = err(1:length(waxis_all)); %try adding err all to the xspinfo struct?
         err = err(1:length(waxis));
         
         if is_normbessel
@@ -365,8 +409,10 @@ for ista1=1:nsta
             xspinfo.sumerr = sum(err.^2)./sum((xsp1./weight(:)).^2);
         end
         xspinfo.err = err./weight(:);
+        %xspinfo.err_all = err_all;
         xspinfo.tw_zc = tw1_zc_all;
         xspinfo.twloc = twloc;
+        xspinfo.twloc_all = twloc_all;
         xspinfo.c = r1./tw_bfit_all;
         xspinfo.c_std = sigma_m_c_all;
         xspinfo.per = 1./(twloc/2/pi);
@@ -377,6 +423,7 @@ for ista1=1:nsta
         xspinfo.per_start = t_vec_all;
         xspinfo.isgood_wl = I_wl;
         xspinfo.isgood_zc = I_zc;
+        xspinfo.waxis_all = waxis_all;
         
         data = r1./tw_bfit;
         
