@@ -62,6 +62,14 @@ mode = parameters.mode; %wbh put this in params file
 if exist('c','var') == 0 % check if phase velocities exist, if not read them in
     [~,~,c_all] = readMINEOS_qfile2(qfile,t_vec_all,mode);
 end
+%%% wbh try different starting model
+c_all = [4.0    4.0    4.0    4.0    4.0    4.0    4.0    4.0]; % try 4 across the board
+c_all = [4.5442    4.4953    4.4609    4.4360    4.4174    4.4033    4.3924    4.3837]; % from q file
+c_all = [4.5441    4.4953    4.4609    4.4360    4.4174    4.4033    4.3924    4.3837]; % slightly modify
+c_all = [4.2    4.2    4.2    4.2    4.2    4.2    4.2    4.2]; % try 4.2 across the board
+c_all = [4.2    4.19    4.18    4.17    4.16    4.15    4.14    4.13]; % try decreasing
+%c_all = [4.1    4.09    4.08    4.07    4.06    4.05    4.04    4.03]; % try decreasing
+%%%
 c_start = c_all;
 c_all_std = zeros(size(c_all));
 %==========================================================%
@@ -96,7 +104,10 @@ end
 ccf_path = [parameters.ccfpath,windir,'/fullStack/ccf',comp{1},'/'];
 
 % output path
-XSP_path = [parameters.xsppath,windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(N_wl),'wl_phv_dir/'];
+%XSP_path = [parameters.xsppath,windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(N_wl),'wl_phv_dir/'];
+%%% simple starting model
+XSP_path = [parameters.xsppath,windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(N_wl),'wl_phv_dir_4.2Decreasing/'];
+%%%
 
 if ~exist(XSP_path)
     if ~exist(parameters.xsppath)
@@ -116,7 +127,8 @@ end
 
 % figure output path
 if iswin
-    XSP_fig_path = [figDir,windir,'/fullStack/',num2str(N_wl),'wl_phv_dir/TEI19/'];
+    %XSP_fig_path = [figDir,windir,'/fullStack/',num2str(N_wl),'wl_phv_dir/TEI19/'];
+    XSP_fig_path = [figDir,windir,'/fullStack/',num2str(N_wl),'wl_phv_dir/TEI19_4.2Decreasing/'];
 else
     XSP_fig_path = [figDir,windir,'/fullStack/',num2str(N_wl),'wl_phv_dir/TEI19_nowin/'];
 end
@@ -247,7 +259,8 @@ for ista1=1:nsta
         options = optimoptions(@lsqnonlin,'TolFun',1e-12,'MaxIter',1500,'MaxFunEvals',1500);
         weight  = 1./waxis;
         
-        tw2 = lsqnonlin(@(x) besselerr(x,[xsp1],damp,is_normbessel),[tw1],[tw1]*0.8,[tw1]*1.2,options);
+        %tw2 = lsqnonlin(@(x) besselerr(x,[xsp1],damp,is_normbessel),[tw1],[tw1]*0.8,[tw1]*1.2,options);
+        [tw2,resnorm2,resid2,exitflag2,output2,lambda2,j2] = lsqnonlin(@(x) besselerr(x,[xsp1],damp,is_normbessel),[tw1],[tw1]*0.8,[tw1]*1.2,options);
 %         tw2 = lsqnonlin(@(x) besselerr(x,[xsp1]),[tw1],[],[],options);
         
         weight(:) = 1;
