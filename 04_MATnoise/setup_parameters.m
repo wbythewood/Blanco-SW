@@ -13,7 +13,11 @@ CCFMinT = 10; % min period in seconds
 CCFMaxT = 50; % max period in seconds
 % XSP Periods (also for a2 - filtering after CCF calculation)
 XSPMinT = 10; %15; % min period in seconds
+<<<<<<< HEAD
 XSPMaxT = 25; % max period in seconds
+=======
+XSPMaxT = 30; %30; % max period in seconds
+>>>>>>> 3769d19be409aa01443a522d7fe472f3417160c2
 
 % for multiple cross spectra, use different strings
 %IDString = '4-10s_mingrv2_mode1';
@@ -30,8 +34,8 @@ load ../lajolla
 
 %%% --- Set Up Paths --- %%%
 % big dir structure
-parameters.ProjDir = '/Users/whawley/Research/Blanco-SW/'; % laptop
-%parameters.ProjDir = '/Users/whawley/Research/github/Blanco-SW/'; %desktop
+%parameters.ProjDir = '/Users/whawley/Research/Blanco-SW/'; % laptop
+parameters.ProjDir = '/Users/whawley/Research/github/Blanco-SW/'; %desktop
 
 parameters.DropboxDir = '/Users/whawley/Dropbox/Blanco-SW/';
 
@@ -42,8 +46,8 @@ parameters.NoiseDir = [parameters.DropboxDir,'04_MATnoise/'];
 parameters.dataDir = [parameters.ProjDir,'data/']; % where data are stored
 parameters.configDir = [parameters.ProjDir,'config/']; %config files
 % path to data that has NOT yet been corrected for t/c noise
-parameters.datapath = [parameters.dataDir,'Sac_Noise_Test/'];
-%parameters.datapath = [parameters.dataDir,'Sac_Noise/'];
+%parameters.datapath = [parameters.dataDir,'Sac_Noise_Test/'];
+parameters.datapath = [parameters.dataDir,'Sac_Noise/'];
 % and path to data that HAS been corrected for t/c noise
 %parameters.datapath = [parameters.dataDir,'CORRSEIS_SAC/'];
 parameters.PZpath = [parameters.dataDir,'PZ/'];
@@ -52,9 +56,9 @@ parameters.orientation_path = [parameters.configDir,'orientations.txt'];
 
 % where matlab versions of modified data will be stored
 % this one stores data locally... old way
-parameters.MatDbDir = [parameters.NoiseDir,'/matfiles/'];
+%parameters.MatDbDir = [parameters.NoiseDir,'/matfiles/'];
 % this one will save to dropbox drive, accessible by multiple computers
-%parameters.MatDbDir = [parameters.DropboxDir,'/matfiles/'];
+parameters.MatDbDir = [parameters.NoiseDir,'/matfiles/'];
 
 %parameters.ccfpath = [parameters.NoiseDir,'matfiles/',IDString,'/CCF/']; %OLD
 %parameters.ccfpath = [parameters.MatDbDir,'CCF/',CCFString,'/']; %NEW

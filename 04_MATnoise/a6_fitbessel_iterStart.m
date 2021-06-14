@@ -18,7 +18,7 @@ global weight
 setup_parameters;
 
 %======================= PARAMETERS =======================%
-is_resume = 0; % Resume from last processed file (1) or overwrite (0)
+is_resume = 1; % Resume from last processed file (1) or overwrite (0)
 isoutput = 1; % Save *.mat file with results?
 npts_smooth = 1; % 1 = no smoothing
 

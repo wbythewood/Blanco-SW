@@ -3,9 +3,10 @@
 #  dirs and files
 #BaseDir = '/Users/whawley/Research/github/Blanco-SW/'
 
-Label = 'ANT_12h_test2'
+Label = 'GordaAddition'
 
-BaseDir = '/Users/wbhawley/Research/Seismology/Blanco-SW/'
+#BaseDir = '/Users/wbhawley/Research/Seismology/Blanco-SW/'
+BaseDir = '/Users/whawley/Research/github/Blanco-SW/'
 ConfigDir = BaseDir+'config/'
 DataDir = BaseDir+'data/'
 EventsDataDir = DataDir+'SAC_Events/'
@@ -17,7 +18,7 @@ ANTDayFileName = ConfigDir+'BlancoANT_Test_12h.txt'
 # two station lists, one for BXH, one for all stations
 XStafn = ConfigDir+'X9_stations_X.txt'
 #Stafn = ConfigDir+'X9_stations.txt'
-Stafn = ConfigDir+'7D_stations.txt'
+Stafn = ConfigDir+'7D_stations_Gorda.txt'
 #Stafn = ConfigDir+'SC_stations.txt'
 
 #  Event download
@@ -32,7 +33,7 @@ isCentroid = 1  # if isCMT_params = 1, use centroid; 0 = epicentral
 
 #  Noise Download
 trLen = 60 * 60 * 24  # seconds
-trLen = 60 * 60 * 12  # seconds
+#trLen = 60 * 60 * 12  # seconds
 noDays = 4  # number of days prior to event to use
 isCalDay = 1  # 0 to start each day at 00:00; 0 to use 24h segments prior to eq
 
