@@ -3,6 +3,7 @@
 #  dirs and files
 #BaseDir = '/Users/whawley/Research/github/Blanco-SW/'
 
+minMag = 6.5
 Label = 'GordaAddition'
 
 #BaseDir = '/Users/wbhawley/Research/Seismology/Blanco-SW/'
@@ -10,19 +11,22 @@ BaseDir = '/Users/whawley/Research/github/Blanco-SW/'
 ConfigDir = BaseDir+'config/'
 DataDir = BaseDir+'data/'
 EventsDataDir = DataDir+'SAC_Events/'
+EventsDataDir = DataDir+'SAC_Events_'+Label+'/'
 NoiseDataDir = DataDir+'SAC_Noise_'+Label+'/'
 #EventsFileName = ConfigDir+'BlancoEventTest_M6.5.txt'
-EventsFileName = ConfigDir+'BlancoANT_Test_12h.txt'
-DayFileName = ConfigDir+'BlancoANT_Test_12h.txt'
-ANTDayFileName = ConfigDir+'BlancoANT_Test_12h.txt'
+EventsFileName = ConfigDir+'BlancoEvents_'+Label+'_M'+str(minMag)+'.txt'
+#EventsFileName = ConfigDir+'BlancoANT_Test_12h.txt'
+#DayFileName = ConfigDir+'BlancoANT_Test_12h.txt'
+DayFileName = ConfigDir+'BlancoNoise_'+Label+'_M'+str(minMag)+'.txt'
+#ANTDayFileName = ConfigDir+'BlancoANT_Test_12h.txt'
 # two station lists, one for BXH, one for all stations
 XStafn = ConfigDir+'X9_stations_X.txt'
 #Stafn = ConfigDir+'X9_stations.txt'
-Stafn = ConfigDir+'7D_stations_Gorda.txt'
+#Stafn = ConfigDir+'7D_stations_Gorda.txt'
+Stafn = ConfigDir+'7D_stations_withGorda.txt'
 #Stafn = ConfigDir+'SC_stations.txt'
 
 #  Event download
-minMag = 6.5
 webservice = "IRIS"
 #webservice = "SCEDC"
 #network = "X9"  # X9 = Blanco
