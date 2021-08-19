@@ -11,6 +11,7 @@
 
 % wbh modified to include only isotropic velocity
 clear; close all;
+InvString = '_Iterate10'; % include leading underscore... 
 
 %%
 % Save results?
@@ -19,7 +20,7 @@ savefile = ['test'];
 
 %Zero Crossing Options
 % 0 is only bessel, 1 is ZC as first pass, then bessel fit
-isZC = 1;
+isZC = 0;
 %======================= PARAMETERS =======================%
 setup_parameters;
 comp = {parameters.strNAMEcomp};
@@ -55,9 +56,12 @@ lalim = parameters.lalim;
 lolim = parameters.lolim;
 gridsize = parameters.gridsize;
 station_list = parameters.StaListFile;
+%Usestation_list = parameters.JStaListFile; %%% wbh test
+Usestation_list = parameters.StaListFile; %%% wbh test
 
 % Load station info
 [sta.nw sta.name, sta.lat, sta.lon, sta.dep] = textread(station_list,'%s %s %f %f %f');
+[usta.nw usta.name, usta.lat, usta.lon, usta.dep] = textread(Usestation_list,'%s %s %f %f %f'); %%% wbh test
 
 fiterrtol = parameters.fiterrtol;
 maxerrweight = parameters.maxerrweight;
@@ -66,9 +70,19 @@ smweight0 = parameters.smweight0;
 dterrtol = parameters.dterrtol;
 raydensetol = parameters.raydensetol;
 r = parameters.r;
+
+%loop through inversion options
+%for gridsize = parameters.gridsizeList 
+%for smweight0 = parameters.smweight0List 
+%for fiterrtol = parameters.fiterrtolList 
+%for dterrtol = parameters.dterrtolList 
+%for err_tol = parameters.err_tolList 
+
 %phv_fig_path = [parameters.figpath,windir,'/,PhV_dir/',num2str(1/frange(1)),'_',num2str(1/frange(2)),'s/raytomo_azi2theta_2D/'];
 if isZC == 0
     phv_fig_path = [parameters.XSPfigpath,windir,'/PhV_dir/Iso/sm-',num2str(smweight0),'_grid-',num2str(gridsize),'_fiterr-',num2str(fiterrtol),'_dterr-',num2str(dterrtol),'/'];
+    phv_fig_path = [parameters.XSPfigpath,windir,'/PhV_dir/Iso/sm-',num2str(smweight0),'_grid-',num2str(gridsize),'_fiterr-',num2str(fiterrtol),'_dterr-',num2str(dterrtol),'_err-',num2str(err_tol),InvString,'/'];
+    %phv_fig_path = [parameters.XSPfigpath,windir,'/PhV_dir/IsoJdF/sm-',num2str(smweight0),'_grid-',num2str(gridsize),'_fiterr-',num2str(fiterrtol),'_dterr-',num2str(dterrtol),'_err-',num2str(err_tol),InvString,'/'];
 elseif isZC == 1
     phv_fig_path = [parameters.XSPfigpath,windir,'/PhV_dir/Iso/sm-',num2str(smweight0),'_grid-',num2str(gridsize),'_fiterr-',num2str(fiterrtol),'_dterr-',num2str(dterrtol),'_ZC-Bessel/'];
 end
@@ -109,6 +123,7 @@ F = F_iso;
 % Initialize the xsp structure
 if isZC == 0
     Xsp_path = [parameters.xsppath,windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(Nwl),'wl_phv_dir/'];
+    Xsp_path = [parameters.xsppath,windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(Nwl),'wl_phv_dir',InvString,'/'];
 elseif isZC == 1
     Xsp_path = [parameters.xsppath,windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(Nwl),'wl_phv_dir_ZC-Bessel/'];
 end
@@ -122,8 +137,10 @@ for ixsp = 1:length(xspfiles)
     %wbh why is waxis only retreived when ixsp is 1? if it changes from
     %file to file, there is an error later... try to retrieve it each time
     waxis = temp.waxis;
+
     
     if ixsp ==1
+    %if exist('Tperiods','var') == 0
         Tperiods = (2*pi)./temp.twloc;
         %waxis = temp.waxis;
         twloc = temp.twloc;
@@ -153,6 +170,13 @@ for ixsp = 1:length(xspfiles)
         if isempty(cell2mat(strfind(sta.name,xspsum(ixsp).sta1))) || isempty(cell2mat(strfind(sta.name,xspsum(ixsp).sta2)))
             xspsum(ixsp).isgood(ip) = 0;
         end
+        % cut out the stations we don't want %%% wbh test
+        if ~contains(xspinfo.sta1,usta.name)
+            xspsum(ixsp).isgood(ip) = 0;
+        elseif ~contains(xspinfo.sta2,usta.name)
+            xspsum(ixsp).isgood(ip) = 0;
+        end
+    
     end
     
     if rem(ixsp,500)==0
@@ -398,7 +422,7 @@ for ip=1:length(Tperiods)
     colormap(roma)
     
     hold on;
-    plotm(sta.lat,sta.lon,'ok','markerfacecolor',[0 0 0]);
+    plotm(sta.lat,sta.lon,'ok','markerfacecolor',[0 0 0]); % stations
 end
 ofn = [phv_fig_path,'phv_km-s.png'];
 saveas(fig17,ofn);
@@ -519,3 +543,9 @@ saveas(fig2,ofn);
 %out later...
 ofn = [phv_fig_path,'parameters.mat'];
 save(ofn,'parameters')
+
+% end
+% end
+% end
+% end
+% end

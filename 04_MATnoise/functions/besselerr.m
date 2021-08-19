@@ -44,10 +44,12 @@ x1 = waxis.*tw1;
 % First part of error: fit the Bessel Function
 %F1 = normalise(xsp);
 F1 = xsp;
+F1_o = F1;
 if is_normbessel
     F1 = F1./abs(hilbert(F1));
 end
 be = besselj(0,x1);
+be_o = be;
 be = be./mean(abs(be)).*mean([abs(F1)]);
 if is_normbessel
 %     be = be./abs(hilbert(be));
@@ -83,12 +85,16 @@ if Isfigure>0
     subplot(3,1,1)
     hold on
     plot(waxis/2/pi,F1,'b','linewidth',2);
+    plot(waxis/2/pi,hilbert(F1),'g','linewidth',1);
     plot(waxis/2/pi,be,'r','linewidth',2);
+    plot(waxis/2/pi,be_o,'k','linewidth',1);
 %     ylim([-0.02 0.02]);
 	title('real part of stacked ccf') 
  	title( num2str(sum(err.^2)./length(err)./sum(F1.^2)*length(F1)));
     subplot(3,1,2)
+    hold on
     plot(waxis/2/pi,(F1z(:)/mean(abs(F1.*weight(:)))).^2,'k')
+    plot(waxis/2/pi,F1z(:),'b')
     subplot(3,1,3)
     plot(x1)
     %pause;

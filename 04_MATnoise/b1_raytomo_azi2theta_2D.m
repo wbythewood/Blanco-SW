@@ -7,13 +7,21 @@
 % Written by Ge Jin, jinwar@gmail.com
 % Nov 2012
 % JBR: Modified in 2018 to include azimuthal anisotropy
+
+%wbh Modified 2021 to reflect isotropic version
 % https://github.com/jbrussell
 clear; close all;
+InvString = '_Iterate10'; % include leading underscore... 
+
 
 %%
 % Save results?
 isoutput = 1;
 savefile = ['test'];
+
+%Zero Crossing Options
+% 0 is only bessel, 1 is ZC as first pass, then bessel fit
+isZC = 0;
 %======================= PARAMETERS =======================%
 setup_parameters;
 comp = {parameters.strNAMEcomp};
@@ -36,8 +44,8 @@ iscompare_aniso = 0; % compare to old anisotropic measurements
 %==========================================================%
 %%
 % Load color scale
-load seiscmap.mat
-load roma.mat
+load ../seiscmap.mat
+load ../roma.mat
 % Load anisotropy data (from old inversion)
 if iscompare_aniso
     load(['./aniso_DATA/phv_dir/',aniso_data]);
@@ -64,7 +72,14 @@ dterrtol = parameters.dterrtol;
 raydensetol = parameters.raydensetol;
 raydensetol_azi = parameters.raydensetol_azi;
 r = parameters.r;
-phv_fig_path = [parameters.figpath,windir,num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_phv_dir/fullStack/raytomo_azi2theta_2D/'];
+
+%phv_fig_path = [parameters.figpath,windir,'/,PhV_dir/',num2str(1/frange(1)),'_',num2str(1/frange(2)),'s/raytomo_azi2theta_2D/'];
+if isZC == 0
+    phv_fig_path = [parameters.XSPfigpath,windir,'/PhV_dir/Ani/2D/sm-',num2str(smweight0),'_grid-',num2str(gridsize),'_fiterr-',num2str(fiterrtol),'_dterr-',num2str(dterrtol),'/'];
+    phv_fig_path = [parameters.XSPfigpath,windir,'/PhV_dir/Ani/2D/sm-',num2str(smweight0),'_grid-',num2str(gridsize),'_fiterr-',num2str(fiterrtol),'_dterr-',num2str(dterrtol),'_err-',num2str(err_tol),'_azi_sm-',num2str(smweight0_azi),'_azi_2sm-',num2str(flweight0_azi),InvString,'/'];
+elseif isZC == 1
+    phv_fig_path = [parameters.XSPfigpath,windir,'/PhV_dir/Ani/2D/sm-',num2str(smweight0),'_grid-',num2str(gridsize),'_fiterr-',num2str(fiterrtol),'_dterr-',num2str(dterrtol),'_ZC-Bessel/'];
+end
 
 xnode=lalim(1):gridsize:lalim(2);
 ynode=lolim(1):gridsize:lolim(2);
@@ -93,6 +108,11 @@ if exist('badsta.lst')
     disp(badstnms)
 end
 
+% plate boundaries
+mapsDir = [parameters.MapsDir,'PlateBoundaries_NnrMRVL/'];
+usgsFN = [parameters.MapsDir,'usgs_plates.txt.gmtdat'];
+[pbLat,pbLon] = importPlates(usgsFN);
+
 %% Set up initial smoothing kernels (second derivative)
 % Isotropic smoothing kernels
 F_iso = smooth_kernel_build(xnode, ynode, Nx*Ny);
@@ -115,9 +135,12 @@ J_azis(1:end,Nx*Ny+Nx_azi*Ny_azi+[1:Nx_azi*Ny_azi]) = J_azi;
 
 %%
 % Initialize the xsp structure
-% Xsp_path = './Xsp/';
-%Xsp_path = ['../Xsp/',windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',xspdir,'/'];
-Xsp_path = ['Xsp/',windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(Nwl),'wl_phv_dir/'];
+if isZC == 0
+    Xsp_path = [parameters.xsppath,windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(Nwl),'wl_phv_dir/'];
+    Xsp_path = [parameters.xsppath,windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(Nwl),'wl_phv_dir',InvString,'/'];
+elseif isZC == 1
+    Xsp_path = [parameters.xsppath,windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(Nwl),'wl_phv_dir_ZC-Bessel/'];
+end
 xspfiles = dir([Xsp_path,'*_xsp.mat']);
 
 disp('Looking at Xsp Files')
@@ -188,7 +211,11 @@ for ip=1:length(Tperiods)
         
         % dist(raynum) = deg2km(distance(rays(raynum,1),rays(raynum,2),rays(raynum,3),rays(raynum,4)));
         dist(raynum) = distance(rays(raynum,1),rays(raynum,2),rays(raynum,3),rays(raynum,4),referenceEllipsoid('GRS80'))/1000;
-        dt(raynum) = xspsum(ixsp).tw(ip);
+        if isZC == 0
+            dt(raynum) = xspsum(ixsp).tw(ip);
+        elseif isZC == 1
+            dt(raynum) = xspsum(ixsp).tw_bfit(ip);
+        end
         phv(raynum) = dist(raynum)./dt(raynum);
         
         dep1 = sta.dep(strcmp(xspsum(raynum).sta1,sta.name));
@@ -279,7 +306,7 @@ for ip=1:length(Tperiods)
     NA=norm(W*mat,1);
     flweight_azi = flweight0_azi*NA/NR;
     
-    disp('start inverse');
+    disp('start inversion');
 %     A=[W*mat; smweight*F; aziweight*F_azi_damp; aziweight*F_azi_smooth];
 %     rhs=[W*dt; zeros(size(F,1),1); zeros(size(F_azi_damp,1),1); zeros(size(F_azi_smooth,1),1)];
 %     A=[W*mat;smweight*F;aziweight*F_azi_damp];
@@ -446,7 +473,7 @@ for ip=1:length(Tperiods)
     
     
     if 0
-        figure(1)
+        f1 = figure(1);
         clf
         ax = worldmap(lalim, lolim);
         set(ax, 'Visible', 'off')
@@ -457,7 +484,8 @@ for ip=1:length(Tperiods)
         caxis([avgv*(1-r) avgv*(1+r)])
         colorbar
         colormap(seiscmap)
-        
+        ofn = [phv_fig_path,'.pdf'];
+
 %         pause;
     end
     
@@ -475,7 +503,7 @@ end
 %% Azimuthal anisotropy (%)
 
 Mp = 3; Np = 3;
-fig16 = figure(16);
+fig26 = figure(26);
 set(gcf,'position',[1    1   1244   704]);
 clf
 vperc = [-r r];
@@ -488,20 +516,20 @@ for ip=1:length(Tperiods)
 %     surfacem(xi,yi,resid);
     levels = linspace(0,0.03,10)*100;
     surfacem(xi_azi,yi_azi,A2*100,'Linestyle','none');
+    plotm(pbLat,pbLon,'LineWidth',2,'Color','k') % plate boundaries
+
 %     drawlocal
     title([num2str(Tperiods(ip))],'fontsize',15)
     caxis([min(levels) max(levels)])
     colorbar
-     colormap(seiscmap)
-%    rbc = flip(redbluecmap);
-%     rbc = rbc([1 2 3 4 5 7 8 9 10 11],:);
-%     colormap(rbc);
-%    colormap('parula');
+    colormap(roma)
+
     
     u=raytomo(ip).A2 .* cosd(raytomo(ip).phi2)*20;
 	v=raytomo(ip).A2 .* sind(raytomo(ip).phi2)*20./cosd(mean(lalim));
 	[m n]=size(xi_azi);
     hold on;
+
     xpts = [];
     ypts = [];
 	for ix=1:m
@@ -522,45 +550,41 @@ for ip=1:length(Tperiods)
     hold on;
     plotm(sta.lat,sta.lon,'ok','markerfacecolor',[0 0 0]);
 end
-% save2pdf([phv_fig_path,comp{1}(1),'_','r',num2str(r_tol_min),'_',num2str(r_tol_max),'_snr',num2str(snr_tol),'_err',num2str(err_tol),'_raytomo_2Dazimuthal.pdf'],fig16,1000);
-% stop
+ofn = [phv_fig_path,'Aniso.png'];
+saveas(fig26,ofn);
+
 %% Phase Velocity Maps (km/s)
-% % Load seafloor age
-% load('age_grid.mat');
-% 
-% Mp = 3; Np = 4;
-% fig17 = figure(17);
-% set(gcf,'position',[1    1   1244   704]);
-% clf
-% for ip=1:length(Tperiods)
-%     subplot(Mp,Np,ip)
-%     ax = worldmap(lalim, lolim);
-%     set(ax, 'Visible', 'off')
-%     set(gcf,'color',[0.9 0.9 0.9])
-% %     surfacem(xi,yi,raytomo(ip).GV);
-%     avgv = nanmean(raytomo(ip).GV(:));
-%     levels = linspace(avgv*(1-r), avgv*(1+r),10);
-%     contourfm(xi,yi,raytomo(ip).GV,levels);
-% %     drawlocal
-%     title([num2str(Tperiods(ip))],'fontsize',15)
-%     caxis([avgv*(1-r) avgv*(1+r)])
-%     colorbar
-% %     colormap(seiscmap)
-%     rbc = flip(redbluecmap);
-% %     rbc = rbc([1 2 3 4 5 7 8 9 10 11],:);
-%     colormap(rbc);
-%     
-%     hold on;
-%     plotm(sta.lat,sta.lon,'ok','markerfacecolor',[0 0 0]);
-%     [c,h] = contourm(age_grid.LAT,age_grid.LON,age_grid.AGE,'k','LevelStep',5);
-% end
-% save2pdf([phv_fig_path,comp{1}(1),'_','r',num2str(r_tol_min),'_',num2str(r_tol_max),'_snr',num2str(snr_tol),'_err',num2str(err_tol),'_raytomo.pdf'],fig17,1000);
+
+Mp = 3; Np = 3;
+fig17 = figure(17);
+set(gcf,'position',[1    1   1244   704]);
+clf
+for ip=1:length(Tperiods)
+    subplot(Mp,Np,ip)
+    ax = worldmap(lalim, lolim);
+    set(ax, 'Visible', 'off')
+    set(gcf,'color',[0.9 0.9 0.9])
+    avgv = nanmean(raytomo(ip).GV(:));
+    levels = linspace(avgv*(1-r), avgv*(1+r),10);
+    contourfm(xi,yi,raytomo(ip).GV,levels);
+    plotm(pbLat,pbLon,'LineWidth',2,'Color','k') % plate boundaries
+    title([num2str(Tperiods(ip))],'fontsize',15)
+    caxis([avgv*(1-r) avgv*(1+r)])
+    cb = colorbar;
+    ylabel(cb,'Vs (km/s)');
+    colormap(roma);
+    
+    hold on;
+    plotm(sta.lat,sta.lon,'ok','markerfacecolor',[0 0 0]);
+    %[c,h] = contourm(age_grid.LAT,age_grid.LON,age_grid.AGE,'k','LevelStep',5);
+end
+ofn = [phv_fig_path,'phv_km-s.png'];
+saveas(fig17,ofn);
 
 %% Phase Velocity Maps (%)
 % Load seafloor age
 %load('age_grid.mat');
 
-Mp = 3; Np = 3;
 fig19 = figure(19);
 set(gcf,'position',[1    1   1244   704]);
 clf
@@ -574,23 +598,22 @@ for ip=1:length(Tperiods)
     resid = (raytomo(ip).GV-avgv)./avgv;
     levels = linspace(vperc(1),vperc(2),10)*100;
     contourfm(xi,yi,resid*100,levels);
+    plotm(pbLat,pbLon,'LineWidth',2,'Color','k') % plate boundaries
     title([num2str(Tperiods(ip))],'fontsize',15)
     caxis([min(levels) max(levels)])
-    colorbar
-     colormap(seiscmap)
-%    rbc = flip(redbluecmap);
-%     rbc = rbc([1 2 3 4 5 7 8 9 10 11],:);
-%    colormap(rbc);
+    cb = colorbar;
+    ylabel(cb,'dVs (%)');
+    colormap(roma)
     
     hold on;
     plotm(sta.lat,sta.lon,'ok','markerfacecolor',[0 0 0]);
 %    [c,h] = contourm(age_grid.LAT,age_grid.LON,age_grid.AGE,'k','LevelStep',5);
 end
-% save2pdf([phv_fig_path,comp{1}(1),'_','r',num2str(r_tol_min),'_',num2str(r_tol_max),'_snr',num2str(snr_tol),'_err',num2str(err_tol),'_raytomo_perc.pdf'],fig19,1000);
+ofn = [phv_fig_path,'phv_percent.png'];
+saveas(fig19,ofn);
 
 % stop
-%%
-% RAY DENSITY
+%% RAY DENSITY
 fig18 = figure(18);
 set(gcf,'position',[1    1   1244   704]);
 clf
@@ -601,34 +624,41 @@ subplot(Mp,Np,ip)
     set(ax, 'Visible', 'off')
     surfacem(xi,yi,raytomo(ip).raydense);
 %     drawlocal
+    plotm(pbLat,pbLon,'LineWidth',2,'Color','k') % plate boundaries
     title([num2str(Tperiods(ip))],'fontsize',15)
-    colorbar
+    cb = colorbar;
+    ylabel(cb,'Ray density');
     colormap(flip(hot));
     caxis([0 500])
+    caxis([0 max(raytomo(ip).raydense(:))])
 end
-%save2pdf([phv_fig_path,comp{1}(1),'_','r',num2str(r_tol_min),'_',num2str(r_tol_max),'_snr',num2str(snr_tol),'_err',num2str(err_tol),'_raydense.pdf'],fig18,1000);
+ofn = [phv_fig_path,'ray_density.png'];
+saveas(fig18,ofn);
 
-% % ERRORS ON XSP
-% fig19 = figure(19)
-% set(gcf,'position',[1    1   1244   704]);
-% clf
-% 
-% for ip=1:length(Tperiods)
-%     subplot(Mp,Np,ip)
-%     ax = worldmap(lalim, lolim);
-%     set(ax, 'Visible', 'off')
-%     clear rays
-%     rays = raytomo(ip).rays;
-% %     surfacem(xi,yi,raytomo(ip).err);
-% %     drawpng
-% scatterm((rays(:,1)+rays(:,3))./2,(rays(:,2)+rays(:,4))./2,30,raytomo(ip).fiterr,'filled')
-% % drawlocal
-% title([num2str(Tperiods(ip))],'fontsize',15)
-% colorbar
-% caxis([ 0 5])
-% 
-% 
-% end
+%% ERRORS ON XSP
+fig16 = figure(16);
+set(gcf,'position',[1    1   1244   704]);
+clf
+
+for ip=1:length(Tperiods)
+    subplot(Mp,Np,ip)
+    ax = worldmap(lalim, lolim);
+    set(ax, 'Visible', 'off')
+    clear rays
+    rays = raytomo(ip).rays;
+%     surfacem(xi,yi,raytomo(ip).err);
+%     drawpng
+    scatterm((rays(:,1)+rays(:,3))./2,(rays(:,2)+rays(:,4))./2,30,raytomo(ip).fiterr,'filled')
+% drawlocal
+    plotm(pbLat,pbLon,'LineWidth',2,'Color','k') % plate boundaries
+    title([num2str(Tperiods(ip))],'fontsize',15)
+    colorbar
+    caxis([ 0 5])
+
+
+end
+ofn = [phv_fig_path,'XSP-err.png'];
+saveas(fig16,ofn);
 
 %% PLOT AZIMUTHAL MODEL
 
