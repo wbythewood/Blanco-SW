@@ -77,7 +77,7 @@ for i = 1:nray
 %     G(i,icount) = G(i,icount) + count(icount)*dr;
     G(i,icount) = G(i,icount) + drq;
     
-    if 0      
+    if 0     
         % PLOT RAYS AND RAY DENSITY
         figure(39);
         if i == 1
