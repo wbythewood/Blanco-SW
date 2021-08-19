@@ -5,19 +5,19 @@
 % https://github.com/jbrussell
 
 clear;
-if ~exist('setup_parameters_MATnoise.m')
-    !cp ../setup_parameters.m ./setup_parameters_MATnoise.m
+if ~exist('setup_parameters_LRT.m')
+    !cp ../setup_parameters.m ./setup_parameters_LRT.m
 end
-setup_parameters_MATnoise;
+setup_parameters_LRT;
 IsFigure = 0;
 IsFigure_GAUS = 0; % Plot frequency domain filtered and unfiltered
 
 %======================= PARAMETERS =======================%
-comp = 'ZZ'; %'ZZ'; %'RR'; %'TT';
-coperiod = [3 10]; % Periods to filter between
+comp = {parameters.strNAMEcomp}; %'ZZ'; %'ZZ'; %'RR'; %'TT';
+coperiod = parameters.PeriodRange; %[3 50]; % Periods to filter between
 amp = 8e0;
-windir = 'window3hr';
-windir_for_SNR = 'window3hr'; % Data to use for calculating SNR threshold (for plotting purposes)
+windir = parameters.winDirName; 
+windir_for_SNR = parameters.winDirName; % Data to use for calculating SNR threshold (for plotting purposes)
 trace_space = 0; % km
 snr_thresh = 2;
 dep_tol = [0 0]; % [sta1, sta2] OBS Depth tolerance;
@@ -27,7 +27,8 @@ xlims = [0 500];
 ylims = [0 470];
 IsButterworth = 1;
 
-ccfpath = '../ccf/';
+%ccfpath = '../ccf/';
+ccf_path = [parameters.ccfpath,windir,'/fullStack/ccf',comp{1},'/'];
 % ccf_path = '/data/irma6/jrussel/YoungPacificORCA/ccf_FTN/';
 
 %%% --- Parameters to build up gaussian filters --- %%% 
@@ -46,27 +47,28 @@ stalist = parameters.stalist;
 nsta = parameters.nsta;
 nsta = length(stalist);
 winlength = parameters.winlength;
-figpath = parameters.figpath;
+%figpath = parameters.figpath;
+figDir = parameters.LRTfigpath;
 %fig_winlength_path = [figpath,'window',num2str(winlength),'hr/fullStack/'];
 % custom directory names
-    fig_winlength_path = [figpath,windir,'/fullStack/'];
+%fig_winlength_path = [figpath,windir,'/fullStack/'];
 
 %------------ PATH INFORMATION -------------%
 % ccf_path = parameters.ccfpath;
 %ccf_winlength_path = [ccf_path,'window',num2str(winlength),'hr/'];
-    ccf_winlength_path = [ccfpath,windir,'/'];
-ccf_singlestack_path = [ccf_winlength_path,'single/'];
-ccf_daystack_path = [ccf_winlength_path,'dayStack/'];
-ccf_monthstack_path = [ccf_winlength_path,'monthStack/'];
-ccf_fullstack_path = [ccf_winlength_path,'fullStack/'];
+%ccf_winlength_path = [ccfpath,windir,'/'];
+%ccf_singlestack_path = [ccf_winlength_path,'single/'];
+%ccf_daystack_path = [ccf_winlength_path,'dayStack/'];
+%ccf_monthstack_path = [ccf_winlength_path,'monthStack/'];
+%ccf_fullstack_path = [ccf_winlength_path,'fullStack/'];
 
-ccf_stack_path = ccf_fullstack_path;
+%ccf_stack_path = ccf_fullstack_path;
 
-figpath = [fig_winlength_path,num2str(coperiod(1)),'_',num2str(coperiod(2)),'s/'];
+figpath = figDir; %[fig_winlength_path,num2str(coperiod(1)),'_',num2str(coperiod(2)),'s/'];
 % create figure directory
-if ~exist(fig_winlength_path)
-    mkdir(fig_winlength_path)
-end
+% if ~exist(fig_winlength_path)
+%     mkdir(fig_winlength_path)
+% end
 if ~exist(figpath)
     mkdir(figpath)
 end
@@ -78,8 +80,9 @@ LONS = stalon;
 DEPTHS = staz;
 
 %%
-ccf_path = [ccf_stack_path,'ccf',comp,'/',];
-ccf_path_SNR = [ccfpath,windir_for_SNR,'/','fullStack/','ccf',comp,'/',];
+%ccf_path = [ccf_stack_path,'ccf',comp,'/',];
+%ccf_path_SNR = [ccfpath,windir_for_SNR,'/','fullStack/','ccf',comp,'/',];
+ccf_path_SNR = ccf_path;
 npairall = 0;
 %------------ LOAD DATA AND PLOT IN TIME DOMAIN -------------%
 for ista1=1:nsta % loop over all stations
@@ -297,7 +300,8 @@ end
 
 %pause;
 %% Plot SNR Values
-figure(101); clf;
+f101 = figure(101); 
+clf;
 plot([0 1000],[1 1],'-k','linewidth',3); hold on;
 % plot(sta1sta2_dist_all,snr,'ok','linewidth',1,'MarkerFaceColor',[0.5 0.5 0.5],'markersize',8); hold on;
 scatter(sta1sta2_dist_all,snr,80,mean([dep1' dep2'],2),'filled','MarkerEdgeColor',[0 0 0],'linewidth',1);
@@ -311,7 +315,9 @@ xlim([0 500]);
 ylim([1e-1 1e3]);
 
 
-save2pdf([figpath,'SNR_',comp,'_tukeyfilt_',num2str(min_grv),'_',num2str(max_grv),'.pdf'],101,1000);
+%save2pdf([figpath,'SNR_',comp,'_tukeyfilt_',num2str(min_grv),'_',num2str(max_grv),'.pdf'],101,1000);
+ofn = [figpath,'SNR_',comp{1},'_tukeyfilt_',num2str(min_grv),'_',num2str(max_grv),'.pdf'];
+saveas(f101,ofn)
 %%
 % print(f102,'-dpdf',[figpath,'all_ccf',comp,'_tukeyfilt.pdf']); % Save figure
 if isplotwin
@@ -319,6 +325,8 @@ if isplotwin
 else
     figname = [figpath,'all_ccf',comp,'_tukeyfilt_TEI19.pdf'];
 end
-save2pdf(figname,f102,1000);
+%save2pdf(figname,f102,1000);
+ofn = [figpath,'all_ccf',comp{1},'_tukeyfilt_TEI19.pdf'];
+saveas(f102,ofn)
 % export_fig(figname,'-pdf','-q100','-p0.02','-painters',f102)
 % print(f102,'-dpdf',figname);

@@ -4,14 +4,31 @@
 % github.com/jbrussell
 
 clear;
-setup_parameters;
+setup_parameters_LRT ;
 
 is_savemat = 1;
 
 is_win = 0; % Use windowed waveforms?
 
+% Perform just on a subset of stations
+SubsetStr = 'Pac';
+SubsetStr = 'JdF';
+SubsetStr = 'All';
+
+
+figDir = [parameters.LRTfigpath,'LRT_',num2str(1/f_max),'-',num2str(1/f_min),'s_',method,'/'];
+
+figpath = figDir;
+if ~exist(figpath)
+    mkdir(figpath)
+end
+
 %%
 % Load data
+%datapath = parameters.LRTdatapath;
+datapath = parameters.LRTIfnPath;
+%ndata = parameters.ndata;
+ndata = [datapath,SubsetStr,'_noise_Z.mat'];
 load(ndata);
 delta=mean(Delta);
 Delta = Delta';
@@ -42,8 +59,10 @@ Rfftplot = Rfft(I_pmin_plot:I_pmax_plot,I_fmin_plot:I_fmax_plot);
 
 %%
 % Plot figures.
-figure(3); clf;
-set(gcf,'Position',[173.0000  262.0000  880.0000  438.0000]);
+f3 = figure(3); 
+clf;
+set(gcf,'Position',[173.0000  262.0000  880.0000  400.0000],'PaperOrientation','landscape');
+titleStr = ['LRT for subset: ',SubsetStr,' - ',method];
 
 
 subplot(1,2,1); hold on;
@@ -53,22 +72,43 @@ xlabel('Time (s)'); ylabel('Distance (km)');
 set(gca,'YDir','reverse');
 
 subplot(1,2,2); 
+is_globnorm = 0;
 if is_globnorm
     imagesc(perplot(1,1:end), vplot(1:end,1),  abs(R_Tv)./prctile(abs(R_Tv(:)),99)); hold on;
 % contour(mat.per_vec, mat.phv_vec,  abs(mat.R_Tv)./prctile(mat.R_Tv(:),99)>=0.9,[1],'-w','linewidth',2); hold on;
 else
     imagesc(perplot(1,1:end), vplot(1:end,1),  abs(R_Tv)./max(abs(R_Tv))); hold on;
 end
-for ii = 1:BRANCHES
-    plot(DISP(ii).Tq(1:10:end),DISP(ii).cvq(1:10:end),'-','color',[1 0 0],'linewidth',1.5);   
+% for ii = 1:BRANCHES
+%     plot(DISP(ii).Tq(1:10:end),DISP(ii).cvq(1:10:end),'-','color',[1 0 0],'linewidth',1.5);   
+% end
+colorbar;
+%caxis([0 1]);
+
+% wbh
+% log?
+%cl = caxis;
+%caxis([0.01 cl(2)]);
+%set(gca,'ColorScale','log')
+
+% linear and norm?
+%caxis([0 1]);
+
+if is_globnorm
+    % log?
+    cl = caxis;
+    caxis([0.01 cl(2)]);
+    set(gca,'ColorScale','log')
+else
+    % linear and norm?
+    caxis([0 1]);
 end
-% colorbar;
-caxis([0 1]);
-% caxis([0 2e-3])
-xlim([min(perplot(1,1:end)) max(perplot(1,1:end))]);
-% xlim([3 14]);
+
+
+%xlim([min(perplot(1,1:end)) max(perplot(1,1:end))]);
+xlim([3 10]);
 ylim([v_min v_max]);
-title(method); ylabel('Velocity (km/s)'); xlabel('Period (s)');
+title(titleStr,'Interpreter','none'); ylabel('Velocity (km/s)'); xlabel('Period (s)');
 set(gca,'YDir','normal');
 
 
@@ -97,8 +137,11 @@ colormap([ones(30,3).*[0.2665 0.0033 0.3273]; viridis(100)]);
 %     mkdir(figpath);
 % end
 % % save2pdf([figpath,'LRT_',method,'_',comp,'.pdf'],3,100);
+ofn = [figpath,'LRT_',method,'_Z_',SubsetStr,'.pdf'];
+saveas(f3,ofn)
 
 %% Save results to mat
+LRTmatpath = parameters.LRTpath;
 if is_savemat
     if ~exist(LRTmatpath)
         mkdir(LRTmatpath);
@@ -115,8 +158,8 @@ if is_savemat
     mat.v_min = v_min;
     mat.v_max = v_max;
     if is_win
-        save([LRTmatpath,'LRT_',method,'_',comp,'_win.mat'],'mat');
+        save([LRTmatpath,'LRT_',method,'_',SubsetStr,'_win.mat'],'mat');
     else
-        save([LRTmatpath,'LRT_',method,'_',comp,'.mat'],'mat');
+        save([LRTmatpath,'LRT_',method,'_',SubsetStr,'.mat'],'mat');
     end
 end

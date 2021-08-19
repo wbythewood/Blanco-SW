@@ -4,19 +4,30 @@
 % github.com/jbrussell
 
 clear;
-setup_parameters;
+setup_parameters_LRT;
 
 is_win = 0; % Use windowed waveforms?
+LRTmatpath = parameters.LRTpath;
+picks_out_path = parameters.pickspath;
+% Perform just on a subset of stations
+SubsetStr = 'Pac';
+SubsetStr = 'JdF';
+%SubsetStr = 'All';
+BRANCHES = 1;
 
 %%
 % Load precalculated LRT
 if is_win
     load([LRTmatpath,'LRT_',method,'_',comp,'_win.mat']);
 else
-    load([LRTmatpath,'LRT_',method,'_',comp,'.mat']);
+    %load([LRTmatpath,'LRT_',method,'_',comp,'.mat']);
+    load([LRTmatpath,'LRT_',method,'_',SubsetStr,'.mat']); %wbh modify for subsets
+    
 end
 
 % Load waveforms
+datapath = parameters.LRTIfnPath;
+ndata = [datapath,SubsetStr,'_noise_Z.mat'];
 load(ndata);
 Delta = Delta';
 
@@ -60,9 +71,9 @@ end
 % Save picks to mat file
 if ~isempty(picks_LRT)
     if is_win
-        save([picks_out_path,'LRTpicks_',method,'_',comp,'_win.mat'],'picks_LRT');
+        save([picks_out_path,'LRTpicks_',method,'_',SubsetStr,'_win.mat'],'picks_LRT');
     else
-        save([picks_out_path,'LRTpicks_',method,'_',comp,'.mat'],'picks_LRT');
+        save([picks_out_path,'LRTpicks_',method,'_',SubsetStr,'.mat'],'picks_LRT');
     end
 end
 
@@ -82,9 +93,9 @@ for itr = 1:length(picks_LRT)
     errorbar(picks_LRT(itr).per,picks_LRT(itr).phv,picks_LRT(itr).phv_std,'-o','Color',clr(itr,:),'LineWidth',1.5);
 end
 % errorbar(per_trace,phv_trace,phv_trace_std,'or','MarkerFaceColor',[1 1 1],'linewidth',1.5,'markersize',7);
-for ii = 1:BRANCHES
-    plot(DISP(ii).Tq(1:10:end),DISP(ii).cvq(1:10:end),'-','color',[0 0 0],'linewidth',1.5);   
-end
+%for ii = 1:BRANCHES
+%    plot(DISP(ii).Tq(1:10:end),DISP(ii).cvq(1:10:end),'-','color',[0 0 0],'linewidth',1.5);   
+%end
 % colorbar;
 caxis([0 1]);
 % caxis([0 2e-3])

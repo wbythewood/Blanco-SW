@@ -51,8 +51,8 @@ raw = [0.267004,0.004874,0.329415; 0.268510,0.009605,0.335427; 0.269944,0.014625
 num = size(raw,1);
 % With small extrapolation when N>num:
 vec = linspace(0,num+1,N+2);
-map = labinterp(1:num,raw,vec(2:end-1),'linear','extrap'); % Lab
-%map = interp1(1:num,raw,vec(2:end-1),'linear','extrap'); % RGB
+%map = labinterp(1:num,raw,vec(2:end-1),'linear','extrap'); % Lab
+map = interp1(1:num,raw,vec(2:end-1),'linear','extrap'); % RGB
 map = max(0,min(1,map));
 % Interpolation only for all values of N:
 %map = labinterp(1:num,raw,linspace(1,num,N),'spline'); % Lab

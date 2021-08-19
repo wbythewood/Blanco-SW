@@ -11,6 +11,8 @@ windir = 'window3hr';
 % ccf = 'ccf_OBNW';
 % windir = 'window3hr';
 
+setup_parameters_LRT;
+
 %% PARAMETERS
 % Normalization option for plotting
 is_globnorm = 0; % 1 for normalize radon panel by global max; 0 for column norm

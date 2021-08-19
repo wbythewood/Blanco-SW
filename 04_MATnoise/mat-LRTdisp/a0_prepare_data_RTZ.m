@@ -6,17 +6,40 @@
 
 clear;
 if ~exist('setup_parameters_MATnoise.m')
-    !cp ../setup_parameters.m ./setup_parameters_MATnoise.m
+    %!cp ../setup_parameters.m ./setup_parameters_MATnoise.m
 end
-setup_parameters_MATnoise;
-setup_parameters;
+setup_parameters_LRT;
+%setup_parameters;
 IsFigure = 0;
 IsFigure_GAUS = 0; % Plot frequency domain filtered and unfiltered
 
+% Perform just on a subset of stations
+%SubsetStr = 'Pac';
+SubsetStr = 'JdF';
+SubsetStr = 'All';
+
+% load station file
+if SubsetStr == 'Pac'
+    StaFn = parameters.PStaListFile;
+elseif SubsetStr == 'JdF'
+    StaFn = parameters.JStaListFile;
+elseif SubsetStr == 'All'
+    StaFn = parameters.StaListFile;
+end
+
+% get station information
+[nwlist, stalist, stalat, stalon, staz] = textread(StaFn,'%s %s %f %f %f\n'); % wbh add nw parameter
+parameters.nwlist = nwlist;
+parameters.stalist = stalist;
+parameters.stalat = stalat;
+parameters.stalon = stalon;
+parameters.staz = staz;
+parameters.nsta = length(parameters.stalist);
+
 %======================= PARAMETERS =======================%
-comps = {'ZZ'};  % {'ZZ','RR','PP'}; 'PZ'; 'PP'; 'ZZ'; 'RR'; 'TT';
+comps = {parameters.strNAMEcomp};  % {'ZZ','RR','PP'}; 'PZ'; 'PP'; 'ZZ'; 'RR'; 'TT';
 amp = 8e0;
-windir = 'window3hr';
+windir = parameters.winDirName; 
 % windir = 'window3hr_Zcorr_tiltcomp';
 
 % Define group velocity window for calculating signal-to-noise ratio
@@ -28,7 +51,8 @@ snr_thresh = 5; % Signal-to-noise tolerance
 xlims = [0 500];
 ylims = [0 450];
 
-ccfpath = '../ccf/';
+%ccfpath = '../ccf/';
+ccf_path = [parameters.ccfpath,windir,'/fullStack/ccf',comps{1},'/'];
 % ccf_path = '/data/irma6/jrussel/YoungPacificORCA/ccf_FTN/';
 
 
@@ -44,30 +68,32 @@ h20_grv = 1.5;
 %==========================================================%
 
 dt = parameters.dt;
-stalist = parameters.stalist;
+%stalist = parameters.stalist;
 nsta = parameters.nsta;
 nsta = length(stalist);
 winlength = parameters.winlength;
-figpath = parameters.figpath;
+%figpath = parameters.figpath;
+figDir = [parameters.LRTfigpath,'Pre-LRT/'];
 %fig_winlength_path = [figpath,'window',num2str(winlength),'hr/fullStack/'];
 % custom directory names
-    fig_winlength_path = [figpath,windir,'/fullStack/'];
+%fig_winlength_path = [figpath,windir,'/fullStack/'];
 
 %------------ PATH INFORMATION -------------%
 % ccf_path = parameters.ccfpath;
 %ccf_winlength_path = [ccf_path,'window',num2str(winlength),'hr/'];
-    ccf_winlength_path = [ccfpath,windir,'/'];
-ccf_singlestack_path = [ccf_winlength_path,'single/'];
-ccf_daystack_path = [ccf_winlength_path,'dayStack/'];
-ccf_monthstack_path = [ccf_winlength_path,'monthStack/'];
-ccf_fullstack_path = [ccf_winlength_path,'fullStack/'];
+%ccf_winlength_path = [ccfpath,windir,'/'];
+%ccf_singlestack_path = [ccf_winlength_path,'single/'];
+%ccf_daystack_path = [ccf_winlength_path,'dayStack/'];
+%ccf_monthstack_path = [ccf_winlength_path,'monthStack/'];
+%ccf_fullstack_path = [ccf_winlength_path,'fullStack/'];
 
-ccf_stack_path = ccf_fullstack_path;
+%ccf_stack_path = ccf_fullstack_path;
 
 % create figure directory
-if ~exist(fig_winlength_path)
-    mkdir(fig_winlength_path)
-end
+figpath = figDir; %[fig_winlength_path,num2str(coperiod(1)),'_',num2str(coperiod(2)),'s/'];
+% if ~exist(fig_winlength_path)
+%     mkdir(fig_winlength_path)
+% end
 if ~exist(figpath)
     mkdir(figpath)
 end
@@ -85,7 +111,7 @@ t = [];
 for icomp = 1:length(comps)
     comp = comps{icomp};
     %%
-    ccf_path = [ccf_stack_path,'ccf',comp,'/',];
+    %ccf_path = [ccf_stack_path,'ccf',comp,'/',];
     npairall = 0;
     %------------ LOAD DATA AND PLOT IN TIME DOMAIN -------------%
     for ista1=1:nsta % loop over all stations
@@ -188,18 +214,21 @@ M_win = M.*win_mat;
 
 %% %----------- PLOT ALL CCFs STATION PAIRS IN DISTANCE-TIME -------------%
 f102 = figure(102);
+titleStr = ['CCFs for subset: ',SubsetStr];
 set(gcf, 'Color', 'w');
 clf
 hold on;
 set(gca,'YDir','reverse');
-plot(t,M./max(abs(M),[],2)*amp+Delta,'-k','linewidth',1);
-plot(t,M_win./max(abs(M),[],2)*amp+Delta,'-r','linewidth',0.5);
+plot(t,M./max(abs(M),[],2)*amp+Delta,'-r','linewidth',0.25);
+plot(t,M_win./max(abs(M),[],2)*amp+Delta,'-k','linewidth',0.5);
 xlim([min(t) max(t)])
 % xlim([0 max(xlims)])
-ylim(ylims);
+%ylim(ylims);
 xlabel('lag time (s)','fontsize',18);
 ylabel('Distance (km)','fontsize',18);
+title(titleStr);%,'fontsize',18);
 set(gca,'fontsize',15);
+set(gcf,'Position',[57,5,600,700]);
 
 % Plot Velocities
 if isplotwin
@@ -212,8 +241,11 @@ end
 
 
 % save2pdf([figpath,'SNR_',comp,'_tukeyfilt_',num2str(min_grv),'_',num2str(max_grv),'.pdf'],101,1000);
-
+ofn = [figDir,'SNR_Z_filt-',num2str(min_grv),'_',num2str(max_grv),'_',SubsetStr,'.pdf'];
+saveas(f102,ofn)
+datapath = parameters.LRTIfnPath;
 if ~exist(datapath)
     mkdir(datapath)
 end
+ndata = [datapath,SubsetStr,'_noise_Z.mat'];
 save(ndata,'M','M_win','max_grv','min_grv','Delta','t');
