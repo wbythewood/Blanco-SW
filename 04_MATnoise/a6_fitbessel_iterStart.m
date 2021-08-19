@@ -17,6 +17,13 @@ global twloc
 global weight
 setup_parameters;
 
+teststr = 'LRT_All_dv15_stepsize-e4';
+is_LRT_picks = 1;
+Ninterp = 16; %40;
+mode_br = 0;
+frange_fit = [1/30 1/8]; % Frequency range to fit over! Can be more restrictive than where picks were made
+
+
 %======================= PARAMETERS =======================%
 is_resume = 1; % Resume from last processed file (1) or overwrite (0)
 isoutput = 1; % Save *.mat file with results?
@@ -41,6 +48,9 @@ isfigure2 = 0;
 isfigure_snr = 1;
 
 test_funccount_running = 0;
+
+[Psta.nw Psta.name, Psta.lat, Psta.lon, Psta.dep] = textread(parameters.PStaListFile,'%s %s %f %f %f');
+[Jsta.nw Jsta.name, Jsta.lat, Jsta.lon, Jsta.dep] = textread(parameters.JStaListFile,'%s %s %f %f %f');
 %% Make the initial phase velocity dispersion model
 
 % % calc_Rayleigh_disp
@@ -73,8 +83,84 @@ c_all = [4.2    4.19    4.18    4.17    4.16    4.15    4.14    4.13]; % try dec
 c_all = [3.1    3.09    3.08    3.07    3.06    3.05    3.04    3.03]; % try decreasing
 c_all = [3.2    3.8    4.0    4.05    3.95    3.9    3.85    3.92]; % approximately J27-J20
 %%%
+
+c_int = flip(c_all);
+c_all = c_int;
+
+%%% for LRT picks
+if is_LRT_picks
+    % Read picks from Linear Radon Transform (see ./mat-LRTdisp/)
+    %ccfstr = strsplit(parameters.ccfpath,'/');
+    %ccfstr = ccfstr{end-1};
+    LRTpath = parameters.LRTpath;
+    %in_LRTpicks = [parameters.path_LRT_picks,ccfstr,'/',windir,'/',num2str(1/frange_LRT(2)),'_',num2str(1/frange_LRT(1)),'s/LRTpicks_',LRT_method,'_',comp{1},'.mat'];
+    in_LRTpicks_All = [LRTpath,'picks/LRTpicks_CGG_weight_All.mat'];
+    in_LRTpicks_JdF = [LRTpath,'picks/LRTpicks_CGG_weight_JdF.mat'];
+    in_LRTpicks_Pac = [LRTpath,'picks/LRTpicks_CGG_weight_Pac.mat'];
+    
+    Atemp = load(in_LRTpicks_All);
+    %Jtemp = load(in_LRTpicks_JdF);
+    Jtemp = load(in_LRTpicks_All);
+    %Ptemp = load(in_LRTpicks_Pac);
+    Ptemp = load(in_LRTpicks_All);
+    %picks_LRT = Atemp.picks_LRT;
+    
+    picks_array = [Atemp, Jtemp, Ptemp];
+    cstart_array = {};%zeros(size(picks_array));
+    tvec_array = {};%zeros(size(picks_array));
+    c_std_array = [];
+    
+    for ipick = 1 : length(picks_array)
+        picks_LRT = picks_array(ipick).picks_LRT;
+        
+    
+
+    
+    imode = mode_br+1;
+     % Interpolate to number of desired points
+    if ~isempty(Ninterp)
+        t_vec_int = 1./(linspace( 1./min(picks_LRT(imode).per), 1./max(picks_LRT(imode).per), Ninterp ));
+        picks_LRT(imode).phv = interp1( picks_LRT(imode).per, picks_LRT(imode).phv, t_vec_int );
+        picks_LRT(imode).phv_std = interp1( picks_LRT(imode).per, picks_LRT(imode).phv_std, t_vec_int );
+        picks_LRT(imode).per = t_vec_int;
+    end
+    
+    % Avoid overlapping periods from other mode_br branches
+    if mode_br == 0
+        if imode < length(picks_LRT)
+            I_good = picks_LRT(imode).per > picks_LRT(imode+1).per(end);
+        else
+            I_good = true(size(picks_LRT(imode).per));
+        end
+    elseif mode_br > 0
+        if imode-1 ~= 0 && imode < length(picks_LRT)
+            I_good = (picks_LRT(imode).per < picks_LRT(imode-1).per(1)) & (picks_LRT(imode).per > picks_LRT(imode+1).per(end));
+        end
+        if imode-1 ~= 0
+            I_good = picks_LRT(imode).per < picks_LRT(imode-1).per(1);
+        end
+        if imode < length(picks_LRT)
+            I_good = picks_LRT(imode).per > picks_LRT(imode+1).per(end);
+        end
+    end
+    
+    % Fit only periods within frange_fit
+    I_fit = picks_LRT(imode).per>=1/frange_fit(2) & picks_LRT(imode).per<=1/frange_fit(1);
+    I_good = logical(I_fit .* I_good);
+    
+    c_all = picks_LRT(imode).phv(I_good);
+    t_vec_all = picks_LRT(imode).per(I_good);
+    c_all_std = picks_LRT(imode).phv_std(I_good);
+    c_start = c_all;
+    
+    cstart_array{ipick} = c_start;
+    tvec_array{ipick} = t_vec_all;
+    c_std_array{ipick} = c_all_std;
+    end
+end
+
 c_start = c_all;
-c_all_std = zeros(size(c_all));
+%c_all_std = zeros(size(c_all));
 %==========================================================%
 
 % LIMITS
@@ -109,7 +195,7 @@ ccf_path = [parameters.ccfpath,windir,'/fullStack/ccf',comp{1},'/'];
 % output path
 %XSP_path = [parameters.xsppath,windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(N_wl),'wl_phv_dir/'];
 %%% simple starting model
-XSP_path = [parameters.xsppath,windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(N_wl),'wl_phv_dir_Iterate20/'];
+XSP_path = [parameters.xsppath,windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(N_wl),'wl_phv_dir_IterTest/',teststr,'/'];
 %%%
 
 if ~exist(XSP_path)
@@ -131,7 +217,7 @@ end
 % figure output path
 if iswin
     %XSP_fig_path = [figDir,windir,'/fullStack/',num2str(N_wl),'wl_phv_dir/TEI19/'];
-    XSP_fig_path = [figDir,windir,'/fullStack/',num2str(N_wl),'wl_phv_dir/TEI19_Iterate20/'];
+    XSP_fig_path = [figDir,windir,'/fullStack/',num2str(N_wl),'wl_phv_dir/TEI19_IterTest/',teststr,'/'];
 else
     XSP_fig_path = [figDir,windir,'/fullStack/',num2str(N_wl),'wl_phv_dir/TEI19_nowin/'];
 end
@@ -144,6 +230,8 @@ warning off; %#ok<WNOFF>
 
 stalist = parameters.stalist;
 nsta=parameters.nsta; % number of target stations to calculate for
+% test
+nsta = 20;
 
 %%% --- Loop through station 1 --- %%%
 for ista1=1:nsta
@@ -151,19 +239,52 @@ for ista1=1:nsta
     sta1=char(stalist(ista1,:));
     sta1dir=[ccf_path,sta1]; % dir to have all cross terms about this central station
     
+    % wbh test
+%     if ~strcmp(sta1,'BB030')
+%         continue
+%     end
+    
     %%% --- Loop through station 2 --- %%%
     for ista2 = 1: nsta % length(v_sta)
         sta2 = char(stalist(ista2,:));
+        
+        % wbh test
+%         if ~strcmp(sta2,'BB060')
+%             continue
+%         end
         
         % if same station, skip
         if(strcmp(sta1,sta2))
             continue
         end
         
+        % wbh add ability to choose starting model
+        if any(strcmp(sta1,Jsta.name)) && any(strcmp(sta2,Jsta.name))
+            c_all = cstart_array{2};
+            t_vec_all = tvec_array{2};
+            c_all_std = c_std_array{2};
+            sflag = 2;
+            sstr = 'JdF';
+        elseif any(strcmp(sta1,Psta.name)) && any(strcmp(sta2,Psta.name))
+            c_all = cstart_array{3};
+            t_vec_all = tvec_array{3};
+            c_all_std = c_std_array{3};
+            slfag = 3;
+            sstr = 'Pac';
+        else
+            c_all = cstart_array{1};
+            t_vec_all = tvec_array{1};
+            c_all_std = c_std_array{1};
+            sflag = 1;
+            sstr = 'All';
+        end
+    
+        c_start = c_all;
+        
         % Check to see if we have already done this
         if is_resume && exist([XSP_path,sta1,'_',sta2,'_xsp.mat'])
             disp('Already fit this one!')
-            continue
+            %continue
         end
         clear data1 xcorf1 xsp1 filename
         
@@ -245,7 +366,7 @@ for ista1=1:nsta
             subplot(2,1,2)
             %plot(temp_faxis(ind),smooth(real(data1.coh_sum(ind)/data1.coh_num),100),'-r')
             plot(temp_faxis(ind),smooth(real(data1.coh_sum(ind)/data1.coh_num),50),'-r');
-            xlim([frange(1) frange(2)])
+            xlim([frange(2) frange(1)])
             
         end
 
@@ -319,23 +440,63 @@ for ista1=1:nsta
 %         %end
 %% WBH Instead choose a good starting model and add random noise for some set number of iterations
 
-        options = optimoptions(@lsqnonlin,'TolFun',1e-12,'MaxIter',1500,'MaxFunEvals',1500);
+        options = optimoptions(@lsqnonlin,'TolFun',1e-12,'MaxIter',1500,'MaxFunEvals',1500,'FiniteDifferenceStepSize',1e-4);
         c_i = c; %velocity model of iterations... 
         [tw_final,resnorm_final,resid_final,exitflag_final,output_final,lambda_final,j_final] = lsqnonlin(@(x) besselerr(x,[xsp1],damp,is_normbessel),[tw1],[tw1]*0.8,[tw1]*1.2,options);
         Niter = 20;
         ii = 0;
         tw_starting = tw1;
         dvMagnitude = 0.2; %magnitude of the random perturbation in km/s
+        dvMaxPct = 15; % don't let new starting model get farther away than this from c_start
+        c_start_max = c_start .* (1 + dvMaxPct/100);
+        c_start_min = c_start .* (1 - dvMaxPct/100);
         while ii < Niter
             ii = ii + 1;
-            % generate random numbers
-            dvRand = rand(size(c));
-            %center on zero, note now between -0.5 and 0.5
-            dvRand = dvRand - 0.5;
-            % apply the right magnitude range
-            dvRand = dvRand * 2 * dvMagnitude;
-            % and add to c
-            c_ii = c_i + dvRand;
+            
+            %%% old way with just only restriction on size of step...
+%             % generate random numbers
+%             dvRand = rand(size(c));
+%             %center on zero, note now between -0.5 and 0.5
+%             dvRand = dvRand - 0.5;
+%             % apply the right magnitude range
+%             dvRand = dvRand * 2 * dvMagnitude;
+%             % and add to c
+%             c_ii = c_i + dvRand;
+            %%%
+            
+            %%% new way keeping it close to original starting model
+%             for ic=1:length(c_start)
+%                 dv = (rand - 0.5) * 2 * dvMagnitude;
+%                 c_new = c_i(ic) + dv;
+%                 if c_new > c_start_max(ic)
+%                     c_new = c_start_max(ic);
+%                 elseif c_new < c_start_min(ic)
+%                     c_new = c_start_min(ic);
+%                 end
+%                 c_ii(ic) = c_new;
+%             end
+            %%%
+            
+            %%% Interp
+            dv1 = (rand - 0.5) * 2 * dvMagnitude;
+            dv2 = (rand - 0.5) * 2 * dvMagnitude;
+            c1_new = c_i(1) + dv1;
+            c2_new = c_i(end) + dv2;
+            
+            if c1_new > c_start_max(1)
+                c1_new = c_start_max(1);
+            elseif c1_new < c_start_min(1)
+                c1_new = c_start_min(1);
+            end
+            
+            if c2_new > c_start_max(end)
+                c2_new = c_start_max(end);
+            elseif c2_new < c_start_min(end)
+                c2_new = c_start_min(end);
+            end
+            
+            c_ii = linspace(c1_new,c2_new,length(c_i));
+            
             % calculate new tw
             tw_new = ones(1,tN)*r1./c_ii; 
             %do inversion again with new starting model
@@ -466,9 +627,14 @@ for ista1=1:nsta
             subplot(3,1,3);
             %errorbar(twloc/2/pi,r1./tw1,c_std,'o-','color',[0.5 0.5 0.5],'linewidth',2);hold on;
             errorbar(twloc/2/pi,r1./tw_starting,c_std,'o-','color',[0.5 0.5 0.5],'linewidth',2);hold on;
+            errorbar(twloc/2/pi,c_start,c_std,'-','color',[0 0 0.5 ],'linewidth',2);
+            errorbar(twloc/2/pi,c_start_max,c_std,'--','color',[0.5 0 0.5 ],'linewidth',1);
+            errorbar(twloc/2/pi,c_start_min,c_std,'--','color',[0.5 0 0.5 ],'linewidth',1);
+            
             errorbar(twloc/2/pi,r1./tw,sigma_m_c*2,'o-','color',[1 0 0 ],'linewidth',2);
+
 %             errorbar(twloc/2/pi,r1./tw,xspinfo.err,'ro-','linewidth',2);
-            title([sta1,'-',sta2],'fontsize',16)
+            title([sta1,'-',sta2,'  (',sstr,')'],'fontsize',16)
             xlabel('Frequency (Hz)','fontsize',16);
             ylabel('Phase Velocity (km/s)','fontsize',16);
             set(gca,'fontsize',16,'linewidth',1.5);
