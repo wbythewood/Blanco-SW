@@ -4,10 +4,15 @@
 #BaseDir = '/Users/whawley/Research/github/Blanco-SW/'
 
 minMag = 6.5
-Label = 'GordaAddition'
+Label = 'GordaAddition_test'
 
+# old mac
 #BaseDir = '/Users/wbhawley/Research/Seismology/Blanco-SW/'
+# gaherty mac
 BaseDir = '/Users/whawley/Research/github/Blanco-SW/'
+# new mac
+BaseDir = '/Users/whawley/Research/Blanco-SW/'
+
 ConfigDir = BaseDir+'config/'
 DataDir = BaseDir+'data/'
 EventsDataDir = DataDir+'SAC_Events/'
@@ -21,17 +26,17 @@ DayFileName = ConfigDir+'BlancoNoise_'+Label+'_M'+str(minMag)+'.txt'
 #ANTDayFileName = ConfigDir+'BlancoANT_Test_12h.txt'
 # two station lists, one for BXH, one for all stations
 XStafn = ConfigDir+'X9_stations_X.txt'
-#Stafn = ConfigDir+'X9_stations.txt'
-#Stafn = ConfigDir+'7D_stations_Gorda.txt'
-Stafn = ConfigDir+'7D_stations_withGorda.txt'
-#Stafn = ConfigDir+'SC_stations.txt'
+#Stafn = ConfigDir+'X9_stations.txt'# all blanco stations
+#Stafn = ConfigDir+'7D_stations_Gorda.txt' # only new gorda stations
+Stafn = ConfigDir+'7D_stations_withGorda.txt' # all ci stations, including above gorda
+#Stafn = ConfigDir+'SC_stations.txt' # stations in so cal for testing
 
 #  Event download
 webservice = "IRIS"
 #webservice = "SCEDC"
 #network = "X9"  # X9 = Blanco
 network = "7D"  # 7D = Cascadia Initiative
-#network = "CI"
+#network = "CI" # socal station code - confusing, this is not cascadia initiative
 isCMT_params = 1  # use GCMT parameters for SAC header; 0 = use IRIS
 isCentroid = 1  # if isCMT_params = 1, use centroid; 0 = epicentral
 
@@ -53,8 +58,13 @@ tend = '2013-02-28T23:59:59'
 #tstart = '2013-07-21T00:00:00'
 #tend = '2013-07-21T10:00:00'
 
-tstart = '2012-09-18T00:00:00'
-tend = '2013-10-05T23:59:59'
+# for new mac test - only one m6.5+
+tstart = '2013-02-13T00:00:00'
+tend = '2013-02-14T23:59:59'
+
+# the entire x9 experiment time
+#tstart = '2012-09-18T00:00:00'
+#tend = '2013-10-05T23:59:59'
 
 
 # Stations to download
