@@ -7,35 +7,43 @@ javaaddpath('./IRIS-WS-2.0.18.jar');
 %--- Directory Structure ---%
 
 %Base Directory for Output
+% old mac
 BaseDir = '/Users/wbhawley/Research/Seismology/Blanco-SW/';
+% gaherty mac
+BaseDir = '/Users/whawley/Research/github/Blanco-SW/';
+% new mac
+BaseDir = '/Users/whawley/Research/Blanco-SW/';
+
 DataDir = strcat(BaseDir,'data/');
-Label = 'ANT_12h_test2';
+AtacrProcDir = strcat(BaseDir,'02_ATaCR/dataProc/');
+Label = 'GordaAddition_test';
 
 % If Downloading using MATLAB code...
 % location of unpreprocessed matlab files
-NoiseDataDir = strcat(BaseDir,'data/noise_day/'); % output folder for data
+%NoiseDataDir = strcat(BaseDir,'data/noise_day/'); % output folder for data
 % location of the continuous matlab files for spectral properties
-NoisePreproDir = strcat(BaseDir,'data/noise_day_prepro/');
-NoisePreproDir = strcat(BaseDir,'data/noise_day_prepro_',Label,'/');
-NoisePreproDir = strcat(BaseDir,'data/noise_day_prepro_ANTtest/');
+%NoisePreproDir = strcat(BaseDir,'data/noise_day_prepro/');
+%NoisePreproDir = strcat(BaseDir,'data/noise_day_prepro_',Label,'/');
 % location of unpreprocessed event data
-EventDataDir = strcat(BaseDir,'data/event_data/');
+%EventDataDir = strcat(BaseDir,'data/event_data/');
 % location of processed event data
-EventPreproDir = strcat(BaseDir,'data/event_data_prepro/');
-EventPreproDir = strcat(BaseDir,'data/noise_day_prepro_',Label,'/');
+%EventPreproDir = strcat(BaseDir,'data/event_data_prepro/');
+%EventPreproDir = strcat(BaseDir,'data/noise_day_prepro_',Label,'/');
+
+% wbh editing to keep intermediate processing step files separate
+NoiseDataDir = strcat(AtacrProcDir,'data/',Label,'/noise_day/');
+NoisePreproDir = strcat(AtacrProcDir,'data/',Label,'/noise_day_prepro/');
+EventDataDir = strcat(AtacrProcDir,'data/',Label,'/event_data/');
+EventPreproDir = strcat(AtacrProcDir,'data/',Label,'/event_data_prepro/');
 % location of pole zero directory
 PZDir = ''; % leave blank if no PZs
 %PZDir = strcat(BaseDir,'data/PZDir');
 
 % If already downloaded using SAC...
 % location of SAC noise files
-%sacDayData = strcat(DataDir,'SAC_Noise/');
-% for ant t/c removal test
 sacDayData = strcat(DataDir,'SAC_Noise_',Label,'/');
 % location of SAC event files
-%sacEventData = strcat(DataDir,'SAC_Events/');
-% for ant t/c removal test
-sacEventData = strcat(DataDir,'SAC_Noise_',Label,'/');
+sacEventData = strcat(DataDir,'SAC_Events_',Label,'/');
 
 % output directory for spectra
 OUTdir = strcat(BaseDir,'data/NOISETC/',Label,'/');
@@ -47,8 +55,8 @@ FIGdir = strcat(BaseDir,'figures/ATaCR/',Label,'/');
 %dayFile = strcat(BaseDir,'config/BlancoProblematicDay.txt');
 % for removing from ambient noise... test 05 jan 
 % same file for "events" and noise... since no events
-evFile = strcat(BaseDir,'config/BlancoANT_Test.txt');
-dayFile = strcat(BaseDir,'config/BlancoANT_Test.txt');
+evFile = strcat(BaseDir,'config/BlancoEvents_',Label,'_M6.5.txt');
+dayFile = strcat(BaseDir,'config/BlancoNoise_',Label,'_M6.5.txt');
 
 %--- Data to download ---%
 
@@ -56,13 +64,14 @@ dayFile = strcat(BaseDir,'config/BlancoANT_Test.txt');
 % stations
 %StationNames = {'*'};
 
-NetworkName = 'X9';
+%NetworkName = 'X9';
 %StationNames = textread(strcat(BaseDir,'config/X9_stations.txt'),'%s');
-StationNames = textread(strcat(BaseDir,'config/X9_stations_ANTtest.txt'),'%s');
+%StationNames = textread(strcat(BaseDir,'config/X9_stations_ANTtest.txt'),'%s');
 
 NetworkName = '7D';
 %StationNames = textread(strcat(BaseDir,'config/7D_stations.txt'),'%s');
-StationNames = textread(strcat(BaseDir,'config/7D_stations_ANTtest.txt'),'%s');
+StationNames = textread(strcat(BaseDir,'config/7D_stations_withGorda.txt'),'%s');
+%StationNames = textread(strcat(BaseDir,'config/7D_stations_ANTtest.txt'),'%s');
 
 % Response Removal
 % option of removing response from Z component only after corrections have
@@ -127,8 +136,8 @@ Ndays = 4;
 NoiseDataLength = 86400;
 EventDataLength = 6000;
 % ANT no events... 
-EventDataLength = 86400;
-EventDataLength = 43200;
+%EventDataLength = 86400;
+%EventDataLength = 43200;
 %NoiseDataLength = EventDataLength;
 
 %--- SAC I/O ---%
@@ -161,7 +170,7 @@ pb = [0.004 .2]; % pass-band, in Hz
 tolerance = 1.5; % tolerance factor for QC
 a_val = 0.05;    % f-test for QC (1 - a_val = confidence)
 minwin = 10;     % minimum numbers of time window for segment to be accepted
-minwin = 1
+%minwin = 1;
 
 % Tilt orientation - only matters if using transfer functions with the 'H'
 % option, but package needs variables specified to run; leave as default if

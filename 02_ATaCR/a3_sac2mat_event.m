@@ -74,12 +74,14 @@ for id = 1:length(startlist)
                 %sac_filename = [eventid,'.',network,'.',stnm,'.',ch{:},'.sac'];
                 sac_filename = strcat(eventid,'.',network,'.',stnm,'.',ch{:},'.sac');
                 sac_fullPath = fullfile(saceventdata,eventid,sac_filename);
+                
                 % for ant
                 %sac_filename = strcat(stnm,'.',eventid(1:4),'.',sprintf('%03d',jday),'.00.00.00.',ch{:},'.sac');
-                sac_filename = strcat(stnm,'.',num2str(year(datetime(datestr(otime)))),'.',num2str(jday,'%03d'),'.',num2str(hh),'.00.00.',ch{:},'.sac');
+                %sac_filename = strcat(stnm,'.',num2str(year(datetime(datestr(otime)))),'.',num2str(jday,'%03d'),'.',num2str(hh),'.00.00.',ch{:},'.sac');
+                %sac_sta_dir = strcat(network,'_',stnm);
+                %sac_fullPath = fullfile(saceventdata,sac_sta_dir,sac_filename);
+                
 
-                sac_sta_dir = strcat(network,'_',stnm);
-                sac_fullPath = fullfile(saceventdata,sac_sta_dir,sac_filename);
                 sac = rdsac(sac_fullPath{1});
                 traces(ich) = sac2mat( sac );
             end
