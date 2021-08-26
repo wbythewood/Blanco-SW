@@ -4,14 +4,14 @@
 #BaseDir = '/Users/whawley/Research/github/Blanco-SW/'
 
 minMag = 6.5
-Label = 'GordaAddition_test'
+Label = 'GordaAddition'
 
 # old mac
 #BaseDir = '/Users/wbhawley/Research/Seismology/Blanco-SW/'
 # gaherty mac
 BaseDir = '/Users/whawley/Research/github/Blanco-SW/'
 # new mac
-BaseDir = '/Users/whawley/Research/Blanco-SW/'
+#BaseDir = '/Users/whawley/Research/Blanco-SW/'
 
 ConfigDir = BaseDir+'config/'
 DataDir = BaseDir+'data/'
@@ -63,8 +63,8 @@ tstart = '2013-02-13T00:00:00'
 tend = '2013-02-14T23:59:59'
 
 # the entire x9 experiment time
-#tstart = '2012-09-18T00:00:00'
-#tend = '2013-10-05T23:59:59'
+tstart = '2012-09-18T00:00:00'
+tend = '2013-10-05T23:59:59'
 
 
 # Stations to download
