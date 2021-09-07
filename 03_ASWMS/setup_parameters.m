@@ -7,7 +7,7 @@ addpath(functionspath);
 
 %IdString = 'TaTest_wide';
 %IdString = 'AGU_7D';
-IdString = 'MacTest';
+IdString = 'GordaAddition_test';
 
 %%% --- Set Up Paths --- %%%
 % big dir structure
@@ -19,7 +19,7 @@ parameters.ASWMSDir = [parameters.workingdir,'03_ASWMS/']; %everything after con
 % where the data are to be found
 parameters.dataDir = [parameters.workingdir,'data/']; %data here
 parameters.configDir = [parameters.workingdir,'config/']; %this is where the config files live
-parameters.SacDbDir = [parameters.dataDir,'CORRSEIS_SAC/']; %the corrected sac files
+parameters.SacDbDir = [parameters.dataDir,'CORRSEIS_SACt/']; %the corrected sac files
 %parameters.SacDbDir = [parameters.dataDir,'SAC_Events_TA/'];
 %parameters.SacDbDir = [parameters.dataDir,'SAC_Events/'];
 % filenames
@@ -28,6 +28,7 @@ parameters.JDFStaFile = [parameters.configDir,'stalist_JDF_nw.txt'];
 parameters.StaFile = [parameters.configDir,'stalist_nw.txt'];
 parameters.BadStaFile = [parameters.configDir,'stalist_bad.txt'];
 parameters.eventfile = [parameters.configDir,'BlancoEventList_M6.5.txt'];
+parameters.eventfile = [parameters.configDir,'BlancoEvents_GordaAddition_test_M6.5.txt'];
 
 
 % where matlab versions of modified data will be stored
