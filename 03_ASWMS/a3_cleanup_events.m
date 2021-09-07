@@ -12,8 +12,8 @@ setup_parameters
 % eikonalpath = './eikonal/';
 workingdir = parameters.workingdir;
 eventmatpath = parameters.MatDbDir;
-csmatpath = [parameters.ASWMSDir,'CSmeasure/'];
-eikonalpath = [parameters.ASWMSDir,'eikonal/'];
+%csmatpath = [parameters.ASWMSDir,'CSmeasure/'];
+%eikonalpath = [parameters.ASWMSDir,'eikonal/'];
 
 % Setup Error Codes for Bad data
 setup_ErrorCode
@@ -69,6 +69,9 @@ end
 % show user which/how many events are bad.
 disp('Bad events:')
 badind = find(isgood == 0);
+if isempty(badind)
+    disp('None--all good!')
+end
 for ie = badind
 	disp(evids(ie));
 end
