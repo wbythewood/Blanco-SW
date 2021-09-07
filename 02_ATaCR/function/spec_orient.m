@@ -7,7 +7,7 @@ hangint = hangs(2)-hangs(1);
 days = dayofyear(str2num(dayid(1:4)),str2num(dayid(5:6)),str2num(dayid(7:8)),0,0);
 %cc=interp1(1:64,c,((days)/(365))*63+1);
 % wbh Newer matlab versions now have colormaps 256 elements long, not 64
-cc=interp1(1:length(c),c,((days)/(365))*length(c));
+cc=interp1(1:length(c),c,1+((days)/(365))*length(c));
 
 
 ph_points = zeros(1,2);
