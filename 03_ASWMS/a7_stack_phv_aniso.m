@@ -204,8 +204,11 @@ for ip = 1:length(periods)
 	set(ax, 'Visible', 'off')
 	h1=surfacem(xi,yi,avgphv_aniso(ip).isophv);
 	colorbar
-	load seiscmap
-	colormap(seiscmap)
+	%load seiscmap
+	%colormap(seiscmap)
+    colormap(roma) %should be loaded in setup file
+    h = colorbar;
+    ylabel(h,'Vs (km/s)')
 	drawnow
 	avgv = nanmean(avgphv_aniso(ip).isophv(:));
 	caxis([avgv*(1-r) avgv*(1+r)])
@@ -220,9 +223,12 @@ for ip = 1:length(periods)
 	h1=surfacem(xi,yi,avgphv_aniso(ip).isophv);
 % 	h1=surfacem(xi,yi,avgphv_aniso(ip).aniso_strength);
 	colorbar
-	load seiscmap
-	colormap(seiscmap)
-	drawnow
+	%load seiscmap
+	%colormap(seiscmap)
+	colormap(roma) %should be loaded in setup file
+    h = colorbar;
+    ylabel(h,'Vs (km/s)')
+    drawnow
  	avgv = nanmean(avgphv_aniso(ip).isophv(:));
 	caxis([avgv*(1-r) avgv*(1+r)])
 %     caxis([0 0.05]);

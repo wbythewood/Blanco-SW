@@ -217,8 +217,9 @@ ip = demoip
 	end
 	caxis([avgv*(1-r) avgv*(1+r)])
 	colorbar
-	load seiscmap
-	colormap(seiscmap)
+	%load seiscmap
+	%colormap(seiscmap)
+	colormap(roma)
 	subplot(2,2,1)
 	ax = worldmap(lalim, lolim);
 	set(ax, 'Visible', 'off')
@@ -231,8 +232,9 @@ ip = demoip
 	end
 	caxis([avgv*(1-r) avgv*(1+r)])
 	colorbar
-	load seiscmap
-	colormap(seiscmap)
+	%load seiscmap
+	%colormap(seiscmap)
+	colormap(roma)
 
 	subplot(2,2,3)
 	ax = worldmap(lalim, lolim);
@@ -244,8 +246,9 @@ ip = demoip
 		caxis([0 2*meanstd])
 	end
 	colorbar
-	load seiscmap
-	colormap(seiscmap)
+	%load seiscmap
+	%colormap(seiscmap)
+	colormap(roma)
 
 	subplot(2,2,4)
 	ax = worldmap(lalim, lolim);
@@ -256,8 +259,9 @@ ip = demoip
 		caxis([0 2*meanstd])
 	end
 	colorbar
-	load seiscmap
-	colormap(seiscmap)
+	%load seiscmap
+	%colormap(seiscmap)
+	colormap(roma)
 
 saveas(gcf,ofn)
 
@@ -279,8 +283,9 @@ for ip = 1:length(periods)
 	end
 	caxis([avgv*(1-r) avgv*(1+r)])
 	colorbar
-	load seiscmap
-	colormap(seiscmap)
+	%load seiscmap
+	%colormap(seiscmap)
+	colormap(roma)
 end
 drawnow;
 saveas(gcf,ofn)
@@ -297,8 +302,9 @@ for ip = 1:length(periods)
 	% set(h1,'facecolor','interp');
 	title(['Periods: ',num2str(periods(ip))],'fontsize',15)
 	colorbar
-	load seiscmap
-	colormap(seiscmap)
+	%load seiscmap
+	%colormap(seiscmap)
+	colormap(roma)
 	meanstd = nanmean(avgphv(ip).GV_std(:));
 	if ~isnan(meanstd)
 		caxis([0 2*meanstd])
@@ -324,8 +330,9 @@ for ip = 1:length(periods)
 	end
 	caxis([avgv*(1-r) avgv*(1+r)])
 	colorbar
-	load seiscmap
-	colormap(seiscmap)
+	%load seiscmap
+	%colormap(seiscmap)
+	colormap(roma)
     h = colorbar;
     ylabel(h,'Vs (km/s)')
 end
@@ -344,8 +351,9 @@ for ip = 1:length(periods)
 	% set(h1,'facecolor','interp');
 	title(['Periods: ',num2str(periods(ip))],'fontsize',15)
 	colorbar
-	load seiscmap
-	colormap(seiscmap)
+	%load seiscmap
+	%colormap(seiscmap)
+	colormap(roma)
 	meanstd = nanmean(avgphv(ip).GV_std(:));
 	if ~isnan(meanstd)
 		caxis([0 2*meanstd])
@@ -369,8 +377,9 @@ for ip = 1:length(periods)
 	% set(h1,'facecolor','interp');
 	title(['Periods: ',num2str(periods(ip))],'fontsize',15)
 	colorbar
-	load seiscmap
-	colormap(seiscmap)
+	%load seiscmap
+	%colormap(seiscmap)
+	colormap(roma)
     h = colorbar;
     ylabel(h,'Vs Diff (km/s)')
 %	caxis([0 0.5])
@@ -390,8 +399,9 @@ for ip = 1:length(periods)
 	% set(h1,'facecolor','interp');
 	title(['Periods: ',num2str(periods(ip))],'fontsize',15)
 	colorbar
-	load seiscmap
-	colormap(seiscmap)
+	%load seiscmap
+	%colormap(seiscmap)
+	colormap(roma)
     h = colorbar;
     ylabel(h,'weight')
 end

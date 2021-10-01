@@ -12,8 +12,12 @@ setup_parameters
 % eikonalpath = './eikonal/';
 workingdir = parameters.workingdir;
 eventmatpath = parameters.MatDbDir;
+%old path
 %csmatpath = [parameters.ASWMSDir,'CSmeasure/'];
 %eikonalpath = [parameters.ASWMSDir,'eikonal/'];
+%wbh path
+csmatpath = [parameters.MatFilesDir,'CSmeasure/'];
+eikonalpath = [parameters.MatFilesDir,'eikonal/'];
 
 % Setup Error Codes for Bad data
 setup_ErrorCode

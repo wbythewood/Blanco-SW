@@ -209,8 +209,9 @@ for ie = 1:length(eventfiles)
 			subplot(2,2,1)
 			ax = worldmap(lalim, lolim);
 			surfacem(xi,yi,eventGV);
-            load seiscmap %wbh
-			colormap(gca,seiscmap) %wbh
+            %load seiscmap %wbh
+			%colormap(gca,seiscmap) %wbh
+			colormap(gca,roma) %wbh
             cb1 = colorbar; %wbh
             ylabel(cb1,'Vs (km/s)') %wbh
 			%colorbar
@@ -291,8 +292,9 @@ for ie = 1:length(eventfiles)
         r = 0.2;
         caxis([avgv*(1-r) avgv*(1+r)])
         colorbar
-        load seiscmap
-        colormap(seiscmap)
+        %load seiscmap
+        %colormap(seiscmap)
+        colormap(roma)
         h = colorbar; %wbh
         ylabel(h,'Vs (km/s)') %wbh
 

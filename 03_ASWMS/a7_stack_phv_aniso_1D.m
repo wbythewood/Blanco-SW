@@ -12,7 +12,7 @@
 
 clear;
 %plot native
-close 11
+%close 11
 setup_parameters
 label = 'ALL';
 
@@ -20,8 +20,8 @@ label = 'ALL';
 % phase_v_path = './eikonal/'
 workingdir = parameters.workingdir;
 matFileDir = parameters.MatFilesDir;
-%phase_v_path = [matFileDir,'eikonal/'];
-phase_v_path = [matFileDir,'eikonal_',label,'/'];
+phase_v_path = [matFileDir,'eikonal/'];
+%phase_v_path = [matFileDir,'eikonal_',label,'/'];
 stack_outpath = [phase_v_path,',stack/'];
 stationFile = parameters.PACStaFile;
 [nw,stations,~,~,~] = textread(stationFile,'%s %s %s %s %s');
