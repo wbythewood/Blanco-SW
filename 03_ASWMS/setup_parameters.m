@@ -7,14 +7,15 @@ addpath(functionspath);
 
 %IdString = 'TaTest_wide';
 %IdString = 'AGU_7D';
-IdString = 'GordaAddition_test';
+%IdString = 'GordaAddition_test';
+IdString = 'GordaAddition';
 
 %%% --- Set Up Paths --- %%%
 % big dir structure
 % laptop
-parameters.workingdir = '/Users/whawley/Research/Blanco-SW/';
+%parameters.workingdir = '/Users/whawley/Research/Blanco-SW/';
 % gaherty mac
-%parameters.workingdir = '/Users/whawley/Research/github/Blanco-SW/';
+parameters.workingdir = '/Users/whawley/Research/github/Blanco-SW/';
 
 parameters.DropboxDir = '/Users/whawley/Dropbox/Blanco-SW/';
 parameters.ASWMSDir = [parameters.workingdir,'03_ASWMS/']; %everything after converting sac 2 mat goes in ASWMS dir
