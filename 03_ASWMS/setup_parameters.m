@@ -12,11 +12,11 @@ IdString = 'GordaAddition_test';
 %%% --- Set Up Paths --- %%%
 % big dir structure
 % laptop
-%parameters.workingdir = '/Users/whawley/Research/Blanco-SW/';
+parameters.workingdir = '/Users/whawley/Research/Blanco-SW/';
 % gaherty mac
-parameters.workingdir = '/Users/whawley/Research/github/Blanco-SW/';
+%parameters.workingdir = '/Users/whawley/Research/github/Blanco-SW/';
 
-parameters.DropboxDir = '/Users/whawley/Dropbox/Blanco-SW/ASWMS/';
+parameters.DropboxDir = '/Users/whawley/Dropbox/Blanco-SW/';
 parameters.ASWMSDir = [parameters.workingdir,'03_ASWMS/']; %everything after converting sac 2 mat goes in ASWMS dir
 
 % where the data are to be found
@@ -38,11 +38,13 @@ parameters.eventfile = [parameters.configDir,'BlancoEvents_GordaAddition_M6.5.tx
 % old with local storing of mat files
 %parameters.MatDbDir = [parameters.dataDir,'eventmat_',IdString,'/']; %the matlab version of the corrected sac files
 % new store mat files in dropbox
-parameters.MatDbDir = [parameters.DropboxDir,'/matfiles/',IdString,'/']; %the matlab version of the corrected sac files
+parameters.MatDbDir = [parameters.DropboxDir,'03_ASWMS/matfiles/',IdString,'/']; %the matlab version of the corrected sac files
 parameters.MatFilesDir = [parameters.ASWMSDir,'matfiles_',IdString,'/']; %modified mat files will go here
 
 % fig directory
-parameters.figdir = [parameters.workingdir,'figures/ASWMS/',IdString,'/'];  % wbh addition - separate dir for figures
+%parameters.figdir = [parameters.workingdir,'figures/ASWMS/',IdString,'/'];  % wbh addition - separate dir for figures
+%new for dropbox
+parameters.figdir = [parameters.DropboxDir,'figures/ASWMS/',IdString,'/'];  % wbh addition - separate dir for figures
 
 % maps
 parameters.MapsDir = '/Users/whawley/data/maps/'; %where some of my general map files are

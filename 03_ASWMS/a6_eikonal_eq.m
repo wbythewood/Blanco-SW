@@ -27,12 +27,17 @@ eikonl_output_path = [matFileDir,'eikonal/'];
 fig_dir_base = parameters.figdir;
 figDirPhv = [parameters.figdir,'PhV/'];
 figDirPhvBaz = [parameters.figdir,'PhV-BackAz/'];
+figDirRay = [parameters.figdir,'RayDensity/'];
 badStaList = [parameters.configDir,'badsta.lst'];
 stationFile = parameters.PACStaFile;
 [nw,stations,~,~,~] = textread(stationFile,'%s %s %s %s %s');
 
 if ~exist(figDirPhv)
     mkdir(figDirPhv);
+end
+
+if ~exist(figDirRay)
+    mkdir(figDirRay);
 end
 
 % plate boundaries
@@ -117,7 +122,7 @@ for ie = 1:length(csmatfiles)
 	evlo = eventcs.evlo;
 
     % set up fig dir name
-    figDir = [fig_dir_base,eventcs.id,'/'];
+    figDir = fig_dir_base;
     if ~exist(figDir)
         mkdir(figDir);
     end
@@ -410,7 +415,7 @@ for ie = 1:length(csmatfiles)
         % wbh draw ray density
         figure(89)
         clf
-        ofn = [figDir,'RayDensity_0.25.png'];
+        ofn = [figDirRay,eventcs.id,'_0.25.png'];
         for ip = 1:length(periods)
             subplot(M,N,ip)
             ax = worldmap(lalim, lolim);
