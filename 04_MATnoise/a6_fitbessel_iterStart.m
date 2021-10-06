@@ -18,16 +18,24 @@ global weight
 setup_parameters;
 
 teststr = 'LRT_All_dv15_stepsize-e4';
+teststr = 'LRT_JdF-Pac_dv15_stepsize-e2_ninterp8';
+
+%for using LRT picks
 is_LRT_picks = 1;
-Ninterp = 16; %40;
+Ninterp = 8; %16; %40;
 mode_br = 0;
 frange_fit = [1/30 1/8]; % Frequency range to fit over! Can be more restrictive than where picks were made
 
 
 %======================= PARAMETERS =======================%
-is_resume = 1; % Resume from last processed file (1) or overwrite (0)
+is_resume = 0; % Resume from last processed file (1) or overwrite (0)
 isoutput = 1; % Save *.mat file with results?
 npts_smooth = 1; % 1 = no smoothing
+
+stalist = parameters.stalist;
+nsta=parameters.nsta; % number of target stations to calculate for
+% test
+%nsta = 20;
 
 comp = {parameters.strNAMEcomp};
 windir = parameters.winDirName; 
@@ -154,12 +162,11 @@ if is_LRT_picks
     c_start = c_all;
     
     cstart_array{ipick} = c_start;
-    tvec_array{ipick} = t_vec_all;
+    tvec_array{ipick} = t_vec_all; 
     c_std_array{ipick} = c_all_std;
     end
 end
 
-c_start = c_all;
 %c_all_std = zeros(size(c_all));
 %==========================================================%
 
@@ -174,23 +181,21 @@ end
 
 % LOAD DATA TO SEE HOW MANY POINTS
 %%% --- Load in the ccf --- %%%
-        %ccf_path = ['./ccf/',windir,'/fullStack/ccf',comp{1},'/'];
-        ccf_path = [parameters.ccfpath,windir,'/fullStack/ccf',comp{1},'/'];
-        stalist = parameters.stalist;
-        sta1=char(stalist(1,:));
-        sta2=char(stalist(2,:));
-        sta1dir=[ccf_path,sta1]; % dir to have all cross terms about this central station
-        filename = sprintf('%s/%s_%s_f.mat',sta1dir,sta1,sta2);
-        if ~exist(filename,'file')
-            disp(['not exist ',filename])
-        end
-        data1 = load(filename);
-        npts = length(data1.coh_sum_win);
-
 
 % input path
-%ccf_path = ['./ccf/',windir,'/fullStack/ccf',comp{1},'/'];
 ccf_path = [parameters.ccfpath,windir,'/fullStack/ccf',comp{1},'/'];
+
+sta1=char(stalist(1,:));
+sta2=char(stalist(2,:));
+sta1dir=[ccf_path,sta1]; % dir to have all cross terms about this central station
+filename = sprintf('%s/%s_%s_f.mat',sta1dir,sta1,sta2);
+if ~exist(filename,'file')
+    disp(['not exist ',filename])
+end
+data1 = load(filename);
+npts = length(data1.coh_sum_win);
+
+
 
 % output path
 %XSP_path = [parameters.xsppath,windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(N_wl),'wl_phv_dir/'];
@@ -208,8 +213,9 @@ if ~exist(XSP_path)
     if ~exist([parameters.xsppath,windir,'/fullStack/'])
         mkdir([parameters.xsppath,windir,'/fullStack/']);
     end
-    if ~exist([parameters.xsppath,windir,'/fullStack/Xsp',comp{1},'/'])
-        mkdir([parameters.xsppath,windir,'/fullStack/Xsp',comp{1},'/']);
+    if ~exist([parameters.xsppath,windir,'/fullStack/Xsp',comp{1},'/TEI19_IterTest/',teststr,'/'])
+        %mkdir([parameters.xsppath,windir,'/fullStack/Xsp',comp{1},'/']);
+        mkdir([parameters.xsppath,windir,'/fullStack/Xsp',comp{1},'/TEI19_IterTest/',teststr,'/']);
     end
     mkdir(XSP_path)
 end
@@ -228,10 +234,7 @@ end
 
 warning off; %#ok<WNOFF>
 
-stalist = parameters.stalist;
-nsta=parameters.nsta; % number of target stations to calculate for
-% test
-nsta = 20;
+
 
 %%% --- Loop through station 1 --- %%%
 for ista1=1:nsta
@@ -440,7 +443,7 @@ for ista1=1:nsta
 %         %end
 %% WBH Instead choose a good starting model and add random noise for some set number of iterations
 
-        options = optimoptions(@lsqnonlin,'TolFun',1e-12,'MaxIter',1500,'MaxFunEvals',1500,'FiniteDifferenceStepSize',1e-4);
+        options = optimoptions(@lsqnonlin,'TolFun',1e-12,'MaxIter',1500,'MaxFunEvals',1500,'FiniteDifferenceStepSize',1e-2);
         c_i = c; %velocity model of iterations... 
         [tw_final,resnorm_final,resid_final,exitflag_final,output_final,lambda_final,j_final] = lsqnonlin(@(x) besselerr(x,[xsp1],damp,is_normbessel),[tw1],[tw1]*0.8,[tw1]*1.2,options);
         Niter = 20;
