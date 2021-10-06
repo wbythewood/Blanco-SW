@@ -66,8 +66,8 @@ parameters.xsppath = [parameters.MatDbDir,'XSP/CCF_',StaSelectionString,'-',CCFS
 parameters.seis_path = [parameters.MatDbDir,'seismograms/'];
 
 % LRT
-f_min = 1/60;%1/150;
-f_max = 1/3;%1/20;
+f_min = 1/25; %1/60;%1/150;
+f_max = 1/10; %1/3;%1/20;
 parameters.LRTpath = [parameters.MatDbDir,'LRT/CCF_',StaSelectionString,'-prefilt_3-60s/',IDString,'/',num2str(1/f_max),'_',num2str(1/f_min),'s/'];
 
 
@@ -165,8 +165,8 @@ parameters.gridsize_azi = 0.3; %3; %1.5; % gridsize for 2D azimuthal anisotropy 
 
 % Smoothing parameters
 parameters.smweight0 = 1; %100; % isotropic second derivative smoothing
-parameters.fiterrtol = 0.5; %2;   % error allowed in the wavelet fitting
-parameters.dterrtol = 2; %4;    % largest variance of the inversion error allowed
+parameters.fiterrtol = 2;   % error allowed in the wavelet fitting
+parameters.dterrtol = 4;    % largest variance of the inversion error allowed
 parameters.err_tol = 4; %4; % maximum misfit of bessel fit between observed and synthetic
 
 parameters.smweight0_azi = 0.5; %1000; % anisotropic second derivative smoothing

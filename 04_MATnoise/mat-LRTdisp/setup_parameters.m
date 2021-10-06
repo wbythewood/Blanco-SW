@@ -25,8 +25,8 @@ maxiter = 10; % Maximum number of iterations
 rthresh = 1e-6;
 method = 'CGG_weight';
 % method = 'CG_IRLS';
-f_min = 1/40;%1/150;
-f_max = 1/3;%1/20;
+f_min = 1/25; %1/40;%1/150;
+f_max = 1/10; %1/3;%1/20;
 v_min = 1; %4;
 v_max = 6; %8;
 P_axis = [111/(v_max*1.1) : 0.1 : 111/(v_min*0.9)]; % s/deg
@@ -35,7 +35,7 @@ P_axis = P_axis / 111; %(s/km);
 % Parameters for tracing dispersion curves
 min_peak_prom = 0.5; % Minimum peak prominence, threshold for peak height
 min_peak_dist = 1; % Minimum separation between chosen peaks [km/s]
-Npers = 40; % Number for periods
+Npers = 8; %40; % Number for periods
 % pers = logspace(log10(3),log10(40),Npers); % period vector
 pers = 1./flip(linspace(f_min, f_max ,Npers));
 

@@ -12,8 +12,8 @@ is_win = 0; % Use windowed waveforms?
 
 % Perform just on a subset of stations
 SubsetStr = 'Pac';
-SubsetStr = 'JdF';
-SubsetStr = 'All';
+%SubsetStr = 'JdF';
+%SubsetStr = 'All';
 
 
 figDir = [parameters.LRTfigpath,'LRT_',num2str(1/f_max),'-',num2str(1/f_min),'s_',method,'/'];
@@ -105,8 +105,8 @@ else
 end
 
 
-%xlim([min(perplot(1,1:end)) max(perplot(1,1:end))]);
-xlim([3 10]);
+xlim([min(perplot(1,1:end)) max(perplot(1,1:end))]);
+%xlim([3 10]);
 ylim([v_min v_max]);
 title(titleStr,'Interpreter','none'); ylabel('Velocity (km/s)'); xlabel('Period (s)');
 set(gca,'YDir','normal');

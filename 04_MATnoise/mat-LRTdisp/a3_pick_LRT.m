@@ -11,7 +11,7 @@ LRTmatpath = parameters.LRTpath;
 picks_out_path = parameters.pickspath;
 % Perform just on a subset of stations
 SubsetStr = 'Pac';
-SubsetStr = 'JdF';
+%SubsetStr = 'JdF';
 %SubsetStr = 'All';
 BRANCHES = 1;
 

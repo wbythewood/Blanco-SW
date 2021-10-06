@@ -68,8 +68,8 @@ parameters.seis_path = [parameters.MatDbDir,'seismograms/'];
 
 
 % LRT parameters
-f_min = 1/60;%1/150;
-f_max = 1/3;%1/20;
+f_min = 1/25; %1/60;%1/150;
+f_max = 1/10; %1/3;%1/20;
 parameters.LRTdatapath = parameters.ccfpath;
 %parameters.ndata = [parameters.LRTdatapath,'noise_Z.mat'];
 % output for the prepared data, input to a1
@@ -101,7 +101,7 @@ P_axis = P_axis / 111; %(s/km);
 % Parameters for tracing dispersion curves
 min_peak_prom = 0.5; % Minimum peak prominence, threshold for peak height
 min_peak_dist = 1; % Minimum separation between chosen peaks [km/s]
-Npers = 40; % Number for periods
+Npers = 8; %40; % Number for periods
 % pers = logspace(log10(3),log10(40),Npers); % period vector
 pers = 1./flip(linspace(f_min, f_max ,Npers));
 
