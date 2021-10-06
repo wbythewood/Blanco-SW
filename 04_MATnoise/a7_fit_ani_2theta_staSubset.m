@@ -18,7 +18,8 @@ dv_tol = 8;
 
 SubsetStr = 'Pac';
 SubsetStr = 'JdF';
-SubsetStr = 'All';
+%SubsetStr = 'All';
+teststr = 'LRT_JdF-Pac_dv15_stepsize-e2_ninterp8';
 
 %======================= PARAMETERS =======================%
 InvString = '_Iterate20'; % include leading underscore... 
@@ -39,6 +40,8 @@ fiterrtol = parameters.fiterrtol; % error allowed in the wavelet fitting
 dterrtol = parameters.dterrtol; % largest variance of the inversion error allowed
 dep_tol = [0 0]; % [sta1 sta2] OBS depth tolerance
 Nwl = parameters.Wavelengths;
+N_wl = parameters.Wavelengths; % for min. number of wavelengths allowed
+
 
 % Plotting parameters
 ylims_aniso = [-5 5]; %[-3 3];
@@ -86,10 +89,14 @@ DEPTHS = staz;
 
 % input path
 %XSP_path = [parameters.xsppath,windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',xspdir,'/'];
-XSP_path = [parameters.xsppath,windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(Nwl),'wl_phv_dir',InvString,'/'];
+%XSP_path = [parameters.xsppath,windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(Nwl),'wl_phv_dir',InvString,'/'];
+%XSP_path = [parameters.xsppath,windir,'/fullStack/Xsp',comp{1},'/TEI19_IterTest/',teststr,'/'];
+XSP_path = [parameters.xsppath,windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(N_wl),'wl_phv_dir_IterTest/',teststr,'/'];
+
 % figure output path
 %phv_fig_path = [parameters.figpath,windir,'/fullStack/Xsp_anisotropy/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',xspdir,'/'];
 phv_fig_path = [parameters.XSPfigpath,windir,'/PhV_dir/Ani/1D/snr-',num2str(snr_tol),'minr-',num2str(r_tol),'_fiterr-',num2str(fiterrtol),'_dterr-',num2str(dterrtol),'_err-',num2str(err_tol),'_dvTol-',num2str(dv_tol),InvString,'/'];
+phv_fig_path = [parameters.XSPfigpath,windir,'/PhV_dir/Ani/1D/LRT/',teststr,'/snr-',num2str(snr_tol),'minr-',num2str(r_tol),'_fiterr-',num2str(fiterrtol),'_dterr-',num2str(dterrtol),'_err-',num2str(err_tol),'_dvTol-',num2str(dv_tol),InvString,'/'];
 
 if ~exist(phv_fig_path)
     
@@ -99,6 +106,7 @@ end
 % output path for anisotropy fit
 %aniso_path = ['./Xsp/',windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',xspdir,'/azi_aniso_win/'];
 aniso_path = [parameters.xsppath,windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(Nwl),'wl_phv_dir',InvString,'/,azi_aniso/'];
+aniso_path = [parameters.xsppath,windir,'/fullStack/Xsp',comp{1},'/',num2str(1/frange(2)),'_',num2str(1/frange(1)),'s_',num2str(Nwl),'wl_phv_dir',InvString,teststr,'/,azi_aniso/'];
 if ~exist(aniso_path)   
     mkdir(aniso_path);
 end
@@ -239,6 +247,11 @@ phv_std = std(phV);
 for iper = 1:length(periods)
     %varargin{1} = phv_std(iper);
     varargin = sqrt(err_QC);
+    % wbh put in a check to make sure at least two points are defined
+    if sum(~isnan(phV_QC(:,iper))) < 2
+        %parastd{iper} = zeros(2,3);
+        continue
+    end
     %varargin = [];
     %[fitstr(iper), isophv(iper), A_2(iper), phi_2(iper)] = fit_azi_anisotropy(azi,phV(:,iper),varargin,comp{1}(1));
     %[fitstr{iper}, isophv(iper), A2_2(iper), A4_2(iper), phi_2(iper)] = fit_azi_anisotropy2theta4theta(azi_QC,phV_QC(:,iper),comp{1}(1),varargin);
@@ -307,8 +320,8 @@ end
 %% Some things for plotting... 
 Ipers = 1:length(periods); %[2 3 5 8 10 12];
 dimpl = [273   272   761   433];
-rowpl = 3;
-colpl = 3;
+rowpl = 3; %4;
+colpl = 3; %4;
 mrksize = 2;
 LW = 2;
 FS = 15;
@@ -395,7 +408,13 @@ for iper = 1:length(periods)
     %ylim([3.8 4.8]);
     %box on;
     
-    err(iper) = parastd{iper}(2,1) - fitstr{iper}.a;
+    % wbh if we ever skip the fitting, these are zero...
+    try
+        err(iper) = parastd{iper}(2,1) - fitstr{iper}.a;
+    catch
+        disp('no fitting at this point')
+        err(iper) = 0;
+    end
 end
 sgtitle('2-Theta variations') 
 
@@ -473,10 +492,18 @@ f4 = figure(4); clf;
 set(gcf,'position',[6   220   490   485]);
 for iper = 1:length(periods)
 %     err_p2p(iper) = parastd{iper}(2,2) - fitstr{iper}.d;
-    err_2p2p(iper) = parastd{iper}(2,2) - fitstr{iper}.d2;
-    err_4p2p(iper) = 0;
-    err_phi2(iper) = parastd{iper}(2,3) - fitstr{iper}.e2;
-    err_phi4(iper) = 0;
+    % wbh another issue of not enough data
+    try
+        err_2p2p(iper) = parastd{iper}(2,2) - fitstr{iper}.d2;
+        err_4p2p(iper) = 0;
+        err_phi2(iper) = parastd{iper}(2,3) - fitstr{iper}.e2;
+        err_phi4(iper) = 0;
+    catch
+        err_2p2p(iper) = 0;
+        err_4p2p(iper) = 0;
+        err_phi2(iper) = 0;
+        err_phi4(iper) = 0;
+    end
 end
 % peak-to-peak
 subplot(2,1,1); hold on;
