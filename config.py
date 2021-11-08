@@ -3,15 +3,17 @@
 #  dirs and files
 #BaseDir = '/Users/whawley/Research/github/Blanco-SW/'
 
-minMag = 6.5
-Label = 'GordaAddition'
+#minMag = 6.5
+#Label = 'GordaAddition'
+minMag = 5.0
+Label = 'CoverAzimuth'
 
 # old mac
 #BaseDir = '/Users/wbhawley/Research/Seismology/Blanco-SW/'
 # gaherty mac
-BaseDir = '/Users/whawley/Research/github/Blanco-SW/'
+#BaseDir = '/Users/whawley/Research/github/Blanco-SW/'
 # new mac
-#BaseDir = '/Users/whawley/Research/Blanco-SW/'
+BaseDir = '/Users/whawley/Research/Blanco-SW/'
 
 ConfigDir = BaseDir+'config/'
 DataDir = BaseDir+'data/'
@@ -39,6 +41,8 @@ network = "7D"  # 7D = Cascadia Initiative
 #network = "CI" # socal station code - confusing, this is not cascadia initiative
 isCMT_params = 1  # use GCMT parameters for SAC header; 0 = use IRIS
 isCentroid = 1  # if isCMT_params = 1, use centroid; 0 = epicentral
+NAziBin = 8
+ArrayLoc = [43.75,-128.5]
 
 #  Noise Download
 trLen = 60 * 60 * 24  # seconds
