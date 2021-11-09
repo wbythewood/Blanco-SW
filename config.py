@@ -8,12 +8,16 @@
 minMag = 5.0
 Label = 'CoverAzimuth'
 
+# for the extra events to download based on azimuth
+NAziBin = 8 # number of bins in azimuth we want to make sure there are enough events from
+LargeEqCutoff = 6.3 # count no. of earthquakes in each bin down to this mag; use that no. to find smaller eqs in other bins
+
 # old mac
 #BaseDir = '/Users/wbhawley/Research/Seismology/Blanco-SW/'
 # gaherty mac
-#BaseDir = '/Users/whawley/Research/github/Blanco-SW/'
+BaseDir = '/Users/whawley/Research/github/Blanco-SW/'
 # new mac
-BaseDir = '/Users/whawley/Research/Blanco-SW/'
+#BaseDir = '/Users/whawley/Research/Blanco-SW/'
 
 ConfigDir = BaseDir+'config/'
 DataDir = BaseDir+'data/'
@@ -21,10 +25,16 @@ EventsDataDir = DataDir+'SAC_Events/'
 EventsDataDir = DataDir+'SAC_Events_'+Label+'/'
 NoiseDataDir = DataDir+'SAC_Noise_'+Label+'/'
 #EventsFileName = ConfigDir+'BlancoEventTest_M6.5.txt'
-EventsFileName = ConfigDir+'BlancoEvents_'+Label+'_M'+str(minMag)+'.txt'
+#EventsFileName = ConfigDir+'BlancoEvents_'+Label+'_M'+str(minMag)+'.txt'
 #EventsFileName = ConfigDir+'BlancoANT_Test_12h.txt'
+#for azi part:
+EventsFileName = ConfigDir+'BlancoEvents_'+Label+'_M'+str(LargeEqCutoff)+'-'+str(minMag)+'.txt'
+
 #DayFileName = ConfigDir+'BlancoANT_Test_12h.txt'
-DayFileName = ConfigDir+'BlancoNoise_'+Label+'_M'+str(minMag)+'.txt'
+#DayFileName = ConfigDir+'BlancoNoise_'+Label+'_M'+str(minMag)+'.txt'
+#for azi part:
+DayFileName = ConfigDir+'BlancoNoise_'+Label+'_M'+str(LargeEqCutoff)+'-'+str(minMag)+'.txt'
+
 #ANTDayFileName = ConfigDir+'BlancoANT_Test_12h.txt'
 # two station lists, one for BXH, one for all stations
 XStafn = ConfigDir+'X9_stations_X.txt'
@@ -41,7 +51,7 @@ network = "7D"  # 7D = Cascadia Initiative
 #network = "CI" # socal station code - confusing, this is not cascadia initiative
 isCMT_params = 1  # use GCMT parameters for SAC header; 0 = use IRIS
 isCentroid = 1  # if isCMT_params = 1, use centroid; 0 = epicentral
-NAziBin = 8
+
 ArrayLoc = [43.75,-128.5]
 
 #  Noise Download
