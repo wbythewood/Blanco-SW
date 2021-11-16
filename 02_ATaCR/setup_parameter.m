@@ -16,7 +16,8 @@ BaseDir = '/Users/whawley/Research/Blanco-SW/';
 
 DataDir = strcat(BaseDir,'data/');
 AtacrProcDir = strcat(BaseDir,'02_ATaCR/dataProc/');
-Label = 'GordaAddition_test';
+%Label = 'GordaAddition_test';
+Label = 'CoverAzimuth';
 
 % If Downloading using MATLAB code...
 % location of unpreprocessed matlab files
@@ -57,6 +58,9 @@ FIGdir = strcat(BaseDir,'figures/ATaCR/',Label,'/');
 % same file for "events" and noise... since no events
 evFile = strcat(BaseDir,'config/BlancoEvents_',Label,'_M6.5.txt');
 dayFile = strcat(BaseDir,'config/BlancoNoise_',Label,'_M6.5.txt');
+
+evFile = strcat(BaseDir,'config/BlancoEvents_',Label,'_M6.3-5.0.txt');
+dayFile = strcat(BaseDir,'config/BlancoNoise_',Label,'_M6.3-5.0.txt');
 
 %--- Data to download ---%
 
