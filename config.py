@@ -6,7 +6,7 @@
 #minMag = 6.5
 #Label = 'GordaAddition'
 minMag = 5.0
-Label = 'G02B_Test'
+Label = 'CoverAzimuth'
 
 # for the extra events to download based on azimuth
 NAziBin = 8 # number of bins in azimuth we want to make sure there are enough events from
@@ -17,7 +17,7 @@ LargeEqCutoff = 6.3 # count no. of earthquakes in each bin down to this mag; use
 # gaherty mac
 BaseDir = '/Users/whawley/Research/github/Blanco-SW/'
 # new mac
-BaseDir = '/Users/whawley/Research/Blanco-SW/'
+#BaseDir = '/Users/whawley/Research/Blanco-SW/'
 
 ConfigDir = BaseDir+'config/'
 DataDir = BaseDir+'data/'
@@ -41,7 +41,7 @@ XStafn = ConfigDir+'X9_stations_X.txt'
 #Stafn = ConfigDir+'X9_stations.txt'# all blanco stations
 #Stafn = ConfigDir+'7D_stations_Gorda.txt' # only new gorda stations
 Stafn = ConfigDir+'7D_stations_withGorda.txt' # all ci stations, including above gorda
-Stafn = ConfigDir+'G02BTest.txt' # test this station data
+#Stafn = ConfigDir+'G02BTest.txt' # test this station data
 #Stafn = ConfigDir+'SC_stations.txt' # stations in so cal for testing
 
 #  Event download
@@ -79,11 +79,11 @@ tend = '2013-02-14T23:59:59'
 
 # G02B test... why no seismic data?
 #tstart = '2012-09-26T00:00:00'
-tend = '2012-09-26T23:59:59'
+#tend = '2012-09-26T23:59:59'
 
 # the entire x9 experiment time
-#tstart = '2012-09-18T00:00:00'
-#tend = '2013-10-05T23:59:59'
+tstart = '2012-09-18T00:00:00'
+tend = '2013-10-05T23:59:59'
 
 
 # Stations to download
